@@ -1,0 +1,32 @@
+# Package managers
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lock
+bun.lockb
+
+node_modules
+
+# electron-vite output
+/out
+/dist
+
+# electron-builder
+/release
+
+# Compiled nib runtime (built by scripts/build-nib.ts)
+/resources/nib/dist
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
