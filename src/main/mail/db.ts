@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS messages (
 	label_source TEXT,
 	list_unsubscribe TEXT,
 	list_unsubscribe_one_click INTEGER NOT NULL DEFAULT 0,
+	auth_results_json TEXT,
 	UNIQUE(folder_id, uid)
 );
 
@@ -74,6 +75,7 @@ CREATE INDEX IF NOT EXISTS idx_messages_rfc_id ON messages(rfc_message_id);
 CREATE INDEX IF NOT EXISTS idx_messages_in_reply_to ON messages(in_reply_to);
 CREATE INDEX IF NOT EXISTS idx_messages_thread ON messages(thread_id);
 CREATE INDEX IF NOT EXISTS idx_messages_label ON messages(label);
+CREATE INDEX IF NOT EXISTS idx_messages_from_address ON messages(account_id, from_address);
 
 CREATE TABLE IF NOT EXISTS message_bodies (
 	message_id INTEGER PRIMARY KEY REFERENCES messages(message_id) ON DELETE CASCADE,
@@ -181,6 +183,7 @@ function migrateExistingTables(database: Database.Database): void {
 	addColumnIfMissing(database, 'messages', 'label_source', 'TEXT')
 	addColumnIfMissing(database, 'messages', 'list_unsubscribe', 'TEXT')
 	addColumnIfMissing(database, 'messages', 'list_unsubscribe_one_click', 'INTEGER NOT NULL DEFAULT 0')
+	addColumnIfMissing(database, 'messages', 'auth_results_json', 'TEXT')
 	// TEXT: MODSEQ is a 63-bit counter, past Number.MAX_SAFE_INTEGER territory.
 	addColumnIfMissing(database, 'folders', 'highest_modseq', 'TEXT')
 }

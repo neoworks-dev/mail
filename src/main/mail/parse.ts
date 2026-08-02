@@ -1,5 +1,6 @@
 import { simpleParser, type AddressObject, type Attachment, type ParsedMail } from 'mailparser'
 import type { MessageAddress } from '../../shared/mail'
+import { parseAuthenticationResults } from './authenticity'
 import { classifyHeuristic, type LabelSignals } from './labeling'
 import { extractShipment } from './shipping'
 import type { ParsedAttachmentInput, ParsedMessageInput } from './store'
@@ -60,6 +61,17 @@ function headerText(parsed: ParsedMail, name: string): string {
 	if (typeof value === 'string') return value
 	// Structured header objects stringify well enough for presence/keyword checks.
 	return JSON.stringify(value)
+}
+
+function authenticationResultsValues(parsed: ParsedMail): string[] {
+	const values: string[] = []
+	for (const header of parsed.headerLines) {
+		if (header.key !== 'authentication-results') continue
+		const colonIndex = header.line.indexOf(':')
+		if (colonIndex === -1) continue
+		values.push(header.line.slice(colonIndex + 1).trim())
+	}
+	return values
 }
 
 function labelSignals(parsed: ParsedMail, fromAddress: string, subject: string): LabelSignals {
@@ -143,6 +155,7 @@ export async function parseRawMessage(
 		labelSource: label === null ? null : 'heuristic',
 		listUnsubscribe,
 		listUnsubscribeOneClick,
-		shipment
+		shipment,
+		authResults: parseAuthenticationResults(authenticationResultsValues(parsed))
 	}
 }

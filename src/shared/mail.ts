@@ -109,6 +109,33 @@ export interface ShipmentExtraction {
 	source: 'heuristic' | 'ai'
 }
 
+/** Verdict of one authentication method from an Authentication-Results header. */
+export type AuthVerdict =
+	| 'pass'
+	| 'fail'
+	| 'softfail'
+	| 'neutral'
+	| 'none'
+	| 'temperror'
+	| 'permerror'
+	| 'policy'
+	| 'unknown'
+
+export interface MessageAuthResults {
+	spf: AuthVerdict | null
+	dkim: AuthVerdict | null
+	dmarc: AuthVerdict | null
+}
+
+export interface MessageSecurity {
+	/** Null when the message predates auth capture or carried no Authentication-Results header. */
+	auth: MessageAuthResults | null
+	/** No earlier message from this address exists in the account. */
+	firstTimeSender: boolean
+	/** The display name contains an address on a different domain than the real sender. */
+	nameSpoof: { claimedDomain: string; actualDomain: string } | null
+}
+
 export interface MessageBody {
 	messageId: number
 	textBody: string | null
@@ -122,6 +149,7 @@ export interface MessageBody {
 	shipment: ShipmentExtraction | null
 	/** Manually AI-extracted action items. */
 	actions: { items: ActionItem[] } | null
+	security: MessageSecurity
 }
 
 export interface ActionItem {

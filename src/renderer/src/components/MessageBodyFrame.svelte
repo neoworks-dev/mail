@@ -13,6 +13,7 @@
 	//   img-src decides remote-image loading — blocked by default, enabled only
 	//   per message when the user asks.
 	import type { AttachmentMeta } from '../../../shared/mail'
+	import { stripTrackers } from '../state/trackers'
 
 	interface Props {
 		htmlBody: string | null
@@ -48,9 +49,22 @@
 		})
 	}
 
+	// Tracking pixels and click-wrappers are removed before anything else looks
+	// at the HTML, so a mail whose only remote image is a tracker never even
+	// shows the "load images" bar.
+	const stripped = $derived.by(() => {
+		if (htmlBody === null) return null
+		return stripTrackers(htmlBody)
+	})
+
+	const trackerCount = $derived.by(() => {
+		if (stripped === null) return 0
+		return stripped.pixelsRemoved + stripped.linksUnwrapped
+	})
+
 	const REMOTE_IMAGE_PATTERN = /\ssrc\s*=\s*["']?https?:/i
 
-	const hasRemoteImages = $derived(htmlBody !== null && REMOTE_IMAGE_PATTERN.test(htmlBody))
+	const hasRemoteImages = $derived(stripped !== null && REMOTE_IMAGE_PATTERN.test(stripped.html))
 
 	function escapeHtml(text: string): string {
 		return text
@@ -87,8 +101,8 @@
 
 	const documentSource = $derived.by(() => {
 		let body = ''
-		if (htmlBody !== null) {
-			body = resolveInlineImages(htmlBody)
+		if (stripped !== null) {
+			body = resolveInlineImages(stripped.html)
 		} else if (textBody !== null) {
 			body = `<pre class="neomail-plaintext">${escapeHtml(textBody)}</pre>`
 		}
@@ -104,12 +118,22 @@
 </script>
 
 <div class="flex h-full flex-col">
-	{#if hasRemoteImages && !imagesAllowed}
-		<div class="border-line-faint bg-raised flex items-center justify-between border-b px-4 py-1.5 text-xs">
-			<span class="text-muted">Remote images blocked</span>
-			<button class="text-default underline" onclick={() => (imagesAllowed = true)}>
-				Load images
-			</button>
+	{#if (hasRemoteImages && !imagesAllowed) || trackerCount > 0}
+		<div class="border-line-faint bg-raised flex items-center justify-between gap-2 border-b px-4 py-1.5 text-xs">
+			<span class="text-muted min-w-0 truncate">
+				{#if hasRemoteImages && !imagesAllowed}
+					Remote images blocked{trackerCount > 0
+						? ` · ${trackerCount} tracker${trackerCount === 1 ? '' : 's'} removed`
+						: ''}
+				{:else}
+					{trackerCount} tracker{trackerCount === 1 ? '' : 's'} removed
+				{/if}
+			</span>
+			{#if hasRemoteImages && !imagesAllowed}
+				<button class="text-default shrink-0 underline" onclick={() => (imagesAllowed = true)}>
+					Load images
+				</button>
+			{/if}
 		</div>
 	{/if}
 	<iframe

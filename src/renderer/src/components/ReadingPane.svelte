@@ -91,6 +91,34 @@
 		setTimeout(() => (trackingCopied = false), 1500)
 	}
 
+	const security = $derived.by(() => {
+		if (!tab || !actionTarget) return null
+		const body = tab.bodies[actionTarget.messageId]
+		if (!body) return null
+		return body.security
+	})
+
+	const authFailures = $derived.by(() => {
+		if (!security || !security.auth) return []
+		const failing = ['fail', 'softfail', 'permerror']
+		const failures: string[] = []
+		if (security.auth.spf && failing.includes(security.auth.spf)) {
+			failures.push(`SPF ${security.auth.spf}`)
+		}
+		if (security.auth.dkim && failing.includes(security.auth.dkim)) {
+			failures.push(`DKIM ${security.auth.dkim}`)
+		}
+		if (security.auth.dmarc && failing.includes(security.auth.dmarc)) {
+			failures.push(`DMARC ${security.auth.dmarc}`)
+		}
+		return failures
+	})
+
+	const securityNoteworthy = $derived.by(() => {
+		if (!security) return false
+		return security.nameSpoof !== null || authFailures.length > 0 || security.firstTimeSender
+	})
+
 	const unsubscribeAvailable = $derived.by(() => {
 		if (!tab || !actionTarget) return false
 		const body = tab.bodies[actionTarget.messageId]
@@ -442,6 +470,25 @@
 
 		{#if actionError}
 			<p class="text-red border-line shrink-0 border-b px-4 py-1.5 text-xs">{actionError}</p>
+		{/if}
+
+		{#if security && securityNoteworthy}
+			<div
+				class="border-line-faint bg-raised flex shrink-0 flex-wrap items-center gap-x-3 gap-y-0.5 border-b px-4 py-1.5 text-xs"
+			>
+				{#if security.nameSpoof}
+					<span class="text-red font-medium">
+						⚠ Sender name claims {security.nameSpoof.claimedDomain}, but the message came from
+						{security.nameSpoof.actualDomain}
+					</span>
+				{/if}
+				{#if authFailures.length > 0}
+					<span class="text-red">Authentication failed: {authFailures.join(', ')}</span>
+				{/if}
+				{#if security.firstTimeSender}
+					<span class="text-muted">First message from this sender</span>
+				{/if}
+			</div>
 		{/if}
 
 		{#if unsubscribeAvailable && unsubscribeState !== 'done'}

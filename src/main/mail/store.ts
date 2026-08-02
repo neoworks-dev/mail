@@ -5,13 +5,16 @@ import type {
 	MailAccountInput,
 	MailFolder,
 	MessageAddress,
+	MessageAuthResults,
 	MessageBody,
+	MessageSecurity,
 	MessageSummary,
 	SearchResult,
 	ThreadMessage,
 	ThreadPage,
 	ThreadSummary
 } from '../../shared/mail'
+import { detectNameSpoof } from './authenticity'
 import { decryptPassword, encryptPassword } from './credentials'
 
 export interface ParsedAttachmentInput {
@@ -63,6 +66,7 @@ export interface ParsedMessageInput {
 	listUnsubscribe: string | null
 	listUnsubscribeOneClick: boolean
 	shipment: { carrier: string; trackingNumber: string | null; trackingUrl: string | null } | null
+	authResults: MessageAuthResults | null
 }
 
 export type AccountAuthType = 'password' | 'oauth'
@@ -513,8 +517,8 @@ export class MailStore {
 						account_id, folder_id, uid, rfc_message_id, in_reply_to, references_json,
 						subject, from_name, from_address, to_json, cc_json, date, snippet,
 						seen, flagged, answered, has_attachments, size, label, label_source,
-						list_unsubscribe, list_unsubscribe_one_click
-					) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+						list_unsubscribe, list_unsubscribe_one_click, auth_results_json
+					) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 					ON CONFLICT(folder_id, uid) DO NOTHING`
 				)
 				.run(
@@ -539,7 +543,8 @@ export class MailStore {
 					message.label,
 					message.labelSource,
 					message.listUnsubscribe,
-					message.listUnsubscribeOneClick ? 1 : 0
+					message.listUnsubscribeOneClick ? 1 : 0,
+					message.authResults === null ? null : JSON.stringify(message.authResults)
 				)
 			if (result.changes === 0) return null
 
@@ -949,16 +954,21 @@ export class MailStore {
 	getMessageBody(messageId: number): MessageBody | null {
 		const message = this.database
 			.prepare(
-				`SELECT to_json, cc_json, references_json, list_unsubscribe, list_unsubscribe_one_click
+				`SELECT account_id, from_name, from_address, to_json, cc_json, references_json,
+				        list_unsubscribe, list_unsubscribe_one_click, auth_results_json
 				 FROM messages WHERE message_id = ?`
 			)
 			.get(messageId) as
 			| {
+					account_id: number
+					from_name: string
+					from_address: string
 					to_json: string
 					cc_json: string
 					references_json: string
 					list_unsubscribe: string | null
 					list_unsubscribe_one_click: number
+					auth_results_json: string | null
 			  }
 			| undefined
 		if (!message) return null
@@ -1003,8 +1013,48 @@ export class MailStore {
 			attachments: this.listAttachments(messageId),
 			unsubscribe,
 			shipment,
-			actions
+			actions,
+			security: this.messageSecurity(messageId, message)
 		}
+	}
+
+	private messageSecurity(
+		messageId: number,
+		message: {
+			account_id: number
+			from_name: string
+			from_address: string
+			auth_results_json: string | null
+		}
+	): MessageSecurity {
+		let auth: MessageSecurity['auth'] = null
+		if (message.auth_results_json !== null) {
+			try {
+				auth = JSON.parse(message.auth_results_json)
+			} catch {
+				// Corrupt payload — treat as absent.
+			}
+		}
+		return {
+			auth,
+			firstTimeSender: this.isFirstTimeSender(messageId, message.account_id, message.from_address),
+			nameSpoof: detectNameSpoof(message.from_name, message.from_address)
+		}
+	}
+
+	private isFirstTimeSender(messageId: number, accountId: number, fromAddress: string): boolean {
+		if (fromAddress === '') return false
+		const account = this.database
+			.prepare('SELECT email FROM accounts WHERE account_id = ?')
+			.get(accountId) as { email: string } | undefined
+		if (account && account.email.toLowerCase() === fromAddress.toLowerCase()) return false
+		const row = this.database
+			.prepare(
+				`SELECT COUNT(*) AS count FROM messages
+				 WHERE account_id = ? AND from_address = ? AND message_id != ?`
+			)
+			.get(accountId, fromAddress, messageId) as { count: number }
+		return row.count === 0
 	}
 
 	saveExtraction(messageId: number, kind: string, source: string, payload: string): void {
