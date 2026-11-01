@@ -67,16 +67,22 @@
 	const topPadding = $derived(visibleStart * rowHeight)
 	const bottomPadding = $derived((rowEntries.length - visibleEnd) * rowHeight)
 
-	// Rows have uniform height per view mode; measure a real one instead of
-	// trusting the estimate, so the spacer math stays exact.
+	/** View mode the current rowHeight was measured in, or null before first measure. */
+	let measuredViewMode = $state<string | null>(null)
+
+	// Thread rows share one height per view mode; measure a real one once
+	// instead of trusting the estimate. Measuring once is load-bearing:
+	// remeasuring on every render oscillates when the first visible row is a
+	// taller bundle row, which loops the effect until Svelte aborts it.
 	$effect(() => {
 		void visibleEntries.length
-		void mailState.unifiedInbox
+		const viewMode = mailState.unifiedInbox ? 'unified' : 'folder'
+		if (measuredViewMode === viewMode) return
 		if (!listElement) return
-		const row = listElement.querySelector('[data-virtual-row]') as HTMLElement | null
-		if (row && row.offsetHeight > 0 && row.offsetHeight !== rowHeight) {
-			rowHeight = row.offsetHeight
-		}
+		const row = listElement.querySelector('[data-virtual-row="thread"]') as HTMLElement | null
+		if (!row || row.offsetHeight === 0) return
+		rowHeight = row.offsetHeight
+		measuredViewMode = viewMode
 	})
 
 	// Collapse bundles and reset scroll when the folder or view changes.
@@ -293,7 +299,7 @@
 		{:else}
 			{@const thread = entry.item.thread}
 			<button
-				data-virtual-row
+				data-virtual-row="thread"
 				class="border-line-faint hover:bg-hover flex w-full flex-col gap-0.5 border-b px-4 py-2.5 text-left select-none
 					{isRowSelected(thread)
 					? 'bg-raised ring-line-strong ring-1 ring-inset'
