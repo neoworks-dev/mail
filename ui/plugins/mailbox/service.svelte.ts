@@ -28,7 +28,8 @@ export interface MailboxState {
 }
 
 function createState(): MailboxState {
-	return $state({ view: null, threads: [], totalThreads: 0, loading: false, selectedThreadIds: [] })
+	const state: MailboxState = $state({ view: null, threads: [], totalThreads: 0, loading: false, selectedThreadIds: [] })
+	return state
 }
 
 export class MailboxService {

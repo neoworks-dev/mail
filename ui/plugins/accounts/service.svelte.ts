@@ -25,7 +25,7 @@ export interface AccountsState {
 }
 
 function createState(): AccountsState {
-	return $state({
+	const state: AccountsState = $state({
 		accounts: [],
 		loaded: false,
 		selectedAccountId: null,
@@ -35,6 +35,7 @@ function createState(): AccountsState {
 		inboxLabelCounts: {},
 		unifiedLabelCounts: {}
 	})
+	return state
 }
 
 export class AccountsService {

@@ -48,7 +48,7 @@ export interface ReaderState {
 }
 
 function createState(): ReaderState {
-	return $state({
+	const state: ReaderState = $state({
 		panes: [{ tabs: [], activeTabIndex: 0 }],
 		activePaneIndex: 0,
 		history: [],
@@ -57,6 +57,7 @@ function createState(): ReaderState {
 		documents: {},
 		remoteImagesAllowed: []
 	})
+	return state
 }
 
 export class ReaderService {

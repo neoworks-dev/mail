@@ -23,7 +23,7 @@
 	}
 </script>
 
-<svelte:window onkeydown={handleKey} />
+<svelte:window onkeydown={(event) => handleKey(event as unknown as KeyEventInput)} />
 
 <View style={{ flex: 1, background: theme.colors.canvas, color: theme.colors.text }}>
 	<Slot name="root" />

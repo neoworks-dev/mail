@@ -44,7 +44,8 @@ export interface ComposerState {
 }
 
 function createState(): ComposerState {
-	return $state({ draft: null, pendingSends: [], savedAt: null })
+	const state: ComposerState = $state({ draft: null, pendingSends: [], savedAt: null })
+	return state
 }
 
 export class ComposerService {

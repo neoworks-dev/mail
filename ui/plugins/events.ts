@@ -10,6 +10,8 @@ declare module '@neoworks/extension-system' {
 		'mail/changed'(accountId: number, folderId: number): void
 		/** The composer is closing or sending; anything generating into it stops. */
 		'composer/closing'(): void
+		/** The agent wrote a reply for a message (or the composer's message, when null). */
+		'assistant/reply-draft'(messageId: number | null, markdown: string): void
 		/** A thread opened in the reading pane. */
 		'reader/opened'(accountId: number, threadId: number, messages: ThreadMessage[]): void
 	}
