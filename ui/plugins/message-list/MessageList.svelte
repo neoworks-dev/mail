@@ -1,0 +1,185 @@
+<!--
+  The conversations of the mailbox's current view, newest first. Only the rows near the window
+  are built. In a plain inbox, bulk categories fold into bundle rows. A press opens a
+  conversation; Ctrl adds it to the selection and Shift selects a range; the right button opens
+  its menu, the middle one opens it in a new tab. Pages load as the end comes near.
+-->
+<script lang="ts">
+	import { ContextMenu, List, Text, View } from '@neoworks/svelte-gpui/ui'
+	import type { MenuItem, PointerEvent, ScrollPosition } from '@neoworks/svelte-gpui/ui'
+	import { currentTheme, LoadingSpinner } from '@neoworks/svelte-gpui-ui'
+	import type { ThreadSummary } from '../../../shared/mail'
+	import { labelTitle } from '../../components/message-list/labels'
+	import type { CommandsService } from '../../kernel/commands'
+	import { buildThreadListItems, visibleThreads, type ThreadListItem } from '../../lib/bundling'
+	import type { AccountsService } from '../accounts/service.svelte'
+	import type { MailboxService } from '../mailbox/service.svelte'
+	import type { ReaderService } from '../reader/service.svelte'
+	import { folderDisplayName } from '../sidebar/folders'
+	import BundleRow from './BundleRow.svelte'
+	import ListHeader from './ListHeader.svelte'
+	import { threadMenuItems } from './threadMenu'
+	import ThreadRow from './ThreadRow.svelte'
+
+	interface Props {
+		accounts: AccountsService
+		mailbox: MailboxService
+		reader: ReaderService
+		commands: CommandsService
+	}
+
+	let { accounts, mailbox, reader, commands }: Props = $props()
+
+	/** Load the next page when the end is closer than this, in pixels. */
+	const LOAD_MORE_DISTANCE = 600
+
+	const theme = $derived(currentTheme())
+	let expandedBundles = $state<Set<string>>(new Set())
+	/** Where a Shift range starts, as a position among the visible conversation rows. */
+	let selectionAnchor = $state<number | null>(null)
+	let menu: ContextMenu | undefined = $state()
+	let menuPosition: [number, number] = [0, 0]
+
+	// A new view starts with its bundles folded and no range anchor.
+	$effect(() => {
+		if (mailbox.state.view === null) return
+		expandedBundles = new Set()
+		selectionAnchor = null
+	})
+
+	const bundlingEnabled = $derived.by(() => {
+		const view = mailbox.state.view
+		if (!view || view.label !== null) return false
+		if (view.kind === 'unified') return true
+		const inbox = accounts.inbox()
+		return inbox !== null && inbox.folderId === view.folderId
+	})
+
+	const items = $derived(buildThreadListItems(mailbox.state.threads, bundlingEnabled, expandedBundles))
+	const orderedThreads = $derived(visibleThreads(items))
+
+	const title = $derived.by(() => {
+		const view = mailbox.state.view
+		if (!view) return ''
+		let name = 'All inboxes'
+		if (view.kind === 'folder') name = folderName(view.folderId)
+		if (view.label === null) return name
+		return `${name} · ${labelTitle(view.label)}`
+	})
+
+	function folderName(folderId: number): string {
+		const folder = accounts.state.folders.find((entry) => entry.folderId === folderId)
+		if (!folder) return ''
+		return folderDisplayName(folder)
+	}
+
+	function itemKey(item: ThreadListItem): string {
+		if (item.type === 'bundle') return `bundle:${item.label}`
+		return `thread:${item.thread.threadId}`
+	}
+
+	function toggleBundle(label: string): void {
+		const next = new Set(expandedBundles)
+		if (next.has(label)) {
+			next.delete(label)
+		} else {
+			next.add(label)
+		}
+		expandedBundles = next
+	}
+
+	function openBundleAsFilter(label: string): void {
+		const view = mailbox.state.view
+		if (!view) return
+		if (view.kind === 'unified') {
+			void mailbox.openUnified(label)
+			return
+		}
+		void mailbox.openFolder(view.folderId, label)
+	}
+
+	function pressThread(event: PointerEvent, thread: ThreadSummary): void {
+		const position = orderedThreads.indexOf(thread)
+		if (event.shift && selectionAnchor !== null) {
+			const start = Math.min(selectionAnchor, position)
+			const end = Math.max(selectionAnchor, position)
+			mailbox.setSelection(orderedThreads.slice(start, end + 1).map((entry) => entry.threadId))
+			return
+		}
+		selectionAnchor = position
+		if (event.ctrl || event.meta) {
+			mailbox.toggleSelection(thread.threadId)
+			return
+		}
+		mailbox.clearSelection()
+		void reader.openThread(thread.accountId, thread.threadId)
+	}
+
+	function altPressThread(event: PointerEvent, thread: ThreadSummary): void {
+		if (event.button === 1) {
+			void reader.openInNewTab({ kind: 'thread', accountId: thread.accountId, threadId: thread.threadId })
+			return
+		}
+		menuPosition = [event.windowX, event.windowY]
+		openMenu(threadMenuItems(thread, { mailbox, reader, commands, folders: accounts.state.folders, reopen: reopenMenu }))
+	}
+
+	function openMenu(menuItems: MenuItem[]): void {
+		if (menu) menu.openAt(menuPosition[0], menuPosition[1], menuItems)
+	}
+
+	/** The menu is closing as its item runs, so the next one opens a moment later. */
+	function reopenMenu(menuItems: MenuItem[]): void {
+		setTimeout(() => openMenu(menuItems), 0)
+	}
+
+	function accountEmail(thread: ThreadSummary): string | null {
+		if (!mailbox.unified) return null
+		const email = accounts.ownEmail(thread.accountId)
+		if (email === '') return null
+		return email
+	}
+
+	function scrolled(position: ScrollPosition): void {
+		if (position.maxY - position.y > LOAD_MORE_DISTANCE) return
+		if (mailbox.state.threads.length >= mailbox.state.totalThreads) return
+		void mailbox.loadMore()
+	}
+</script>
+
+<View style={{ flex: 1, minWidth: 0 }}>
+	<ListHeader {title} total={mailbox.state.totalThreads} selectedCount={mailbox.state.selectedThreadIds.length} {commands} />
+	{#if mailbox.state.threads.length === 0}
+		<View style={{ flex: 1, align: 'center', justify: 'center', padding: 24 }}>
+			{#if mailbox.state.loading}
+				<LoadingSpinner size={22} />
+			{:else}
+				<Text style={{ fontSize: 13, color: theme.colors.faint }}>No messages here</Text>
+			{/if}
+		</View>
+	{:else}
+		<List {items} key={itemKey} estimatedRowHeight={76} style={{ flex: 1 }} onscroll={scrolled}>
+			{#snippet row(item)}
+				{#if item.type === 'bundle'}
+					<BundleRow
+						label={item.label}
+						threads={item.threads}
+						expanded={item.expanded}
+						ontoggle={() => toggleBundle(item.label)}
+						onviewall={() => openBundleAsFilter(item.label)}
+					/>
+				{:else}
+					<ThreadRow
+						thread={item.thread}
+						open={reader.openThreadId === item.thread.threadId}
+						selected={mailbox.state.selectedThreadIds.includes(item.thread.threadId)}
+						accountEmail={accountEmail(item.thread)}
+						onpress={(event) => pressThread(event, item.thread)}
+						onaltpress={(event) => altPressThread(event, item.thread)}
+					/>
+				{/if}
+			{/snippet}
+		</List>
+	{/if}
+</View>
+<ContextMenu bind:this={menu} />
