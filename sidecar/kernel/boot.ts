@@ -31,7 +31,8 @@ export async function bootSidecar(plugins: SidecarPlugin[], transport: Transport
 	context.provide('paths', resolvePaths())
 	await context.plugin(RpcService, transport)
 
-	const fibers = plugins.map((plugin) => ({ name: plugin.name, fiber: context.plugin(plugin) }))
+	const enabled = withoutDisabled(plugins)
+	const fibers = enabled.map((plugin) => ({ name: plugin.name, fiber: context.plugin(plugin) }))
 	for (const entry of fibers) {
 		entry.fiber.then(undefined, (error: unknown) => {
 			context.logger('kernel').error(`plugin ${entry.name} failed`, error)
@@ -54,6 +55,12 @@ export async function bootSidecar(plugins: SidecarPlugin[], transport: Transport
 		void kernel.shutdown().finally(() => process.exit(0))
 	})
 	return kernel
+}
+
+/** The plugins minus those `NEOMAIL_DISABLE` names (comma separated), such as `sync,neo` for test runs. */
+function withoutDisabled(plugins: SidecarPlugin[]): SidecarPlugin[] {
+	const disabled = (process.env.NEOMAIL_DISABLE ?? '').split(',').map((name) => name.trim())
+	return plugins.filter((plugin) => !disabled.includes(plugin.name))
 }
 
 /** Unloads plugins last-mounted first, giving up after a timeout so the process always ends. */
