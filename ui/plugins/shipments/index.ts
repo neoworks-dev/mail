@@ -1,4 +1,4 @@
-// Shipment tracking on messages about a parcel: a card under the body with the carrier, the
+// Shipment tracking on messages about a parcel: a card above the body with the carrier, the
 // tracking number, the status and a link, which can ask the carrier for the live status. A
 // command in the thread toolbar's More menu asks the agent to find a shipment the parser missed.
 
@@ -9,7 +9,7 @@ export const shipments = {
 	name: 'shipments',
 	inject: ['slots', 'sidecar', 'reader', 'assistant'],
 	apply(ctx: Context) {
-		ctx.slots.register('message.footer', {
+		ctx.slots.register('message.summary', {
 			id: 'shipments',
 			order: 10,
 			component: ShipmentCard,

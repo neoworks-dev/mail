@@ -124,7 +124,44 @@ export interface ShipmentExtraction {
 	lastEvent?: string
 	/** When the carrier API was last queried. */
 	trackedAt?: string
-	source: 'heuristic' | 'ai'
+	source: 'heuristic' | 'markup' | 'ai'
+}
+
+/**
+ * A summary card above a message, found at parse time: from schema.org markup the sender
+ * embedded (`markup`), or from a fixed template for a known sender (`template`).
+ */
+export interface SummaryCard {
+	kind: 'reservation' | 'event' | 'order' | 'invoice' | 'github' | 'action'
+	title: string
+	subtitle: string | null
+	status: string | null
+	/** ISO timestamps for reservations and events; the UI formats them. */
+	startsAt: string | null
+	endsAt: string | null
+	facts: SummaryFact[]
+	links: SummaryLink[]
+	/** What a GitHub notification is about, for looking its live state up later. */
+	github: GithubReference | null
+	source: 'markup' | 'template'
+}
+
+export interface SummaryFact {
+	label: string
+	value: string
+}
+
+export interface SummaryLink {
+	label: string
+	url: string
+}
+
+export interface GithubReference {
+	repository: string
+	itemType: 'pull' | 'issue' | 'discussion' | 'run' | 'release' | 'commit'
+	number: number | null
+	/** The `X-GitHub-Reason` header, such as `review_requested`; null when unknown. */
+	reason: string | null
 }
 
 /** Verdict of one authentication method from an Authentication-Results header. */
@@ -165,6 +202,7 @@ export interface MessageBody {
 	/** Present when the message carries a List-Unsubscribe header. */
 	unsubscribe: { oneClick: boolean } | null
 	shipment: ShipmentExtraction | null
+	cards: SummaryCard[]
 	/** Manually AI-extracted action items. */
 	actions: { items: ActionItem[] } | null
 	security: MessageSecurity

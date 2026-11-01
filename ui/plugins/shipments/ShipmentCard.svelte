@@ -80,7 +80,7 @@
 </script>
 
 {#if extracting}
-	<View style={{ direction: 'row', align: 'center', gap: 8, paddingX: 20, paddingBottom: 14 }}>
+	<View style={{ direction: 'row', align: 'center', gap: 8, paddingX: 20, paddingTop: 12 }}>
 		<LoadingSpinner size={14} />
 		<Text style={{ ...typeStyle('caption'), color: theme.colors.muted }}
 			>The agent is looking for a shipment…</Text
@@ -90,7 +90,7 @@
 	<View
 		style={{
 			marginX: 20,
-			marginBottom: 14,
+			marginTop: 12,
 			padding: 12,
 			gap: 6,
 			radius: theme.radii.control,

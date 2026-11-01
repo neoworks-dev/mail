@@ -137,6 +137,7 @@
 		</View>
 		{#if body}
 			<Slot name="message.banners" props={{ message, body }} />
+			<Slot name="message.summary" props={{ message, body }} />
 		{/if}
 		{#if mailDocument}
 			<PrivacyNote

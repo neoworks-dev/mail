@@ -10,6 +10,8 @@ import type {
 	MessageSecurity,
 	MessageSummary,
 	SearchResult,
+	ShipmentExtraction,
+	SummaryCard,
 	ThreadFilter,
 	ThreadMessage,
 	ThreadPage,
@@ -18,6 +20,8 @@ import type {
 import { NO_THREAD_FILTER } from '../../shared/mail'
 import { detectNameSpoof } from './authenticity'
 import type { CredentialCipher } from './credentials'
+import type { ExtractedShipment } from './extractors'
+import { CARDS_KIND, saveMessageExtractions } from './extractors/persist'
 
 export interface ParsedAttachmentInput {
 	filename: string
@@ -67,7 +71,8 @@ export interface ParsedMessageInput {
 	labelSource: 'heuristic' | 'ml' | 'user' | null
 	listUnsubscribe: string | null
 	listUnsubscribeOneClick: boolean
-	shipment: { carrier: string; trackingNumber: string | null; trackingUrl: string | null } | null
+	shipment: ExtractedShipment | null
+	cards: SummaryCard[]
 	authResults: MessageAuthResults | null
 }
 
@@ -608,9 +613,7 @@ export class MailStore {
 					message.searchBody
 				)
 			this.insertAttachments(messageId, message.attachments)
-			if (message.shipment) {
-				this.saveExtraction(messageId, 'shipment', 'heuristic', JSON.stringify(message.shipment))
-			}
+			this.saveParsedExtractions(messageId, message)
 			this.assignThread(
 				messageId,
 				message.accountId,
@@ -1060,10 +1063,17 @@ export class MailStore {
 		const extraction = this.getExtraction(messageId, 'shipment')
 		if (extraction) {
 			try {
-				shipment = {
-					...JSON.parse(extraction.payload),
-					source: extraction.source === 'ai' ? 'ai' : 'heuristic'
-				}
+				shipment = { ...JSON.parse(extraction.payload), source: shipmentSource(extraction.source) }
+			} catch {
+				// Corrupt payload — treat as absent.
+			}
+		}
+
+		let cards: SummaryCard[] = []
+		const cardsExtraction = this.getExtraction(messageId, CARDS_KIND)
+		if (cardsExtraction) {
+			try {
+				cards = JSON.parse(cardsExtraction.payload).cards
 			} catch {
 				// Corrupt payload — treat as absent.
 			}
@@ -1088,6 +1098,7 @@ export class MailStore {
 			attachments: this.listAttachments(messageId),
 			unsubscribe,
 			shipment,
+			cards,
 			actions,
 			security: this.messageSecurity(messageId, message)
 		}
@@ -1130,6 +1141,13 @@ export class MailStore {
 			)
 			.get(accountId, fromAddress, messageId) as { count: number }
 		return row.count === 0
+	}
+
+	private saveParsedExtractions(messageId: number, message: ParsedMessageInput): void {
+		saveMessageExtractions(this.database, messageId, {
+			shipment: message.shipment,
+			cards: message.cards
+		})
 	}
 
 	saveExtraction(messageId: number, kind: string, source: string, payload: string): void {
@@ -1489,4 +1507,9 @@ function toFtsQuery(input: string): string {
 		.filter((term) => term.length > 0)
 	if (terms.length === 0) return ''
 	return terms.map((term) => `"${term}"*`).join(' ')
+}
+
+function shipmentSource(stored: string): ShipmentExtraction['source'] {
+	if (stored === 'ai' || stored === 'markup') return stored
+	return 'heuristic'
 }

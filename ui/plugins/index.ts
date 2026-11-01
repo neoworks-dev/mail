@@ -24,6 +24,7 @@ import { readingPane } from './reading-pane'
 import { shipments } from './shipments'
 import { shortcuts } from './shortcuts'
 import { sidebar } from './sidebar'
+import { summaryCards } from './summary-cards'
 import { theme } from './theme'
 import { threadSummary } from './thread-summary'
 import { unsubscribe } from './unsubscribe'
@@ -43,6 +44,7 @@ export const corePlugins: UiPlugin[] = [
 	messageSecurity,
 	unsubscribe,
 	attachments,
+	summaryCards,
 	shipments,
 	actionItems,
 	threadSummary,

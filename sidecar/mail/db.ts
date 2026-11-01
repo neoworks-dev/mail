@@ -1,3 +1,5 @@
+import { extractFromMessage } from './extractors'
+import { saveMessageExtractions } from './extractors/persist'
 import { messageSnippet } from './snippet'
 import { Database } from './sqlite'
 
@@ -156,7 +158,10 @@ export function openDatabase(path: string): Database {
 }
 
 /** Data rewrites that run once per database, tracked by SQLite's `user_version`. */
-const DATA_MIGRATIONS: Array<(database: Database) => void> = [rebuildSnippets]
+const DATA_MIGRATIONS: Array<(database: Database) => void> = [
+	rebuildSnippets,
+	extractStoredMarkupAndTemplates
+]
 
 function migrateData(database: Database): void {
 	const row = database.prepare('PRAGMA user_version').get() as { user_version: number }
@@ -173,6 +178,41 @@ function rebuildSnippets(database: Database): void {
 		.all() as Array<{ message_id: number; text_body: string | null; html_body: string | null }>
 	const update = database.prepare('UPDATE messages SET snippet = ? WHERE message_id = ?')
 	for (const row of rows) update.run(messageSnippet(row.text_body, row.html_body), row.message_id)
+}
+
+/**
+ * Runs the markup and template extractors over mail stored before they existed. Only rows that
+ * can match are read; headers other than the stored ones are gone, so GitHub cards lack reasons.
+ */
+function extractStoredMarkupAndTemplates(database: Database): void {
+	const rows = database
+		.prepare(
+			`SELECT m.message_id, m.from_address, m.subject, m.rfc_message_id, m.in_reply_to,
+			        b.text_body, b.html_body
+			 FROM messages m JOIN message_bodies b USING (message_id)
+			 WHERE b.html_body LIKE '%schema.org%' OR m.from_address = 'notifications@github.com'`
+		)
+		.all() as Array<{
+		message_id: number
+		from_address: string
+		subject: string
+		rfc_message_id: string
+		in_reply_to: string | null
+		text_body: string | null
+		html_body: string | null
+	}>
+	for (const row of rows) {
+		const extractions = extractFromMessage({
+			fromAddress: row.from_address,
+			subject: row.subject,
+			rfcMessageId: row.rfc_message_id,
+			inReplyTo: row.in_reply_to,
+			githubReason: '',
+			htmlBody: row.html_body,
+			bodyText: row.text_body || ''
+		})
+		saveMessageExtractions(database, row.message_id, extractions)
+	}
 }
 
 /**

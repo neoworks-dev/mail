@@ -6,6 +6,8 @@
 // - `thread.actions` (list; props `{ tab }`): buttons at the right end of the thread's toolbar,
 //   before its More menu, which lists the commands whose `menu` is `thread.more`.
 // - `message.banners` (list; props `{ message, body }`): notes above an expanded message's body.
+// - `message.summary` (list; props `{ message, body }`): cards above the body saying what the
+//   mail is about, such as a shipment or a reservation.
 // - `message.footer` (list; props `{ message, body }`): below the body, such as attachments.
 // - `reading.view` (keyed): a tab's custom view, by the view's key, such as the digest.
 
@@ -21,6 +23,7 @@ export const readingPane = {
 		ctx.slots.declare('thread.header', 'list')
 		ctx.slots.declare('thread.actions', 'list')
 		ctx.slots.declare('message.banners', 'list')
+		ctx.slots.declare('message.summary', 'list')
 		ctx.slots.declare('message.footer', 'list')
 		ctx.slots.declare('reading.view', 'keyed')
 

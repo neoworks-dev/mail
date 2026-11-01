@@ -2,7 +2,7 @@ import { simpleParser, type AddressObject, type Attachment, type ParsedMail } fr
 import type { MessageAddress } from '../../shared/mail'
 import { parseAuthenticationResults } from './authenticity'
 import { classifyHeuristic, type LabelSignals } from './labeling'
-import { extractShipment } from './shipping'
+import { extractFromMessage } from './extractors'
 import { htmlToText, messageSnippet } from './snippet'
 import type { ParsedAttachmentInput, ParsedMessageInput } from './store'
 
@@ -100,10 +100,14 @@ export async function parseRawMessage(
 	const subject = parsed.subject || ''
 	const label = classifyHeuristic(labelSignals(parsed, fromAddress, subject))
 
-	const shipment = extractShipment({
+	const extractions = extractFromMessage({
 		fromAddress,
 		subject,
-		bodyText: searchBody.slice(0, 4000)
+		rfcMessageId: parsed.messageId || '',
+		inReplyTo: parsed.inReplyTo || null,
+		githubReason: headerText(parsed, 'x-github-reason'),
+		htmlBody,
+		bodyText: searchBody
 	})
 
 	const listUnsubscribeRaw = headerText(parsed, 'list-unsubscribe')
@@ -141,7 +145,8 @@ export async function parseRawMessage(
 		labelSource: label === null ? null : 'heuristic',
 		listUnsubscribe,
 		listUnsubscribeOneClick,
-		shipment,
+		shipment: extractions.shipment,
+		cards: extractions.cards,
 		authResults: parseAuthenticationResults(authenticationResultsValues(parsed))
 	}
 }
