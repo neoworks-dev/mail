@@ -176,18 +176,28 @@ export class MailboxService {
 	}
 
 	async archive(message: MessageSummary): Promise<void> {
-		this.dropThread(message.threadId)
-		await this.ctx.sidecar.call('messages.archive', message.messageId)
+		await this.withoutThread(message.threadId, () => this.ctx.sidecar.call('messages.archive', message.messageId))
 	}
 
 	async remove(message: MessageSummary): Promise<void> {
-		this.dropThread(message.threadId)
-		await this.ctx.sidecar.call('messages.delete', message.messageId)
+		await this.withoutThread(message.threadId, () => this.ctx.sidecar.call('messages.delete', message.messageId))
 	}
 
 	async move(message: MessageSummary, targetFolderId: number): Promise<void> {
-		this.dropThread(message.threadId)
-		await this.ctx.sidecar.call('messages.move', message.messageId, targetFolderId)
+		await this.withoutThread(message.threadId, () =>
+			this.ctx.sidecar.call('messages.move', message.messageId, targetFolderId)
+		)
+	}
+
+	/** Takes the thread out of the list while the server acts; a failure brings it back. */
+	private async withoutThread(threadId: number, action: () => Promise<void>): Promise<void> {
+		this.dropThread(threadId)
+		try {
+			await action()
+		} catch (error) {
+			await this.reload()
+			throw error
+		}
 	}
 
 	/** The loaded thread before or after one, for stepping through the list. */

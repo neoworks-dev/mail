@@ -2,11 +2,12 @@
 // messages change, and registers the commands that act on the selection.
 
 import type { Context } from '@neoworks/extension-system'
+import { KeyPriority } from '../../kernel/keymap/service'
 import { MailboxService } from './service.svelte'
 
 export const mailbox = {
 	name: 'mailbox',
-	inject: ['sidecar', 'accounts', 'commands'],
+	inject: ['sidecar', 'accounts', 'commands', 'keymap'],
 	apply(ctx: Context) {
 		const service = new MailboxService(ctx)
 		ctx.provide('mailbox', service)
@@ -19,6 +20,12 @@ export const mailbox = {
 		if (ctx.accounts.state.selectedAccountId !== null) void service.openInbox()
 
 		const hasSelection = () => service.state.selectedThreadIds.length > 0
+		// Escape clears a selection before it closes the open thread.
+		ctx.keymap.subscribe(KeyPriority.app, (event) => {
+			if (event.key !== 'Escape' || !hasSelection()) return false
+			service.clearSelection()
+			return true
+		})
 		ctx.commands.register({
 			id: 'mailbox.unifiedInbox',
 			title: 'Show all inboxes',
