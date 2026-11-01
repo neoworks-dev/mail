@@ -55,7 +55,7 @@ fn render_file(path: &Path, output_directory: &Path, fonts: &mut CosmicFonts) {
     let stem = path.file_stem().unwrap().to_string_lossy().to_string();
     let started = Instant::now();
     let raw = fs::read_to_string(path).expect("cannot read a corpus file");
-    let html = preprocess_attrs(&cellpadding_to_css(&raw));
+    let html = cellpadding_to_css(&preprocess_attrs(&raw));
     let images = decoded_images(&html);
     let image_sizes: HashMap<String, (f32, f32)> = images
         .iter()
@@ -114,44 +114,35 @@ fn decode_image(bytes: &[u8]) -> Option<Pixmap> {
     Pixmap::from_vec(premultiplied, tiny_skia::IntSize::from_wh(width, height)?)
 }
 
-/// litehtml ignores `cellpadding`, so each such table gets a class and a rule padding its own
-/// cells. Unlike the browser's presentational hint, the rule outranks author `td` rules.
+/// litehtml ignores `cellpadding`, which `preprocess_attrs` has turned into `data-cellpadding`,
+/// so each value used gets a rule padding the cells of tables carrying it. The markup is left
+/// alone: an added `class` attribute would lose to the mail's own and drop its classes. Unlike
+/// the browser's presentational hint, the rule outranks author `td` rules.
 fn cellpadding_to_css(html: &str) -> String {
-    let lower = html.to_ascii_lowercase();
-    let mut output = String::with_capacity(html.len());
-    let mut rules = String::new();
-    let mut copied_until = 0;
-    let mut search_from = 0;
-    while let Some(offset) = lower[search_from..].find("<table") {
-        let tag_start = search_from + offset;
-        let tag_end = tag_start + lower[tag_start..].find('>').unwrap_or(0);
-        search_from = tag_start + 6;
-        let Some(padding) = cellpadding_value(&lower[tag_start..tag_end]) else {
+    const ATTRIBUTE: &str = "data-cellpadding=\"";
+    let mut paddings: Vec<u32> = Vec::new();
+    let mut rest = html;
+    while let Some(start) = rest.find(ATTRIBUTE) {
+        rest = &rest[start + ATTRIBUTE.len()..];
+        let digits: String = rest.chars().take_while(|character| character.is_ascii_digit()).collect();
+        let Ok(padding) = digits.parse() else {
             continue;
         };
-        let class_name = format!("spike-cellpadding-{padding}");
-        output.push_str(&html[copied_until..tag_start + 6]);
-        output.push_str(&format!(" class=\"{class_name}\""));
-        copied_until = tag_start + 6;
-        rules.push_str(&format!(
-            ".{class_name} > tbody > tr > td, .{class_name} > tbody > tr > th, \
-             .{class_name} > tr > td {{ padding: {padding}px; }}\n"
-        ));
+        if !paddings.contains(&padding) {
+            paddings.push(padding);
+        }
     }
-    output.push_str(&html[copied_until..]);
-    if rules.is_empty() {
-        return output;
+    if paddings.is_empty() {
+        return html.to_string();
     }
-    format!("<style>{rules}</style>{output}")
+    let rules: String = paddings.iter().map(|padding| cellpadding_rule(*padding)).collect();
+    format!("<style>{rules}</style>{html}")
 }
 
-fn cellpadding_value(tag: &str) -> Option<u32> {
-    let after_name = &tag[tag.find("cellpadding")? + 11..];
-    let after_equals = after_name.trim_start().strip_prefix('=')?.trim_start();
-    let digits: String = after_equals
-        .trim_start_matches(['"', '\''])
-        .chars()
-        .take_while(|character| character.is_ascii_digit())
-        .collect();
-    digits.parse().ok()
+fn cellpadding_rule(padding: u32) -> String {
+    let table = format!("table[data-cellpadding=\"{padding}\"]");
+    format!(
+        "{table} > tbody > tr > td, {table} > tbody > tr > th, {table} > tr > td \
+         {{ padding: {padding}px; }}\n"
+    )
 }

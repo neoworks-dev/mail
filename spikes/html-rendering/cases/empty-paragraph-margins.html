@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<!-- Margins collapse through empty blocks; <p><div> splits into empty paragraphs (FlixBus booking). -->
+<style>
+.sr { position:absolute !important; width:1px !important; height:1px !important; margin:-1px !important; overflow:hidden !important; clip:rect(1px,1px,1px,1px) !important; white-space:nowrap !important; }
+.station { font-size:18px; line-height:24px; margin-bottom:0; }
+</style>
+<body style="margin:0;background:#eee">
+<table style="width:400px;background:#fff" cellpadding="0" cellspacing="0"><tr><td>
+  <p class="station"><div class="sr">Haltestelle</div>Hamburg ZOB</p>
+</td><td style="background:#def"><h3 style="margin:0;font-size:18px;line-height:24px">16:30</h3></td></tr></table>
+<div style="background:#fff;width:400px">
+  <p style="margin:20px 0"></p>
+  <p style="margin:20px 0"></p>
+  <div>After two empty 20px-margin paragraphs (one 20px gap expected).</div>
+</div>
+</body>

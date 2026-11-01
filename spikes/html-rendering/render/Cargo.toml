@@ -13,3 +13,6 @@ litehtml = { version = "0.2.6", features = ["html"] }
 cosmic-text = "0.14"
 tiny-skia = "0.11"
 image = { version = "0.25", default-features = false, features = ["png", "jpeg", "gif", "webp"] }
+
+[patch.crates-io]
+litehtml-sys = { path = "../../../host/vendor/litehtml-sys" }

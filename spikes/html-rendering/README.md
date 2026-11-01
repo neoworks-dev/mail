@@ -21,3 +21,15 @@ cargo run --release --manifest-path render/Cargo.toml -- corpus output/litehtml
 bun reference.ts              # Chromium screenshots into output/chromium
 bun report.ts                 # output/report.html
 ```
+
+`cases/` holds minimal, synthetic reproductions of layout bugs found in the corpus, each next to
+the litehtml fix in `host/vendor/litehtml-sys/PATCHES.md`. Compare them the same way:
+
+```sh
+cargo run --release --manifest-path render/Cargo.toml -- cases /tmp/cases/litehtml
+bun reference.ts cases /tmp/cases/chromium
+```
+
+The gray placeholder is a 1×1 image, so an `<img style="width:100%">` in a shrink-to-fit table
+cell comes out a large square in litehtml and vanishes in Chromium. With real images the two
+agree (`cases/percent-image-in-auto-table.html`), so ignore that difference in the report.

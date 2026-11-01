@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<!-- height:100% inside a parent of auto height behaves as auto (PostHog's header). -->
+<body style="margin:0;background:#eee">
+<table width="100%" cellpadding="0" cellspacing="0"><tr><td>
+  <div style="margin:0 auto;max-width:560px;background:#111">
+    <div style="display:table;width:100%;height:100%">
+      <div style="display:table-cell;vertical-align:top">
+        <div style="height:100%;padding:5px 0;text-align:center">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAAJYAQMAAABIKI1ZAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAADUExURYiqzI5mrRoAAAAHdElNRQfqCwEMGiVGVBPIAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTExLTAxVDEyOjI2OjM3KzAwOjAwgYmyKwAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0xMS0wMVQxMjoyNjozNyswMDowMPDUCpcAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMTEtMDFUMTI6MjY6MzcrMDA6MDCnwStIAAAAb0lEQVR42u3BgQAAAADDoPlTX+EAVQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACvAWH3AAF2HbOBAAAAAElFTkSuQmCC" style="height:auto;width:30%;max-width:168px">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="margin:0 auto;max-width:560px;background:#fff">
+    <div style="height:100%;padding:10px">A plain block with height:100% under an auto-height parent.</div>
+  </div>
+</td></tr></table>
+<p style="text-align:center">Text below.</p>
+</body>

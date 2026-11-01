@@ -24,6 +24,7 @@ struct LoadedFont {
     size: f32,
     weight: u16,
     italic: bool,
+    metrics: Option<FontMetrics>,
 }
 
 pub struct CosmicFonts {
@@ -143,14 +144,24 @@ impl CosmicFonts {
 impl FontBackend for CosmicFonts {
     fn create_font(&mut self, request: &FontRequest) -> (FontId, FontMetrics) {
         let family = self.resolve_family(&request.families);
+        // Reuse the id of an identical font, so widths cached for one mail serve the next.
+        let existing = self.loaded.iter().position(|font| {
+            font.family == family && font.size == request.size && font.weight == request.weight && font.italic == request.italic
+        });
+        if let Some(font) = existing {
+            return (font, self.loaded[font].metrics.unwrap());
+        }
         self.loaded.push(LoadedFont {
             family,
             size: request.size,
             weight: request.weight,
             italic: request.italic,
+            metrics: None,
         });
         let font = self.loaded.len() - 1;
-        (font, self.metrics(font))
+        let metrics = self.metrics(font);
+        self.loaded[font].metrics = Some(metrics);
+        (font, metrics)
     }
 
     fn text_width(&mut self, text: &str, font: FontId) -> f32 {

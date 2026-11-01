@@ -278,8 +278,6 @@ dependencies = [
 [[package]]
 name = "litehtml-sys"
 version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18887b1293b44d5ee4da0899dfbc7c408b048768c89f3414e9054add9372b6ed"
 dependencies = [
  "cc",
 ]
