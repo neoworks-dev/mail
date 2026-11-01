@@ -308,6 +308,8 @@ export class ReaderService {
 
 	private async applyView(tab: ReadingTab, view: ReadingView): Promise<void> {
 		tab.view = view
+		// The tab is $state, so reading `view` back gives its proxy; compare against that.
+		const shown = tab.view
 		tab.title = titleOf(view)
 		tab.messages = []
 		tab.expanded = []
@@ -315,7 +317,7 @@ export class ReaderService {
 
 		const messages = await this.ctx.sidecar.call('threads.messages', view.accountId, view.threadId)
 		// Another view may have replaced this one while the messages loaded.
-		if (tab.view !== view) return
+		if (tab.view !== shown) return
 		tab.messages = messages
 		const first = messages[0]
 		if (first) tab.title = first.subject || first.fromName || first.fromAddress

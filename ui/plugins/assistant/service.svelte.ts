@@ -185,6 +185,19 @@ export class AssistantService {
 		if (!sent && this.state.digest) this.state.digest.pending = false
 	}
 
+	/**
+	 * Clears what is still waiting once the agent's turn is over: it answered in the chat
+	 * instead of through a tool, such as "this mail is not about a shipment".
+	 */
+	settleUnanswered(): void {
+		this.state.extracting = {}
+		this.state.draftingReply = false
+		for (const [threadId, summary] of Object.entries(this.state.summaries)) {
+			if (summary.pending) delete this.state.summaries[Number(threadId)]
+		}
+		if (this.state.digest && this.state.digest.pending) this.state.digest.pending = false
+	}
+
 	dismissDigest(): void {
 		this.state.digest = null
 		this.ctx.reader.closeCustom(DIGEST_VIEW_KEY)

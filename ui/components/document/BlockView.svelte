@@ -18,10 +18,14 @@
 
 	const HEADING_SIZES: Record<number, number> = { 1: 24, 2: 20, 3: 18, 4: 16, 5: 15, 6: 14 }
 	const MAX_IMAGE_WIDTH = 640
+	const SMALL_IMAGE_WIDTH = 64
 
 	function bodyStyle(): Style {
-		if (document.dense) return { ...typeStyle('caption'), fontSize: 14, lineHeight: 21, color: theme.colors.text }
-		return { ...typeStyle('bodySmall'), color: theme.colors.text }
+		// Long URLs are single words; without breaking anywhere they run out of the column.
+		if (document.dense) {
+			return { ...typeStyle('caption'), fontSize: 14, lineHeight: 21, color: theme.colors.text, overflowWrap: 'anywhere' }
+		}
+		return { ...typeStyle('bodySmall'), color: theme.colors.text, overflowWrap: 'anywhere' }
 	}
 
 	function alignStyle(align: TextAlign | undefined): Style {
@@ -52,6 +56,11 @@
 		}
 		if (image.width === null && image.height === null) style.width = '100%'
 		return style
+	}
+
+	/** A small image such as a social icon: its placeholder is the icon alone. */
+	function isIcon(image: ImageBlock): boolean {
+		return image.width !== null && image.width <= SMALL_IMAGE_WIDTH
 	}
 
 	function blockedLabel(image: ImageBlock): string {
@@ -107,11 +116,16 @@
 				borderWidth: 1,
 				borderColor: theme.colors.line,
 				color: theme.colors.faint,
+				maxWidth: '100%',
+				minWidth: 0,
+				overflow: 'hidden',
 				...imageAlign(block.align)
 			}}
 		>
 			<Icon svg={imageIcon} size={14} />
-			<Text style={{ ...typeStyle('caption'), truncate: true, maxWidth: 360 }}>{blockedLabel(block)}</Text>
+			{#if !isIcon(block)}
+				<Text style={{ ...typeStyle('caption'), truncate: true, maxWidth: 360, minWidth: 0 }}>{blockedLabel(block)}</Text>
+			{/if}
 		</View>
 	{:else if block.href}
 		{@const href = block.href}

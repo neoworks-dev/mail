@@ -16,7 +16,9 @@ export const assistant = {
 			service.state.status = status
 		})
 		ctx.sidecar.on('assistant.view', (view) => {
+			const turnEnded = service.state.view.running && !view.running
 			service.state.view = view
+			if (turnEnded) service.settleUnanswered()
 		})
 		ctx.sidecar.on('assistant.request', (request) => void service.handleRequest(request))
 		ctx.sidecar.on('digest.due', () => void service.generateDigest(true))
