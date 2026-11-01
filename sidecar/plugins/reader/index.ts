@@ -3,15 +3,9 @@
 // UI asks for them, since loading one tells the sender the mail was read.
 
 import type { Context } from '@neoworks/extension-system'
-import type { DocumentOptions, MailDocument } from '../../../shared/document'
 import { htmlToDocument, textToDocument } from '../../mail/document'
+import type { DocumentOptions, MailDocument } from '../../../shared/document'
 import type { MailStore } from '../../mail/store'
-
-declare module '../../../shared/routes' {
-	interface Routes {
-		'messages.document': (messageId: number, options: DocumentOptions) => MailDocument | null
-	}
-}
 
 /** Inline images above this are left out rather than sent through the frame stream. */
 const INLINE_IMAGE_MAX_BYTES = 4 * 1024 * 1024

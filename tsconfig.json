@@ -8,11 +8,28 @@
 		"skipLibCheck": true,
 		"verbatimModuleSyntax": true,
 		"resolveJsonModule": true,
-		"lib": ["ES2022"],
-		"types": [],
+		"lib": [
+			"ES2022"
+		],
+		"types": [
+			"bun"
+		],
 		"paths": {
-			"@neoworks/svelte-gpui-ui": ["./node_modules/@neoworks/svelte-gpui/packages/svelte-gpui-ui/src/index.ts"]
-		}
+			"@neoworks-dev/neo-sdk": [
+				"../neoworks-harness/sdk-ts/src/index.ts"
+			],
+			"@neoworks-dev/neo-protocol/types": [
+				"../neoworks-harness/protocol/gen/types.ts"
+			]
+		},
+		"allowImportingTsExtensions": true
 	},
-	"include": ["ui", "shared"]
+	"include": [
+		"sidecar",
+		"shared",
+		"tests"
+	],
+	"exclude": [
+		"sidecar/nib/resources"
+	]
 }

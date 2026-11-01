@@ -4,40 +4,41 @@ import {
 	comboFromEvent,
 	comboLabel,
 	comboMatches,
-	isGlobalCombo
+	isGlobalCombo,
+	type KeyInput
 } from '../ui/lib/keycombo'
 
-function fakeEvent(key: string, modifiers: Partial<KeyboardEvent> = {}): KeyboardEvent {
+function fakeEvent(key: string, modifiers: Partial<KeyInput> = {}): KeyInput {
 	return {
 		key,
-		ctrlKey: false,
-		shiftKey: false,
-		altKey: false,
-		metaKey: false,
+		ctrl: false,
+		shift: false,
+		alt: false,
+		meta: false,
 		...modifiers
-	} as KeyboardEvent
+	}
 }
 
 describe('comboMatches', () => {
 	test('plain letter', () => {
 		expect(comboMatches({ key: 'j' }, fakeEvent('j'))).toBe(true)
-		expect(comboMatches({ key: 'j' }, fakeEvent('j', { ctrlKey: true }))).toBe(false)
+		expect(comboMatches({ key: 'j' }, fakeEvent('j', { ctrl: true }))).toBe(false)
 	})
 
 	test('ctrl combo', () => {
-		expect(comboMatches({ key: 'k', ctrl: true }, fakeEvent('k', { ctrlKey: true }))).toBe(true)
+		expect(comboMatches({ key: 'k', ctrl: true }, fakeEvent('k', { ctrl: true }))).toBe(true)
 		expect(comboMatches({ key: 'k', ctrl: true }, fakeEvent('k'))).toBe(false)
 	})
 
 	test('shift-produced characters ignore the shift flag', () => {
 		// '#' arrives with shiftKey on many layouts; the combo stays {key:'#'}.
-		expect(comboMatches({ key: '#' }, fakeEvent('#', { shiftKey: true }))).toBe(true)
-		expect(comboMatches({ key: '?' }, fakeEvent('?', { shiftKey: true }))).toBe(true)
+		expect(comboMatches({ key: '#' }, fakeEvent('#', { shift: true }))).toBe(true)
+		expect(comboMatches({ key: '?' }, fakeEvent('?', { shift: true }))).toBe(true)
 	})
 
 	test('shift enforced on letters and named keys', () => {
-		expect(comboMatches({ key: 'a', ctrl: true, shift: true }, fakeEvent('A', { ctrlKey: true, shiftKey: true }))).toBe(true)
-		expect(comboMatches({ key: 'a', ctrl: true }, fakeEvent('A', { ctrlKey: true, shiftKey: true }))).toBe(false)
+		expect(comboMatches({ key: 'a', ctrl: true, shift: true }, fakeEvent('A', { ctrl: true, shift: true }))).toBe(true)
+		expect(comboMatches({ key: 'a', ctrl: true }, fakeEvent('A', { ctrl: true, shift: true }))).toBe(false)
 	})
 
 	test('named keys match case-insensitively', () => {
@@ -47,7 +48,7 @@ describe('comboMatches', () => {
 
 describe('comboFromEvent / comboEquals round trip', () => {
 	test('captures modifiers', () => {
-		const combo = comboFromEvent(fakeEvent('K', { ctrlKey: true, shiftKey: true }))
+		const combo = comboFromEvent(fakeEvent('K', { ctrl: true, shift: true }))
 		expect(comboEquals(combo, { key: 'k', ctrl: true, shift: true })).toBe(true)
 	})
 })

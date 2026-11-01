@@ -1237,6 +1237,42 @@ export class MailStore {
 		return rows.map((row) => ({ messageId: row.message_id, vector: row.vector }))
 	}
 
+	/** One message's embedding and thread, or null before it has been embedded. */
+	embeddingOf(messageId: number, model: string): { vector: Buffer; threadId: number } | null {
+		const row = this.database
+			.prepare(
+				`SELECT e.vector, m.thread_id FROM message_embeddings e
+				 JOIN messages m ON m.message_id = e.message_id
+				 WHERE e.message_id = ? AND e.model = ? LIMIT 1`
+			)
+			.get(messageId, model) as { vector: Buffer; thread_id: number } | undefined
+		if (!row) return null
+		return { vector: row.vector, threadId: row.thread_id }
+	}
+
+	/**
+	 * The newest messages in folders with this path across accounts, optionally only unread or
+	 * from a sender whose address or name contains `sender`.
+	 */
+	recentMessages(options: { folderPath: string; sender: string | null; unreadOnly: boolean; limit: number }): SearchResult[] {
+		const conditions = ['f.path = ?']
+		const parameters: SqlParameter[] = [options.folderPath]
+		if (options.unreadOnly) conditions.push('m.seen = 0')
+		if (options.sender !== null && options.sender !== '') {
+			conditions.push('(m.from_address LIKE ? OR m.from_name LIKE ?)')
+			parameters.push(`%${options.sender}%`, `%${options.sender}%`)
+		}
+		const rows = this.database
+			.prepare(
+				`SELECT ${SUMMARY_COLUMNS}, f.path AS folder_path
+				 FROM messages m JOIN folders f ON f.folder_id = m.folder_id
+				 WHERE ${conditions.join(' AND ')}
+				 ORDER BY m.date DESC LIMIT ?`
+			)
+			.all(...parameters, options.limit) as Array<MessageRow & { folder_path: string }>
+		return rows.map((row) => ({ ...rowToSummary(row), folderPath: row.folder_path, matchSnippet: row.snippet }))
+	}
+
 	summariesWithFolder(messageIds: number[]): SearchResult[] {
 		if (messageIds.length === 0) return []
 		const placeholders = messageIds.map(() => '?').join(',')

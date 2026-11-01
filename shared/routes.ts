@@ -19,7 +19,8 @@ import type {
 	ThreadMessage,
 	ThreadPage
 } from './mail'
-import type { NibStatus } from './nib'
+import type { DocumentOptions, MailDocument } from './document'
+import type { AssistantPrompt, AssistantRequest, AssistantStatus, AssistantView } from './assistant'
 
 export interface DigestCandidate {
 	threadId: number
@@ -44,22 +45,6 @@ export interface SidecarInfo {
 	plugins: PluginReport[]
 }
 
-/** A request to the nib agent server, relayed by the sidecar. */
-export interface NibRequest {
-	method: string
-	path: string
-	headers?: Record<string, string>
-	/** A text body, or base64 when `bodyEncoding` says so. */
-	body?: string
-	bodyEncoding?: 'utf8' | 'base64'
-}
-
-export interface NibResponse {
-	status: number
-	headers: Record<string, string>
-	body: string
-}
-
 export interface Routes {
 	'sidecar.info': () => SidecarInfo
 
@@ -78,6 +63,8 @@ export interface Routes {
 	'threads.locate': (threadId: number) => number | null
 
 	'messages.body': (messageId: number) => MessageBody | null
+	/** The body reduced to the blocks the reading pane draws. */
+	'messages.document': (messageId: number, options: DocumentOptions) => MailDocument | null
 	'messages.markSeen': (messageId: number, seen: boolean) => void
 	'messages.setFlagged': (messageId: number, flagged: boolean) => void
 	'messages.move': (messageId: number, targetFolderId: number) => void
@@ -114,15 +101,24 @@ export interface Routes {
 	'embeddings.status': () => EmbeddingStatus | null
 	'digest.candidates': () => DigestCandidate[]
 
+	'settings.load': () => Record<string, unknown>
+	'settings.save': (values: Record<string, unknown>) => void
+
 	'system.openUrl': (url: string) => void
 	'system.notify': (title: string, body: string) => void
 
-	'nib.status': () => NibStatus
-	'nib.start': () => NibStatus
-	'nib.request': (request: NibRequest) => NibResponse
-	/** Starts relaying a server-sent event stream as `nib.stream` events; resolves to its id. */
-	'nib.openStream': (path: string) => number
-	'nib.closeStream': (streamId: number) => void
+	'assistant.status': () => AssistantStatus
+	'assistant.view': () => AssistantView
+	/** Sends input to the agent's current session, from Mail. */
+	'assistant.ask': (text: string) => void
+	'assistant.cancel': () => void
+	/** A button in an assistant item was pressed. */
+	'assistant.action': (ref: string, action: string, args: unknown) => void
+	/** Moves the agent into Mail, so its chat follows the user here. */
+	'assistant.focus': () => void
+	/** Tells the agent what the user is looking at. */
+	'assistant.setContext': (context: Record<string, string>) => void
+	'assistant.prompts': () => AssistantPrompt[]
 }
 
 export interface PushEvents {
@@ -133,10 +129,9 @@ export interface PushEvents {
 	'digest.due': null
 	'send.done': { sendId: number }
 	'send.failed': { sendId: number; errorMessage: string; input: OutgoingMessage }
-	'nib.ready': unknown
-	'nib.exit': { reason: string }
-	'nib.stream': { streamId: number; event: string; data: string; id: string | null }
-	'nib.streamEnd': { streamId: number; error: string | null }
+	'assistant.status': AssistantStatus
+	'assistant.view': AssistantView
+	'assistant.request': AssistantRequest
 }
 
 export type RouteName = keyof Routes

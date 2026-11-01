@@ -13,12 +13,13 @@ import { extractions } from './extractions'
 import { gmail } from './gmail'
 import { library } from './library'
 import { mailOps } from './mail-ops'
-import { nib } from './nib'
+import { neo } from './neo'
 import { notifications } from './notifications'
 import { outbox } from './outbox'
 import { reader } from './reader'
 import { search } from './search'
 import { send } from './send'
+import { settings } from './settings'
 import { store } from './store'
 import { sync } from './sync'
 import { system } from './system'
@@ -26,6 +27,7 @@ import { unsubscribe } from './unsubscribe'
 
 export const corePlugins: SidecarPlugin[] = [
 	system,
+	settings,
 	credentials,
 	store,
 	mailOps,
@@ -42,6 +44,6 @@ export const corePlugins: SidecarPlugin[] = [
 	extractions,
 	digest,
 	notifications,
-	nib,
+	neo,
 	outbox
 ]

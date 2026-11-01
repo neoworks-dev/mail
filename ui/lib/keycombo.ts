@@ -1,8 +1,17 @@
 // Key combo model for the global keybinding system. Pure helpers — the
-// reactive registry lives in keybindings.svelte.ts.
+// reactive registry is the keymap service (ui/kernel/keymap).
+
+/** A key event as svelte-gpui reports it: the key and its modifiers. */
+export interface KeyInput {
+	key: string
+	ctrl: boolean
+	shift: boolean
+	alt: boolean
+	meta: boolean
+}
 
 export interface KeyCombo {
-	/** KeyboardEvent.key, lowercased for letters (e.g. "k", "#", "enter"). */
+	/** The key event's `key`, lowercased (e.g. "k", "#", "enter"). */
 	key: string
 	ctrl?: boolean
 	shift?: boolean
@@ -10,12 +19,12 @@ export interface KeyCombo {
 	meta?: boolean
 }
 
-export function comboFromEvent(event: KeyboardEvent): KeyCombo {
+export function comboFromEvent(event: KeyInput): KeyCombo {
 	const combo: KeyCombo = { key: normalizeKey(event.key) }
-	if (event.ctrlKey) combo.ctrl = true
-	if (event.shiftKey) combo.shift = true
-	if (event.altKey) combo.alt = true
-	if (event.metaKey) combo.meta = true
+	if (event.ctrl) combo.ctrl = true
+	if (event.shift) combo.shift = true
+	if (event.alt) combo.alt = true
+	if (event.meta) combo.meta = true
 	return combo
 }
 
@@ -24,15 +33,15 @@ function normalizeKey(key: string): string {
 	return key.toLowerCase()
 }
 
-export function comboMatches(combo: KeyCombo, event: KeyboardEvent): boolean {
+export function comboMatches(combo: KeyCombo, event: KeyInput): boolean {
 	if (normalizeKey(event.key) !== combo.key) return false
-	if (Boolean(combo.ctrl) !== event.ctrlKey) return false
-	if (Boolean(combo.alt) !== event.altKey) return false
-	if (Boolean(combo.meta) !== event.metaKey) return false
+	if (Boolean(combo.ctrl) !== event.ctrl) return false
+	if (Boolean(combo.alt) !== event.alt) return false
+	if (Boolean(combo.meta) !== event.meta) return false
 	// Shift is part of producing keys like "#" — only enforce it when the
 	// combo names a key where shift is an independent modifier.
 	if (combo.key.length > 1 || /^[a-z0-9]$/.test(combo.key)) {
-		if (Boolean(combo.shift) !== event.shiftKey) return false
+		if (Boolean(combo.shift) !== event.shift) return false
 	}
 	return true
 }

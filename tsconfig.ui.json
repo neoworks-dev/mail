@@ -8,9 +8,11 @@
 		"skipLibCheck": true,
 		"verbatimModuleSyntax": true,
 		"resolveJsonModule": true,
-		"lib": ["ES2022"],
-		"types": ["bun"]
+		"lib": ["ES2022", "DOM"],
+		"types": [],
+		"paths": {
+			"@neoworks/svelte-gpui-ui": ["./node_modules/@neoworks/svelte-gpui/packages/svelte-gpui-ui/src/index.ts"]
+		}
 	},
-	"include": ["sidecar", "shared", "tests"],
-	"exclude": ["sidecar/nib/resources"]
+	"include": ["ui", "shared"]
 }
