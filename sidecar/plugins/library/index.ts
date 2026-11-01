@@ -18,11 +18,11 @@ export const library = {
 
 		ctx.rpc.handle('folders.list', (accountId) => store.listFolders(accountId))
 
-		ctx.rpc.handle('threads.list', (folderId, limit, offset, label) =>
-			store.listThreads(folderId, Math.min(limit, LIST_LIMIT_MAX), offset, label)
+		ctx.rpc.handle('threads.list', (folderId, limit, offset, label, filter) =>
+			store.listThreads(folderId, Math.min(limit, LIST_LIMIT_MAX), offset, label, filter)
 		)
-		ctx.rpc.handle('threads.listUnified', (limit, offset, label) =>
-			store.listThreadsUnified(Math.min(limit, LIST_LIMIT_MAX), offset, label)
+		ctx.rpc.handle('threads.listUnified', (limit, offset, label, filter) =>
+			store.listThreadsUnified(Math.min(limit, LIST_LIMIT_MAX), offset, label, filter)
 		)
 		ctx.rpc.handle('threads.messages', (accountId, threadId) =>
 			store.getThreadMessages(accountId, threadId)
@@ -66,7 +66,7 @@ export const library = {
 			)
 		)
 
-		ctx.rpc.handle('labels.counts', (folderId) => store.labelCounts(folderId))
+		ctx.rpc.handle('labels.unreadCounts', (folderId) => store.unreadLabelCounts(folderId))
 		ctx.rpc.handle('contacts.suggest', (accountId, query) =>
 			store.suggestRecipients(accountId, query, SUGGESTION_LIMIT)
 		)

@@ -45,11 +45,6 @@ export function formatSize(bytes: number): string {
 	return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export function plural(count: number, word: string): string {
-	if (count === 1) return `${count} ${word}`
-	return `${count} ${word}s`
-}
-
 export function describeError(error: unknown): string {
 	if (error instanceof Error) return error.message
 	return String(error)

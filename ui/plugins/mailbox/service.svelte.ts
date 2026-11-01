@@ -1,10 +1,17 @@
 // The `mailbox` service: what the message list shows. A view is a folder of the selected account
-// or every account's inbox at once, optionally narrowed to one label; the list loads in pages
+// or every account's inbox at once, optionally narrowed to one label and by the list's filter
+// chips; the list loads in pages
 // and reloads from the top when its messages change. Actions on messages change the loaded rows
 // at once, then ask the sidecar to make it so.
 
 import type { Context } from '@neoworks/extension-system'
-import type { MessageSummary, ThreadPage, ThreadSummary } from '../../../shared/mail'
+import {
+	NO_THREAD_FILTER,
+	type MessageSummary,
+	type ThreadFilter,
+	type ThreadPage,
+	type ThreadSummary
+} from '../../../shared/mail'
 
 declare module '@neoworks/extension-system' {
 	interface Context {
@@ -20,6 +27,8 @@ export type MailboxView =
 
 export interface MailboxState {
 	view: MailboxView | null
+	/** The filter chips' state; it stays when the view changes, except the sender. */
+	filter: ThreadFilter
 	threads: ThreadSummary[]
 	totalThreads: number
 	loading: boolean
@@ -30,6 +39,7 @@ export interface MailboxState {
 function createState(): MailboxState {
 	const state: MailboxState = $state({
 		view: null,
+		filter: { ...NO_THREAD_FILTER },
 		threads: [],
 		totalThreads: 0,
 		loading: false,
@@ -79,6 +89,13 @@ export class MailboxService {
 		}
 		const first = this.ctx.accounts.state.folders[0]
 		if (first) await this.openFolder(first.folderId)
+	}
+
+	/** Changes the filter and loads the view again from the top. */
+	async setFilter(change: Partial<ThreadFilter>): Promise<void> {
+		this.state.filter = { ...this.state.filter, ...change }
+		const view = this.state.view
+		if (view) await this.open(view)
 	}
 
 	async loadMore(): Promise<void> {
@@ -167,6 +184,17 @@ export class MailboxService {
 		await this.ctx.sidecar.call('messages.setFlagged', message.messageId, next)
 	}
 
+	/** Marks a list row read or unread, as the row's hover action does. */
+	async setThreadRead(thread: ThreadSummary, read: boolean): Promise<void> {
+		thread.seen = read
+		if (read) {
+			thread.threadUnread = 0
+		} else {
+			thread.threadUnread = Math.max(thread.threadUnread, 1)
+		}
+		await this.ctx.sidecar.call('messages.markSeen', thread.messageId, read)
+	}
+
 	async markSeen(message: MessageSummary, seen: boolean): Promise<void> {
 		this.patchMessage(message.messageId, (summary) => {
 			summary.seen = seen
@@ -225,6 +253,7 @@ export class MailboxService {
 
 	private async open(view: MailboxView): Promise<void> {
 		this.generation += 1
+		if (!sameView(this.state.view, view)) this.state.filter.fromAddress = null
 		this.state.view = view
 		this.state.threads = []
 		this.state.totalThreads = 0
@@ -236,9 +265,11 @@ export class MailboxService {
 	private fetchPage(limit: number, offset: number): Promise<ThreadPage> {
 		const view = this.state.view
 		if (!view) return Promise.resolve({ threads: [], total: 0 })
+		// A plain copy for the sidecar; `$state.snapshot` needs EventTarget, which the window lacks.
+		const filter = { ...this.state.filter }
 		if (view.kind === 'unified')
-			return this.ctx.sidecar.call('threads.listUnified', limit, offset, view.label)
-		return this.ctx.sidecar.call('threads.list', view.folderId, limit, offset, view.label)
+			return this.ctx.sidecar.call('threads.listUnified', limit, offset, view.label, filter)
+		return this.ctx.sidecar.call('threads.list', view.folderId, limit, offset, view.label, filter)
 	}
 
 	private patchMessage(messageId: number, change: (summary: ThreadSummary) => void): void {
@@ -251,4 +282,10 @@ export class MailboxService {
 	private dropThread(threadId: number): void {
 		this.state.threads = this.state.threads.filter((thread) => thread.threadId !== threadId)
 	}
+}
+
+function sameView(current: MailboxView | null, next: MailboxView): boolean {
+	if (current === null || current.kind !== next.kind || current.label !== next.label) return false
+	if (current.kind === 'folder' && next.kind === 'folder') return current.folderId === next.folderId
+	return true
 }

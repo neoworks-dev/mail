@@ -1,3 +1,4 @@
+import { messageSnippet } from './snippet'
 import { Database } from './sqlite'
 
 // Schema notes:
@@ -150,7 +151,28 @@ export function openDatabase(path: string): Database {
 	database.pragma('foreign_keys = ON')
 	migrateExistingTables(database)
 	database.exec(SCHEMA)
+	migrateData(database)
 	return database
+}
+
+/** Data rewrites that run once per database, tracked by SQLite's `user_version`. */
+const DATA_MIGRATIONS: Array<(database: Database) => void> = [rebuildSnippets]
+
+function migrateData(database: Database): void {
+	const row = database.prepare('PRAGMA user_version').get() as { user_version: number }
+	for (let version = row.user_version; version < DATA_MIGRATIONS.length; version++) {
+		database.transaction(() => DATA_MIGRATIONS[version](database))()
+		database.exec(`PRAGMA user_version = ${version + 1}`)
+	}
+}
+
+/** Recomputes stored previews, which used to keep style sheets, links and rulers. */
+function rebuildSnippets(database: Database): void {
+	const rows = database
+		.prepare('SELECT message_id, text_body, html_body FROM message_bodies')
+		.all() as Array<{ message_id: number; text_body: string | null; html_body: string | null }>
+	const update = database.prepare('UPDATE messages SET snippet = ? WHERE message_id = ?')
+	for (const row of rows) update.run(messageSnippet(row.text_body, row.html_body), row.message_id)
 }
 
 /**

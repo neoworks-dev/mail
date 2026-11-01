@@ -1,18 +1,27 @@
 <!--
-  One conversation in the list, after Notion Mail. In a wide list it is one line: sender, subject
-  and snippet, then label, attachment, flag and date. In a narrow one the subject and snippet go
-  under the sender. An unread dot sits in the gutter and unread conversations are bold. The open
-  one is shaded, selected ones more so. Rows are inset and rounded, with no line between.
+  One conversation in the list, after Notion Mail. In a wide list it is one line: the sender's
+  logo or initials, who wrote, subject and snippet, then label, attachment, flag and date. In a
+  narrow one the subject and snippet go under the sender. An unread dot sits in the gutter and
+  unread conversations are bold. The open one is shaded, selected ones more so. Hovered, the row
+  trades its markers and date for archive, read, delete and flag. Rows are inset and rounded,
+  with no line between.
 -->
 <script lang="ts">
 	import { Icon, Text, View } from '@neoworks/svelte-gpui/ui'
 	import type { PointerEvent, Style } from '@neoworks/svelte-gpui/ui'
 	import { currentTheme, typeStyle } from '@neoworks/svelte-gpui-ui'
+	import archiveIcon from '@phosphor-icons/core/regular/archive.svg'
+	import envelopeOpenIcon from '@phosphor-icons/core/regular/envelope-open.svg'
+	import envelopeIcon from '@phosphor-icons/core/regular/envelope-simple.svg'
 	import paperclipIcon from '@phosphor-icons/core/regular/paperclip.svg'
+	import starOutlineIcon from '@phosphor-icons/core/regular/star.svg'
 	import starIcon from '@phosphor-icons/core/fill/star-fill.svg'
+	import trashIcon from '@phosphor-icons/core/regular/trash.svg'
 	import type { ThreadSummary } from '../../../shared/mail'
-	import { formatListDate, SENDER_COLUMN_WIDTH, senderLabel, subjectLabel } from './format'
+	import Avatar from '../../components/Avatar.svelte'
+	import { formatListDate, participantsLabel, SENDER_COLUMN_WIDTH, subjectLabel } from './format'
 	import LabelPill from './LabelPill.svelte'
+	import RowAction from './RowAction.svelte'
 
 	interface Props {
 		thread: ThreadSummary
@@ -24,15 +33,55 @@
 		showLabel: boolean
 		/** The account's address, shown in the all-inboxes view. */
 		accountEmail: string | null
+		/** The user's own address in the thread's account, who the list calls "me". */
+		ownAddress: string
 		onpress: (event: PointerEvent) => void
 		onaltpress: (event: PointerEvent) => void
+		onarchive: () => void
+		ondelete: () => void
+		ontoggleread: () => void
+		ontoggleflag: () => void
 	}
 
-	let { thread, open, selected, wide, showLabel, accountEmail, onpress, onaltpress }: Props =
-		$props()
+	let {
+		thread,
+		open,
+		selected,
+		wide,
+		showLabel,
+		accountEmail,
+		ownAddress,
+		onpress,
+		onaltpress,
+		onarchive,
+		ondelete,
+		ontoggleread,
+		ontoggleflag
+	}: Props = $props()
 
 	const theme = $derived(currentTheme())
 	const unread = $derived(thread.threadUnread > 0)
+	let hovered = $state(false)
+
+	function readToggleIcon(): string {
+		if (unread) return envelopeOpenIcon
+		return envelopeIcon
+	}
+
+	function readToggleLabel(): string {
+		if (unread) return 'Mark as read'
+		return 'Mark as unread (u)'
+	}
+
+	function flagIcon(): string {
+		if (thread.flagged) return starIcon
+		return starOutlineIcon
+	}
+
+	function flagLabel(): string {
+		if (thread.flagged) return 'Remove flag (s)'
+		return 'Flag (s)'
+	}
 
 	function rowStyle(): Style {
 		const style: Style = {
@@ -79,17 +128,37 @@
 </script>
 
 {#snippet sender(style: Style)}
-	<Text style={{ minWidth: 0, truncate: true, ...style }}>
-		<Text style={emphasisStyle()}>{senderLabel(thread)}</Text>
-		{#if thread.threadTotal > 1}
-			<Text style={{ fontWeight: 400, fontSize: 12, color: theme.colors.faint }}
-				>{`  ${thread.threadTotal}`}</Text
-			>
-		{/if}
-	</Text>
+	<View style={{ direction: 'row', align: 'center', gap: 8, minWidth: 0, ...style }}>
+		<Avatar name={thread.fromName} address={thread.fromAddress} size={20} logo />
+		<Text style={{ flex: 1, minWidth: 0, truncate: true }}>
+			<Text style={emphasisStyle()}>{participantsLabel(thread, ownAddress)}</Text>
+			{#if thread.threadTotal > 1}
+				<Text style={{ fontWeight: 400, fontSize: 12, color: theme.colors.faint }}
+					>{`  ${thread.threadTotal}`}</Text
+				>
+			{/if}
+		</Text>
+	</View>
+{/snippet}
+
+{#snippet actions()}
+	<View style={{ direction: 'row', align: 'center', gap: 2 }}>
+		<RowAction icon={archiveIcon} label="Archive (e)" onpress={onarchive} />
+		<RowAction icon={readToggleIcon()} label={readToggleLabel()} onpress={ontoggleread} />
+		<RowAction icon={trashIcon} label="Delete (#)" onpress={ondelete} />
+		<RowAction icon={flagIcon()} label={flagLabel()} onpress={ontoggleflag} />
+	</View>
 {/snippet}
 
 {#snippet markers()}
+	{#if hovered}
+		{@render actions()}
+	{:else}
+		{@render statusMarkers()}
+	{/if}
+{/snippet}
+
+{#snippet statusMarkers()}
 	{#if showLabel && thread.label}
 		<LabelPill label={thread.label} />
 	{/if}
@@ -104,7 +173,13 @@
 	>
 {/snippet}
 
-<View style={rowStyle()} hover={{ background: theme.colors.hover }} {onpress} ondown={pointerDown}>
+<View
+	style={rowStyle()}
+	hover={{ background: theme.colors.hover }}
+	{onpress}
+	ondown={pointerDown}
+	onhover={(value) => (hovered = value)}
+>
 	<View style={{ width: 8, height: 18, align: 'center', justify: 'center', shrink: 0 }}>
 		<View style={{ size: 6, radius: 3, background: dotColor() }} />
 	</View>

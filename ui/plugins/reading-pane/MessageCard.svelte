@@ -1,7 +1,7 @@
 <!--
   One message of a thread, flat on the pane. Collapsed it is a row with the sender's avatar and
   name, a snippet and the date; expanded it shows its header, other plugins' banners, a note when
-  images were held back or trackers removed, its body and other plugins' footer. Pressing the
+  images were held back, its body and other plugins' footer. Pressing the
   header toggles it.
 -->
 <script lang="ts">
@@ -61,7 +61,7 @@
 		hover={{ background: theme.colors.hover }}
 		onpress={toggle}
 	>
-		<Avatar name={message.fromName} address={message.fromAddress} size={28} />
+		<Avatar name={message.fromName} address={message.fromAddress} size={28} logo />
 		<Text
 			style={{
 				...typeStyle('bodySmall'),
@@ -108,7 +108,7 @@
 			hover={{ background: theme.colors.hover }}
 			onpress={toggle}
 		>
-			<Avatar name={message.fromName} address={message.fromAddress} size={36} />
+			<Avatar name={message.fromName} address={message.fromAddress} size={36} logo />
 			<View style={{ flex: 1, minWidth: 0, gap: 1 }}>
 				<View style={{ direction: 'row', align: 'baseline', gap: 12 }}>
 					<Text style={{ ...typeStyle('bodySmall'), flex: 1, minWidth: 0, truncate: true }}>

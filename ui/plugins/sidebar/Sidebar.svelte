@@ -28,7 +28,14 @@
 	import type { SettingsService } from '../../kernel/settings/service'
 	import type { AccountsService } from '../accounts/service.svelte'
 	import type { MailboxService } from '../mailbox/service.svelte'
-	import { folderDisplayName, otherFolders, primaryFolders, type SpecialKind } from './folders'
+	import {
+		folderDisplayName,
+		otherFolders,
+		primaryFolders,
+		SPECIAL_NAMES,
+		type PrimaryFolder,
+		type SpecialKind
+	} from './folders'
 	import Slot from '../../kernel/slots/Slot.svelte'
 	import SectionLabel from './SectionLabel.svelte'
 	import SidebarRow from './SidebarRow.svelte'
@@ -85,6 +92,12 @@
 	function categoryCount(counts: Record<string, number>, label: string | null): number {
 		if (label === null) return counts['__all'] || 0
 		return counts[label] || 0
+	}
+
+	/** Unread mail, except drafts, which have nothing to read and count what is waiting. */
+	function primaryCount(entry: PrimaryFolder): number {
+		if (entry.kind === 'drafts') return entry.folder.totalMessages
+		return entry.folder.unreadMessages
 	}
 
 	function folderSelected(folder: MailFolder, label: string | null): boolean {
@@ -225,9 +238,9 @@
 			{/if}
 			{#each otherPrimary as entry (entry.folder.folderId)}
 				<SidebarRow
-					title={folderDisplayName(entry.folder)}
+					title={SPECIAL_NAMES[entry.kind]}
 					icon={SPECIAL_ICONS[entry.kind]}
-					count={entry.folder.unreadMessages}
+					count={primaryCount(entry)}
 					selected={folderSelected(entry.folder, null)}
 					onpress={() => void mailbox.openFolder(entry.folder.folderId)}
 				/>

@@ -3,6 +3,9 @@
 // morning digest starts here when the sidecar says it is due.
 
 import type { Context } from '@neoworks/extension-system'
+import checksIcon from '@phosphor-icons/core/regular/list-checks.svg'
+import packageIcon from '@phosphor-icons/core/regular/package.svg'
+import sparkleIcon from '@phosphor-icons/core/regular/sparkle.svg'
 import { AssistantService } from './service.svelte'
 
 export const assistant = {
@@ -45,11 +48,17 @@ export const assistant = {
 
 function registerCommands(ctx: Context, service: AssistantService): void {
 	const hasThread = () => service.available && ctx.reader.openThreadId !== null
+	const hasSummary = () => {
+		const threadId = ctx.reader.openThreadId
+		return threadId !== null && service.state.summaries[threadId] !== undefined
+	}
 	ctx.commands.register({
 		id: 'assistant.summarize',
 		title: 'Summarize conversation',
 		group: 'Assistant',
-		when: hasThread,
+		menu: 'thread.more',
+		icon: sparkleIcon,
+		when: () => hasThread() && !hasSummary(),
 		run: async () => {
 			const threadId = ctx.reader.openThreadId
 			if (threadId !== null) await service.summarize(threadId)
@@ -59,6 +68,8 @@ function registerCommands(ctx: Context, service: AssistantService): void {
 		id: 'assistant.extractActions',
 		title: 'Extract action items',
 		group: 'Assistant',
+		menu: 'thread.more',
+		icon: checksIcon,
 		when: () => service.available && ctx.reader.actionTarget !== null,
 		run: async () => {
 			const target = ctx.reader.actionTarget
@@ -69,6 +80,8 @@ function registerCommands(ctx: Context, service: AssistantService): void {
 		id: 'assistant.extractShipment',
 		title: 'Find shipment tracking',
 		group: 'Assistant',
+		menu: 'thread.more',
+		icon: packageIcon,
 		when: () => service.available && ctx.reader.actionTarget !== null,
 		run: async () => {
 			const target = ctx.reader.actionTarget

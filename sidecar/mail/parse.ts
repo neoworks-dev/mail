@@ -3,9 +3,8 @@ import type { MessageAddress } from '../../shared/mail'
 import { parseAuthenticationResults } from './authenticity'
 import { classifyHeuristic, type LabelSignals } from './labeling'
 import { extractShipment } from './shipping'
+import { htmlToText, messageSnippet } from './snippet'
 import type { ParsedAttachmentInput, ParsedMessageInput } from './store'
-
-const SNIPPET_LENGTH = 160
 
 function flattenAddresses(value: AddressObject | AddressObject[] | undefined): MessageAddress[] {
 	if (!value) return []
@@ -17,19 +16,6 @@ function flattenAddresses(value: AddressObject | AddressObject[] | undefined): M
 		}
 	}
 	return result
-}
-
-function htmlToText(html: string): string {
-	return html
-		.replace(/<style[\s\S]*?<\/style>/gi, ' ')
-		.replace(/<script[\s\S]*?<\/script>/gi, ' ')
-		.replace(/<[^>]+>/g, ' ')
-		.replace(/&nbsp;/gi, ' ')
-		.replace(/&amp;/gi, '&')
-		.replace(/&lt;/gi, '<')
-		.replace(/&gt;/gi, '>')
-		.replace(/\s+/g, ' ')
-		.trim()
 }
 
 function toAttachmentInput(attachment: Attachment): ParsedAttachmentInput {
@@ -110,8 +96,6 @@ export async function parseRawMessage(
 	if (textBody) searchBody = textBody
 	else if (htmlBody) searchBody = htmlToText(htmlBody)
 
-	const snippetSource = searchBody.replace(/\s+/g, ' ').trim()
-
 	const fromAddress = from.length > 0 ? from[0].address : ''
 	const subject = parsed.subject || ''
 	const label = classifyHeuristic(labelSignals(parsed, fromAddress, subject))
@@ -141,7 +125,7 @@ export async function parseRawMessage(
 		toAddresses: flattenAddresses(parsed.to),
 		ccAddresses: flattenAddresses(parsed.cc),
 		date: (parsed.date || new Date()).toISOString(),
-		snippet: snippetSource.slice(0, SNIPPET_LENGTH),
+		snippet: messageSnippet(textBody, htmlBody),
 		seen: flags.has('\\Seen'),
 		flagged: flags.has('\\Flagged'),
 		answered: flags.has('\\Answered'),

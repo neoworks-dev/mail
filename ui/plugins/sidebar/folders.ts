@@ -27,7 +27,10 @@ const NAME_KINDS: Record<string, SpecialKind> = {
 	papierkorb: 'trash',
 	'deleted items': 'trash',
 	'deleted messages': 'trash',
-	gelöscht: 'trash'
+	gelöscht: 'trash',
+	'gelöschte elemente': 'trash',
+	spamverdacht: 'junk',
+	'junk-e-mail': 'junk'
 }
 
 const SPECIAL_USE_KINDS: Record<string, SpecialKind> = {
@@ -73,7 +76,23 @@ export function otherFolders(folders: MailFolder[], primary: PrimaryFolder[]): M
 	return folders.filter((folder) => !primaryIds.has(folder.folderId))
 }
 
+/** The UI's own names for the well-known folders, whatever language the server names them in. */
+export const SPECIAL_NAMES: Record<SpecialKind, string> = {
+	inbox: 'Inbox',
+	drafts: 'Drafts',
+	sent: 'Sent',
+	archive: 'Archive',
+	junk: 'Junk',
+	trash: 'Trash'
+}
+
+/**
+ * A folder the server marks as well-known goes by the UI's name for it. One recognized only by
+ * its name keeps that name, since an account can hold several such, like "Sent" and "Gesendet".
+ */
 export function folderDisplayName(folder: MailFolder): string {
-	if (folder.path === 'INBOX') return 'Inbox'
+	if (folder.path === 'INBOX') return SPECIAL_NAMES.inbox
+	if (folder.specialUse && SPECIAL_USE_KINDS[folder.specialUse])
+		return SPECIAL_NAMES[SPECIAL_USE_KINDS[folder.specialUse]]
 	return folder.name
 }

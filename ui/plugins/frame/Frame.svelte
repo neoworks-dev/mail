@@ -2,8 +2,9 @@
   The window's layout, and nothing in it of its own: the navigation (sidebar and message list),
   the reading area and whatever sits aside it (the assistant), side by side and running to the
   window's edges, with no bar above them, as in Notion Mail. The panes are parted by a hairline
-  that resizes them. Overlays draw above everything. Until an
-  account exists the `onboarding` slot takes the whole window.
+  that resizes them. While reading full width with a tab open, the navigation steps aside.
+  Overlays draw above everything. Until an account exists the `onboarding` slot takes the whole
+  window.
 -->
 <script lang="ts">
 	import { View } from '@neoworks/svelte-gpui/ui'
@@ -12,9 +13,10 @@
 	import { useKernel } from '../../kernel/kernel'
 	import Slot from '../../kernel/slots/Slot.svelte'
 	import type { AccountsService } from '../accounts/service.svelte'
-	import { NAVIGATION_WIDTH, paneStyle } from './layout'
+	import type { ReaderService } from '../reader/service.svelte'
+	import { NAVIGATION_WIDTH, paneStyle, READER_FOCUSED_SETTING } from './layout'
 
-	let { accounts }: { accounts: AccountsService } = $props()
+	let { accounts, reader }: { accounts: AccountsService; reader: ReaderService } = $props()
 
 	const kernel = useKernel()
 	const theme = $derived(currentTheme())
@@ -40,6 +42,16 @@
 	}
 
 	const hasAccounts = $derived(accounts.state.accounts.length > 0)
+	const hasOpenTab = $derived(reader.state.panes.some((pane) => pane.tabs.length > 0))
+	const showNavigation = $derived(
+		!(kernel.settings.get(READER_FOCUSED_SETTING, false) && hasOpenTab)
+	)
+
+	/** Hidden rather than removed, so the list keeps its place and loaded pages. */
+	function navigationDisplay(): 'flex' | 'none' {
+		if (showNavigation) return 'flex'
+		return 'none'
+	}
 </script>
 
 {#if !accounts.state.loaded}
@@ -51,10 +63,19 @@
 {:else}
 	<View style={{ flex: 1 }}>
 		<View style={{ flex: 1, direction: 'row', minHeight: 0, background: theme.colors.surface }}>
-			<View style={{ ...paneStyle(theme), width: shownWidth, direction: 'row' }}>
+			<View
+				style={{
+					...paneStyle(theme),
+					width: shownWidth,
+					direction: 'row',
+					display: navigationDisplay()
+				}}
+			>
 				<Slot name="navigation" />
 			</View>
-			<PaneResizer onresize={resizeNavigation} onend={saveNavigationWidth} />
+			{#if showNavigation}
+				<PaneResizer onresize={resizeNavigation} onend={saveNavigationWidth} />
+			{/if}
 			<View style={{ flex: 1, minWidth: 0, direction: 'row' }}>
 				<Slot name="content" />
 			</View>

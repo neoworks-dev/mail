@@ -118,14 +118,14 @@ export class AccountsService {
 		const inbox = this.inbox()
 		if (inbox) {
 			this.state.inboxLabelCounts = toCountRecord(
-				await this.ctx.sidecar.call('labels.counts', inbox.folderId)
+				await this.ctx.sidecar.call('labels.unreadCounts', inbox.folderId)
 			)
 		} else {
 			this.state.inboxLabelCounts = {}
 		}
 		if (this.state.accounts.length > 1) {
 			this.state.unifiedLabelCounts = toCountRecord(
-				await this.ctx.sidecar.call('labels.counts', null)
+				await this.ctx.sidecar.call('labels.unreadCounts', null)
 			)
 		}
 	}

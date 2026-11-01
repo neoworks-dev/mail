@@ -16,6 +16,7 @@ import type {
 	SearchResult,
 	ShipmentExtraction,
 	SyncStatus,
+	ThreadFilter,
 	ThreadMessage,
 	ThreadPage
 } from './mail'
@@ -61,9 +62,15 @@ export interface Routes {
 		folderId: number,
 		limit: number,
 		offset: number,
-		label: string | null
+		label: string | null,
+		filter: ThreadFilter
 	) => ThreadPage
-	'threads.listUnified': (limit: number, offset: number, label: string | null) => ThreadPage
+	'threads.listUnified': (
+		limit: number,
+		offset: number,
+		label: string | null,
+		filter: ThreadFilter
+	) => ThreadPage
 	'threads.messages': (accountId: number, threadId: number) => ThreadMessage[]
 	'threads.locate': (threadId: number) => number | null
 
@@ -101,7 +108,8 @@ export interface Routes {
 	'send.queue': (input: OutgoingMessage) => { sendId: number; sendAt: number }
 	'send.cancel': (sendId: number) => OutgoingMessage | null
 
-	'labels.counts': (folderId: number | null) => Array<{ label: string | null; count: number }>
+	/** Unread messages per label, with `__priority` for the priority pseudo-label. */
+	'labels.unreadCounts': (folderId: number | null) => Array<{ label: string | null; count: number }>
 	'contacts.suggest': (accountId: number, query: string) => Array<{ address: string; name: string }>
 
 	'search.text': (query: string, accountId: number | null) => SearchResult[]

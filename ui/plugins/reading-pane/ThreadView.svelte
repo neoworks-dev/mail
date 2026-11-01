@@ -1,8 +1,8 @@
 <!--
   An open thread: its toolbar along the top, after back and forward, then, scrolling, its subject
   as the title with its category under it, what other plugins put above it, and its messages,
-  the expanded ones with their bodies, parted by hairlines. The thread sits in a centred column
-  of a readable width, however wide the pane.
+  the expanded ones with their bodies, parted by hairlines, and reply buttons under the last. The
+  thread sits in a centred column of a readable width, however wide the pane.
 -->
 <script lang="ts">
 	import { Scroll, Text, View } from '@neoworks/svelte-gpui/ui'
@@ -12,6 +12,7 @@
 	import CategoryPicker from './CategoryPicker.svelte'
 	import MessageCard from './MessageCard.svelte'
 	import type { ReadingServices } from './services'
+	import ThreadReplyBar from './ThreadReplyBar.svelte'
 	import ThreadToolbar from './ThreadToolbar.svelte'
 
 	let {
@@ -22,8 +23,8 @@
 
 	const theme = $derived(currentTheme())
 
-	/** About 75 characters of body text a line, past which lines get hard to follow. */
-	const READING_WIDTH = 760
+	/** About 70 characters of body text a line, past which lines get hard to follow. */
+	const READING_WIDTH = 720
 
 	const subject = $derived.by(() => {
 		const first = tab.messages[0]
@@ -79,6 +80,7 @@
 				{/if}
 				<MessageCard {services} {tab} {message} {paneIndex} />
 			{/each}
+			<ThreadReplyBar {services} {tab} {paneIndex} />
 		</View>
 	</Scroll>
 </View>

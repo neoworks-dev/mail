@@ -3,7 +3,8 @@
 //
 // - `thread.navigation` (list): the start of the thread's toolbar, such as back and forward.
 // - `thread.header` (list; props `{ tab }`): above the messages, such as the summary.
-// - `thread.actions` (list; props `{ tab }`): buttons in the thread's toolbar.
+// - `thread.actions` (list; props `{ tab }`): buttons at the right end of the thread's toolbar,
+//   before its More menu, which lists the commands whose `menu` is `thread.more`.
 // - `message.banners` (list; props `{ message, body }`): notes above an expanded message's body.
 // - `message.footer` (list; props `{ message, body }`): below the body, such as attachments.
 // - `reading.view` (keyed): a tab's custom view, by the view's key, such as the digest.
@@ -14,7 +15,7 @@ import type { ReadingServices } from './services'
 
 export const readingPane = {
 	name: 'reading-pane',
-	inject: ['slots', 'sidecar', 'reader', 'mailbox', 'accounts', 'composer'],
+	inject: ['slots', 'sidecar', 'reader', 'mailbox', 'accounts', 'composer', 'commands'],
 	apply(ctx: Context) {
 		ctx.slots.declare('thread.navigation', 'list')
 		ctx.slots.declare('thread.header', 'list')
@@ -28,7 +29,8 @@ export const readingPane = {
 			reader: ctx.reader,
 			mailbox: ctx.mailbox,
 			accounts: ctx.accounts,
-			composer: ctx.composer
+			composer: ctx.composer,
+			commands: ctx.commands
 		}
 		ctx.slots.register('content', {
 			id: 'reading-pane',

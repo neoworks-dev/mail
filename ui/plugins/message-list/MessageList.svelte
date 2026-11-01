@@ -23,7 +23,9 @@
 	import type { ReaderService } from '../reader/service.svelte'
 	import { folderDisplayName } from '../sidebar/folders'
 	import BundleRow from './BundleRow.svelte'
+	import FilterChips from './FilterChips.svelte'
 	import ListHeader from './ListHeader.svelte'
+	import { hasActiveFilter } from './filters'
 	import { threadMenuItems } from './threadMenu'
 	import ThreadRow from './ThreadRow.svelte'
 
@@ -178,11 +180,33 @@
 		setTimeout(() => openMenu(menuItems), 0)
 	}
 
+	function ownAddress(thread: ThreadSummary): string {
+		return accounts.ownEmail(thread.accountId)
+	}
+
+	/** Archiving or deleting the open thread also closes it, as from the toolbar. */
+	function removeThread(
+		thread: ThreadSummary,
+		action: (thread: ThreadSummary) => Promise<void>
+	): void {
+		if (reader.openThreadId === thread.threadId) reader.closeActive()
+		void action(thread)
+	}
+
+	function toggleRead(thread: ThreadSummary): void {
+		void mailbox.setThreadRead(thread, thread.threadUnread > 0)
+	}
+
 	function accountEmail(thread: ThreadSummary): string | null {
 		if (!mailbox.unified) return null
 		const email = accounts.ownEmail(thread.accountId)
 		if (email === '') return null
 		return email
+	}
+
+	function emptyText(): string {
+		if (hasActiveFilter(mailbox.state.filter)) return 'No messages match these filters'
+		return 'No messages here'
 	}
 
 	function scrolled(position: ScrollPosition): void {
@@ -199,12 +223,13 @@
 		selectedCount={mailbox.state.selectedThreadIds.length}
 		{commands}
 	/>
+	<FilterChips {mailbox} />
 	{#if mailbox.state.threads.length === 0}
 		<View style={{ flex: 1, align: 'center', justify: 'center', padding: 24 }}>
 			{#if mailbox.state.loading}
 				<LoadingSpinner size={22} />
 			{:else}
-				<Text style={{ fontSize: 13, color: theme.colors.faint }}>No messages here</Text>
+				<Text style={{ fontSize: 13, color: theme.colors.faint }}>{emptyText()}</Text>
 			{/if}
 		</View>
 	{:else}
@@ -245,8 +270,13 @@
 						{wide}
 						showLabel={showLabel(item.thread)}
 						accountEmail={accountEmail(item.thread)}
+						ownAddress={ownAddress(item.thread)}
 						onpress={(event) => pressThread(event, item.thread)}
 						onaltpress={(event) => altPressThread(event, item.thread)}
+						onarchive={() => removeThread(item.thread, (thread) => mailbox.archive(thread))}
+						ondelete={() => removeThread(item.thread, (thread) => mailbox.remove(thread))}
+						ontoggleread={() => toggleRead(item.thread)}
+						ontoggleflag={() => void mailbox.toggleFlagged(item.thread)}
 					/>
 				{/if}
 			{/snippet}

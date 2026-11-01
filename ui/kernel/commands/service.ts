@@ -16,6 +16,10 @@ export interface Command {
 	title: string
 	group?: string
 	keywords?: string
+	/** A menu that lists the command, such as `thread.more`, the thread toolbar's "More" menu. */
+	menu?: string
+	/** SVG markup a menu shows before the title. */
+	icon?: string
 	/** Whether the command can run now; a command that cannot is skipped by `run`. */
 	when?: () => boolean
 	run: (...args: unknown[]) => void | Promise<void>
@@ -66,6 +70,11 @@ export class CommandsService extends Service {
 	get(id: string): Command | undefined {
 		this.changes.track()
 		return this.commandsById.get(id)
+	}
+
+	/** The commands a menu lists that can run now, in registration order. Reactive. */
+	inMenu(menu: string): Command[] {
+		return this.list().filter((command) => command.menu === menu && this.canRun(command.id))
 	}
 
 	/** Every registered command, in registration order. Reactive. */

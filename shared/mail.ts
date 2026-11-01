@@ -78,6 +78,24 @@ export interface ThreadSummary extends MessageSummary {
 	/** Messages in the thread across all folders of the account. */
 	threadTotal: number
 	threadUnread: number
+	/** Everyone who wrote in the thread, once each, in the order they first wrote. */
+	participants: MessageAddress[]
+}
+
+/** Narrows a thread list beyond its folder and label. */
+export interface ThreadFilter {
+	unread: boolean
+	flagged: boolean
+	hasAttachments: boolean
+	/** Only threads someone at this address wrote in. */
+	fromAddress: string | null
+}
+
+export const NO_THREAD_FILTER: ThreadFilter = {
+	unread: false,
+	flagged: false,
+	hasAttachments: false,
+	fromAddress: null
 }
 
 /** One message inside an opened thread. */

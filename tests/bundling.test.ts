@@ -32,6 +32,7 @@ function thread(overrides: Partial<ThreadSummary>): ThreadSummary {
 		label: null,
 		threadTotal: 1,
 		threadUnread: 0,
+		participants: [],
 		...overrides
 	}
 }

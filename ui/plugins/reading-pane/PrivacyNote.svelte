@@ -1,13 +1,12 @@
 <!--
-  Says what was kept out of a message: remote images held back until the user loads them, and
-  the tracking pixels and click wrappers that were removed.
+  Says when a message's remote images are held back, with a button that loads them. Removed
+  trackers go unmentioned.
 -->
 <script lang="ts">
 	import { Icon, Text, View } from '@neoworks/svelte-gpui/ui'
 	import { Button, currentTheme, typeStyle } from '@neoworks/svelte-gpui-ui'
 	import shieldIcon from '@phosphor-icons/core/regular/shield-check.svg'
 	import type { MailDocument } from '../../../shared/document'
-	import { plural } from './format'
 
 	let {
 		document,
@@ -16,18 +15,10 @@
 	}: { document: MailDocument; imagesAllowed: boolean; onallow: () => void } = $props()
 
 	const theme = $derived(currentTheme())
-	const trackers = $derived(document.trackersRemoved + document.linksUnwrapped)
 	const imagesBlocked = $derived(document.remoteImages > 0 && !imagesAllowed)
-
-	const text = $derived.by(() => {
-		const parts: string[] = []
-		if (imagesBlocked) parts.push('Remote images blocked')
-		if (trackers > 0) parts.push(`${plural(trackers, 'tracker')} removed`)
-		return parts.join(' · ')
-	})
 </script>
 
-{#if imagesBlocked || trackers > 0}
+{#if imagesBlocked}
 	<View
 		style={{
 			direction: 'row',
@@ -51,10 +42,8 @@
 				flex: 1,
 				minWidth: 0,
 				truncate: true
-			}}>{text}</Text
+			}}>Remote images blocked</Text
 		>
-		{#if imagesBlocked}
-			<Button variant="ghost" size="sm" onpress={onallow}><Text>Load images</Text></Button>
-		{/if}
+		<Button variant="ghost" size="sm" onpress={onallow}><Text>Load images</Text></Button>
 	</View>
 {/if}

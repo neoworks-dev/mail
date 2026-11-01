@@ -10,10 +10,12 @@ import type {
 	MessageSecurity,
 	MessageSummary,
 	SearchResult,
+	ThreadFilter,
 	ThreadMessage,
 	ThreadPage,
 	ThreadSummary
 } from '../../shared/mail'
+import { NO_THREAD_FILTER } from '../../shared/mail'
 import { detectNameSpoof } from './authenticity'
 import type { CredentialCipher } from './credentials'
 
@@ -167,6 +169,37 @@ function rowToSummary(row: MessageRow): MessageSummary {
 		hasAttachments: row.has_attachments === 1,
 		label: row.label
 	}
+}
+
+/** Thread-wide columns of a list row: counts and who wrote in it. */
+const THREAD_COLUMNS = `(SELECT COUNT(*) FROM messages t WHERE t.thread_id = m.thread_id AND t.account_id = m.account_id) AS thread_total,
+	(SELECT COUNT(*) FROM messages t WHERE t.thread_id = m.thread_id AND t.account_id = m.account_id AND t.seen = 0) AS thread_unread,
+	(SELECT json_group_array(json_object('name', p.from_name, 'address', p.from_address)) FROM (
+		SELECT t.from_name, t.from_address FROM messages t
+		WHERE t.thread_id = m.thread_id AND t.account_id = m.account_id
+		GROUP BY lower(t.from_address) ORDER BY MIN(t.date)
+	) p) AS participants_json`
+
+type ThreadRow = MessageRow & {
+	thread_total: number
+	thread_unread: number
+	participants_json: string | null
+}
+
+function rowToThreadSummary(row: ThreadRow): ThreadSummary {
+	let participants: MessageAddress[] = []
+	if (row.participants_json) participants = JSON.parse(row.participants_json) as MessageAddress[]
+	return {
+		...rowToSummary(row),
+		threadTotal: row.thread_total,
+		threadUnread: row.thread_unread,
+		participants
+	}
+}
+
+/** A WHERE fragment: some message of `m`'s thread, aliased `t`, meets the condition. */
+function threadHas(condition: string): string {
+	return `EXISTS (SELECT 1 FROM messages t WHERE t.thread_id = m.thread_id AND t.account_id = m.account_id AND ${condition})`
 }
 
 function addressesToSearchText(addresses: MessageAddress[]): string {
@@ -879,14 +912,13 @@ export class MailStore {
 		folderId: number,
 		limit: number,
 		offset: number,
-		label: string | null = null
+		label: string | null = null,
+		threadFilter: ThreadFilter = NO_THREAD_FILTER
 	): ThreadPage {
-		const filter = this.labelFilterClause(label)
+		const filter = this.combinedFilterClause(label, threadFilter)
 		const rows = this.database
 			.prepare(
-				`SELECT ${SUMMARY_COLUMNS},
-					(SELECT COUNT(*) FROM messages t WHERE t.thread_id = m.thread_id AND t.account_id = m.account_id) AS thread_total,
-					(SELECT COUNT(*) FROM messages t WHERE t.thread_id = m.thread_id AND t.account_id = m.account_id AND t.seen = 0) AS thread_unread
+				`SELECT ${SUMMARY_COLUMNS}, ${THREAD_COLUMNS}
 				 FROM messages m
 				 WHERE m.folder_id = ?
 					 AND ${filter.clause}
@@ -897,31 +929,27 @@ export class MailStore {
 					 )
 				 ORDER BY m.date DESC LIMIT ? OFFSET ?`
 			)
-			.all(folderId, ...filter.parameters, limit, offset) as Array<
-			MessageRow & { thread_total: number; thread_unread: number }
-		>
+			.all(folderId, ...filter.parameters, limit, offset) as ThreadRow[]
 		const total = this.database
 			.prepare(
 				`SELECT COUNT(DISTINCT m.thread_id) AS count FROM messages m
 				 WHERE m.folder_id = ? AND ${filter.clause}`
 			)
 			.get(folderId, ...filter.parameters) as { count: number }
-		const threads: ThreadSummary[] = rows.map((row) => ({
-			...rowToSummary(row),
-			threadTotal: row.thread_total,
-			threadUnread: row.thread_unread
-		}))
-		return { threads, total: total.count }
+		return { threads: rows.map(rowToThreadSummary), total: total.count }
 	}
 
 	/** Newest thread rows across the INBOX of every account, for the unified view. */
-	listThreadsUnified(limit: number, offset: number, label: string | null = null): ThreadPage {
-		const filter = this.labelFilterClause(label)
+	listThreadsUnified(
+		limit: number,
+		offset: number,
+		label: string | null = null,
+		threadFilter: ThreadFilter = NO_THREAD_FILTER
+	): ThreadPage {
+		const filter = this.combinedFilterClause(label, threadFilter)
 		const rows = this.database
 			.prepare(
-				`SELECT ${SUMMARY_COLUMNS},
-					(SELECT COUNT(*) FROM messages t WHERE t.thread_id = m.thread_id AND t.account_id = m.account_id) AS thread_total,
-					(SELECT COUNT(*) FROM messages t WHERE t.thread_id = m.thread_id AND t.account_id = m.account_id AND t.seen = 0) AS thread_unread
+				`SELECT ${SUMMARY_COLUMNS}, ${THREAD_COLUMNS}
 				 FROM messages m
 				 JOIN folders f ON f.folder_id = m.folder_id
 				 WHERE f.path = 'INBOX'
@@ -934,9 +962,7 @@ export class MailStore {
 					 )
 				 ORDER BY m.date DESC LIMIT ? OFFSET ?`
 			)
-			.all(...filter.parameters, limit, offset) as Array<
-			MessageRow & { thread_total: number; thread_unread: number }
-		>
+			.all(...filter.parameters, limit, offset) as ThreadRow[]
 		const total = this.database
 			.prepare(
 				`SELECT COUNT(DISTINCT m.thread_id) AS count
@@ -944,12 +970,25 @@ export class MailStore {
 				 WHERE f.path = 'INBOX' AND ${filter.clause}`
 			)
 			.get(...filter.parameters) as { count: number }
-		const threads: ThreadSummary[] = rows.map((row) => ({
-			...rowToSummary(row),
-			threadTotal: row.thread_total,
-			threadUnread: row.thread_unread
-		}))
-		return { threads, total: total.count }
+		return { threads: rows.map(rowToThreadSummary), total: total.count }
+	}
+
+	/** The label filter and the list's own filters, as one WHERE fragment. */
+	private combinedFilterClause(
+		label: string | null,
+		threadFilter: ThreadFilter
+	): { clause: string; parameters: SqlParameter[] } {
+		const labelFilter = this.labelFilterClause(label)
+		const clauses = [labelFilter.clause]
+		const parameters = [...labelFilter.parameters]
+		if (threadFilter.unread) clauses.push(threadHas('t.seen = 0'))
+		if (threadFilter.flagged) clauses.push(threadHas('t.flagged = 1'))
+		if (threadFilter.hasAttachments) clauses.push(threadHas('t.has_attachments = 1'))
+		if (threadFilter.fromAddress !== null) {
+			clauses.push(threadHas('lower(t.from_address) = lower(?)'))
+			parameters.push(threadFilter.fromAddress)
+		}
+		return { clause: clauses.join(' AND '), parameters }
 	}
 
 	/** Unseen INBOX messages across all accounts, for the tray tooltip. */
@@ -1122,30 +1161,32 @@ export class MailStore {
 	}
 
 	/**
-	 * Message counts per label for one folder, or across every INBOX when
+	 * Unread message counts per label for one folder, or across every INBOX when
 	 * folderId is null. The null-label bucket (regular mail) is included.
 	 */
-	labelCounts(folderId: number | null): Array<{ label: string | null; count: number }> {
+	unreadLabelCounts(folderId: number | null): Array<{ label: string | null; count: number }> {
 		let rows: Array<{ label: string | null; count: number }>
 		if (folderId !== null) {
 			rows = this.database
-				.prepare('SELECT label, COUNT(*) AS count FROM messages WHERE folder_id = ? GROUP BY label')
+				.prepare(
+					'SELECT label, COUNT(*) AS count FROM messages WHERE folder_id = ? AND seen = 0 GROUP BY label'
+				)
 				.all(folderId) as Array<{ label: string | null; count: number }>
 		} else {
 			rows = this.database
 				.prepare(
 					`SELECT m.label, COUNT(*) AS count
 					 FROM messages m JOIN folders f ON f.folder_id = m.folder_id
-					 WHERE f.path = 'INBOX' GROUP BY m.label`
+					 WHERE f.path = 'INBOX' AND m.seen = 0 GROUP BY m.label`
 				)
 				.all() as Array<{ label: string | null; count: number }>
 		}
-		rows.push({ label: '__priority', count: this.priorityCount(folderId) })
+		rows.push({ label: '__priority', count: this.unreadPriorityCount(folderId) })
 		return rows
 	}
 
-	private priorityCount(folderId: number | null): number {
-		const clause = this.priorityClause()
+	private unreadPriorityCount(folderId: number | null): number {
+		const clause = `m.seen = 0 AND ${this.priorityClause()}`
 		if (folderId !== null) {
 			const row = this.database
 				.prepare(`SELECT COUNT(*) AS count FROM messages m WHERE m.folder_id = ? AND ${clause}`)
