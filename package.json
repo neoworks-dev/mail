@@ -1,94 +1,45 @@
 {
 	"name": "neoworks-mail",
 	"private": true,
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"type": "module",
-	"main": "./out/main/index.js",
 	"author": {
 		"name": "Moritz Utcke"
 	},
 	"scripts": {
-		"dev": "electron-vite dev",
-		"start": "electron-vite preview",
-		"build": "npm run typecheck && npm run build:nib && electron-vite build",
-		"build:nib": "bun scripts/build-nib.ts",
-		"typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
-		"svelte-check": "svelte-check --tsconfig ./tsconfig.web.json",
-		"typecheck": "npm run typecheck:node && npm run svelte-check",
-		"rebuild": "electron-builder install-app-deps",
-		"postinstall": "electron-builder install-app-deps",
-		"lint": "prettier --check . && eslint .",
-		"format": "prettier --write .",
-		"build:linux": "npm run build && electron-builder --linux"
-	},
-	"build": {
-		"appId": "dev.neoworks.mail.desktop",
-		"productName": "Neomail",
-		"files": [
-			"out/**/*"
-		],
-		"extraResources": [
-			{
-				"from": "resources/nib/dist",
-				"to": "nib/dist"
-			},
-			{
-				"from": "resources/nib/extensions",
-				"to": "nib/extensions"
-			}
-		],
-		"directories": {
-			"buildResources": "resources",
-			"output": "release"
-		},
-		"linux": {
-			"syncDesktopName": true,
-			"target": [
-				"AppImage",
-				"deb"
-			],
-			"category": "Network"
-		}
+		"build": "bun build.mjs",
+		"dev": "bun build.mjs --watch --host target/release/neomail",
+		"host": "bash scripts/host.sh",
+		"start": "bun build.mjs && target/release/neomail --bundle dist/neomail.js",
+		"sidecar": "bun sidecar/index.ts",
+		"typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.ui.json && svelte-check --tsconfig ./tsconfig.ui.json --threshold error",
+		"test": "bun test tests",
+		"format": "prettier --write ."
 	},
 	"dependencies": {
-		"@electron-toolkit/preload": "^3.0.2",
-		"@electron-toolkit/utils": "^4.0.0",
-		"@fontsource/geist-mono": "^5.2.8",
-		"@fontsource/geist-sans": "^5.2.5",
 		"@huggingface/transformers": "^4.2.0",
-		"@neoworks-dev/ui": "workspace:*",
-		"better-sqlite3": "^12.4.1",
-		"dompurify": "^3.4.12",
+		"@neoworks/extension-system": "link:@neoworks/extension-system",
+		"@neoworks/svelte-gpui": "link:@neoworks/svelte-gpui",
+		"@phosphor-icons/core": "^2.1.1",
+		"htmlparser2": "^10.0.0",
 		"imapflow": "^1.0.191",
 		"mailparser": "^3.7.4",
 		"marked": "^18.0.7",
 		"nodemailer": "^9.0.3",
-		"phosphor-svelte": "^3.1.0"
+		"svelte": "^5.57.0"
 	},
 	"devDependencies": {
-		"@electron-toolkit/tsconfig": "^2.0.0",
-		"@eslint/js": "^10.0.1",
-		"@sveltejs/vite-plugin-svelte": "^6.2.0",
-		"@tailwindcss/vite": "^4.3.0",
-		"@types/better-sqlite3": "^7.6.13",
+		"@types/bun": "latest",
 		"@types/mailparser": "^3.4.6",
-		"@types/node": "^24",
 		"@types/nodemailer": "^8.0.1",
-		"electron": "^42.3.2",
-		"electron-builder": "^26.15.3",
-		"electron-vite": "^5.0.0",
-		"eslint": "^10.4.1",
-		"eslint-config-prettier": "^10.1.8",
-		"eslint-plugin-svelte": "^3.19.0",
-		"globals": "^17.6.0",
+		"esbuild": "^0.24.0",
 		"prettier": "^3.8.3",
 		"prettier-plugin-svelte": "^4.1.0",
-		"prettier-plugin-tailwindcss": "^0.8.0",
-		"svelte": "^5.56.1",
-		"svelte-check": "^4.6.0",
-		"tailwindcss": "^4.3.0",
-		"typescript": "^5.9.3",
-		"typescript-eslint": "^8.60.1",
-		"vite": "^7.2.6"
-	}
+		"svelte-check": "^4.7.7",
+		"typescript": "^5.9.3"
+	},
+	"trustedDependencies": [
+		"onnxruntime-node",
+		"protobufjs"
+	]
 }

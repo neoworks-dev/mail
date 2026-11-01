@@ -1,4 +1,35 @@
 {
-	"files": [],
-	"references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.web.json" }]
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"strict": true,
+		"noEmit": true,
+		"skipLibCheck": true,
+		"verbatimModuleSyntax": true,
+		"resolveJsonModule": true,
+		"lib": [
+			"ES2022"
+		],
+		"types": [
+			"bun"
+		],
+		"paths": {
+			"@neoworks-dev/neo-sdk": [
+				"../neoworks-harness/sdk-ts/src/index.ts"
+			],
+			"@neoworks-dev/neo-protocol/types": [
+				"../neoworks-harness/protocol/gen/types.ts"
+			]
+		},
+		"allowImportingTsExtensions": true
+	},
+	"include": [
+		"sidecar",
+		"shared",
+		"tests"
+	],
+	"exclude": [
+		"sidecar/nib/resources"
+	]
 }

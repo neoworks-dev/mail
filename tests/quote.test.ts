@@ -1,10 +1,12 @@
 import { describe, expect, test } from 'bun:test'
-import { extractQuote } from '../src/renderer/src/state/quote'
+import { extractQuote } from '../ui/lib/quote'
 
 describe('extractQuote', () => {
 	test('returns the quote block from a fresh reply', () => {
 		const markdown = '\n\nOn 8/1/2026, Jane <jane@example.com> wrote:\n\n> Hello\n> World\n'
-		expect(extractQuote(markdown)).toBe('On 8/1/2026, Jane <jane@example.com> wrote:\n\n> Hello\n> World\n')
+		expect(extractQuote(markdown)).toBe(
+			'On 8/1/2026, Jane <jane@example.com> wrote:\n\n> Hello\n> World\n'
+		)
 	})
 
 	test('keeps user text above the quote out of the block', () => {

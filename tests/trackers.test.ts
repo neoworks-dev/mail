@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { stripTrackers, unwrapTrackingLink } from '../src/renderer/src/state/trackers'
+import { stripTrackers, unwrapTrackingLink } from '../sidecar/mail/trackers'
 
 describe('stripTrackers pixels', () => {
 	test('removes a 1x1 remote pixel by attributes', () => {
@@ -16,7 +16,8 @@ describe('stripTrackers pixels', () => {
 	})
 
 	test('removes known tracker hosts regardless of size', () => {
-		const html = '<img src="https://foo.list-manage.com/track/open.php?u=abc" width="100" height="50">'
+		const html =
+			'<img src="https://foo.list-manage.com/track/open.php?u=abc" width="100" height="50">'
 		const result = stripTrackers(html)
 		expect(result.pixelsRemoved).toBe(1)
 	})
@@ -29,14 +30,16 @@ describe('stripTrackers pixels', () => {
 	})
 
 	test('keeps cid and data images even at 1x1', () => {
-		const html = '<img src="cid:spacer" width="1" height="1"><img src="data:image/gif;base64,R0lGOD" width="1" height="1">'
+		const html =
+			'<img src="cid:spacer" width="1" height="1"><img src="data:image/gif;base64,R0lGOD" width="1" height="1">'
 		const result = stripTrackers(html)
 		expect(result.html).toBe(html)
 		expect(result.pixelsRemoved).toBe(0)
 	})
 
 	test('does not misread max-width or line-height as dimensions', () => {
-		const html = '<img src="https://cdn.example.com/hero.png" style="max-width:1px auto; line-height:1px">'
+		const html =
+			'<img src="https://cdn.example.com/hero.png" style="max-width:1px auto; line-height:1px">'
 		const result = stripTrackers(html)
 		expect(result.pixelsRemoved).toBe(0)
 	})
@@ -56,25 +59,29 @@ describe('unwrapTrackingLink', () => {
 	})
 
 	test('unwraps google redirects', () => {
-		expect(unwrapTrackingLink('https://www.google.com/url?q=https%3A%2F%2Fexample.com%2F&sa=D')).toBe(
-			'https://example.com/'
-		)
+		expect(
+			unwrapTrackingLink('https://www.google.com/url?q=https%3A%2F%2Fexample.com%2F&sa=D')
+		).toBe('https://example.com/')
 	})
 
 	test('unwraps proofpoint urldefense v3', () => {
-		expect(unwrapTrackingLink('https://urldefense.com/v3/__https://example.com/page__;!!abc!def$')).toBe(
-			'https://example.com/page'
-		)
+		expect(
+			unwrapTrackingLink('https://urldefense.com/v3/__https://example.com/page__;!!abc!def$')
+		).toBe('https://example.com/page')
 	})
 
 	test('unwraps generic click-tracking paths with a url param', () => {
 		expect(
-			unwrapTrackingLink('https://links.example.com/track/click?url=https%3A%2F%2Fshop.example.com%2F')
+			unwrapTrackingLink(
+				'https://links.example.com/track/click?url=https%3A%2F%2Fshop.example.com%2F'
+			)
 		).toBe('https://shop.example.com/')
 	})
 
 	test('leaves opaque wrappers alone', () => {
-		expect(unwrapTrackingLink('https://foo.list-manage.com/track/click?u=abc&id=def&e=ghi')).toBeNull()
+		expect(
+			unwrapTrackingLink('https://foo.list-manage.com/track/click?u=abc&id=def&e=ghi')
+		).toBeNull()
 	})
 
 	test('leaves plain links alone', () => {
@@ -102,8 +109,7 @@ describe('stripTrackers links', () => {
 
 	test('unwraps nested wrappers', () => {
 		const inner = 'https://www.google.com/url?q=' + encodeURIComponent('https://example.com/final')
-		const outer =
-			'https://eur02.safelinks.protection.outlook.com/?url=' + encodeURIComponent(inner)
+		const outer = 'https://eur02.safelinks.protection.outlook.com/?url=' + encodeURIComponent(inner)
 		const result = stripTrackers(`<a href="${outer.replace(/&/g, '&amp;')}">x</a>`)
 		expect(result.html).toBe('<a href="https://example.com/final">x</a>')
 	})

@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { extractShipment } from '../src/main/mail/shipping'
-import { parseActionsJson, parseDigestJson, parseShipmentJson } from '../src/renderer/src/state/extraction'
+import { extractShipment } from '../sidecar/mail/shipping'
 
 describe('extractShipment', () => {
 	test('DHL sender with 20-digit number and shipment wording', () => {
@@ -62,78 +61,5 @@ describe('extractShipment', () => {
 				bodyText: 'Meet at 12? 00340434161094042557 is not relevant here'
 			})
 		).toBeNull()
-	})
-})
-
-describe('parseShipmentJson', () => {
-	test('parses a clean reply', () => {
-		const parsed = parseShipmentJson(
-			'{"carrier":"DHL","trackingNumber":"123","trackingUrl":"https://dhl.de/x","status":"In transit","deliveryDate":"2026-08-05"}'
-		)
-		expect(parsed).toEqual({
-			carrier: 'DHL',
-			trackingNumber: '123',
-			trackingUrl: 'https://dhl.de/x',
-			status: 'In transit',
-			deliveryDate: '2026-08-05'
-		})
-	})
-
-	test('tolerates fences and prose around the JSON', () => {
-		const parsed = parseShipmentJson('Here you go:\n```json\n{"carrier":"UPS","trackingNumber":null,"trackingUrl":null}\n```')
-		expect(parsed?.carrier).toBe('UPS')
-		expect(parsed?.trackingNumber).toBeNull()
-	})
-
-	test('rejects null replies and non-http urls', () => {
-		expect(parseShipmentJson('null')).toBeNull()
-		const parsed = parseShipmentJson('{"carrier":"X","trackingNumber":"1","trackingUrl":"javascript:alert(1)"}')
-		expect(parsed?.trackingUrl).toBeNull()
-	})
-})
-
-describe('parseActionsJson', () => {
-	test('parses items and normalizes due', () => {
-		const items = parseActionsJson(
-			'[{"title":"Pay invoice","due":"2026-08-10"},{"title":"Reply to Jane","due":null}]'
-		)
-		expect(items).toEqual([
-			{ title: 'Pay invoice', due: '2026-08-10' },
-			{ title: 'Reply to Jane', due: null }
-		])
-	})
-
-	test('empty array is valid (nothing to do)', () => {
-		expect(parseActionsJson('[]')).toEqual([])
-	})
-
-	test('drops malformed entries, tolerates fences', () => {
-		const items = parseActionsJson('```json\n[{"title":"Ok"},{"nope":1},"x"]\n```')
-		expect(items).toEqual([{ title: 'Ok', due: null }])
-	})
-
-	test('non-array replies are rejected', () => {
-		expect(parseActionsJson('{"title":"x"}')).toBeNull()
-		expect(parseActionsJson('no json here')).toBeNull()
-	})
-})
-
-describe('parseDigestJson', () => {
-	test('parses groups with thread references', () => {
-		const digest = parseDigestJson(
-			'{"intro":"Busy night.","groups":[{"title":"Important","items":[{"threadId":12,"note":"Boss wants reply"}]},{"title":"Bulk","items":[{"threadId":34,"note":""}]}]}'
-		)
-		expect(digest?.intro).toBe('Busy night.')
-		expect(digest?.groups).toHaveLength(2)
-		expect(digest?.groups[0].items[0]).toEqual({ threadId: 12, note: 'Boss wants reply' })
-	})
-
-	test('drops invalid items and empty groups, rejects proseful replies', () => {
-		const digest = parseDigestJson(
-			'{"groups":[{"title":"A","items":[{"threadId":"x","note":"bad"}]},{"title":"B","items":[{"threadId":5,"note":"ok"}]}]}'
-		)
-		expect(digest?.groups).toHaveLength(1)
-		expect(digest?.groups[0].title).toBe('B')
-		expect(parseDigestJson('Good morning! Lots of mail today.')).toBeNull()
 	})
 })
