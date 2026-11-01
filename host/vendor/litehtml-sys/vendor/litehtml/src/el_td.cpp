@@ -39,7 +39,7 @@ void el_td::parse_attributes()
 	str = get_attr("align");
 	if(str)
 	{
-		m_style.add_property(_text_align_, str);
+		m_style.add_property(_text_align_, legacy_align_value(str));
 	}
 
 	str = get_attr("valign");

@@ -12,7 +12,7 @@ void litehtml::el_div::parse_attributes()
 	const char* str = get_attr("align");
 	if(str)
 	{
-		m_style.add_property(_text_align_, str);
+		m_style.add_property(_text_align_, legacy_align_value(str));
 	}
 	html_tag::parse_attributes();
 }

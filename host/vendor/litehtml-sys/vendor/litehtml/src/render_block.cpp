@@ -249,6 +249,17 @@ litehtml::pixel_t litehtml::render_item_block::_render(pixel_t x, pixel_t y, con
 		m_pos.width = 0;
 	}
 
+	// neoworks: the width reported to the parent obeys max-width and min-width too, or a
+	// shrink-to-fit parent (table cell, inline-block) sizes itself for the unclamped content.
+	if(self_size.max_width.type != containing_block_context::cbc_value_type_none && ret_width > self_size.max_width)
+	{
+		ret_width = self_size.max_width;
+	}
+	if(self_size.min_width.type != containing_block_context::cbc_value_type_none && ret_width < self_size.min_width)
+	{
+		ret_width = self_size.min_width;
+	}
+
 	// re-render content with new width if required
 	if (requires_rerender && !second_pass && !is_root())
 	{

@@ -13,6 +13,7 @@ namespace litehtml
 	class render_item_block_context : public render_item_block
 	{
 	protected:
+		pixel_t legacy_center_offset(const std::shared_ptr<render_item>& el, pixel_t available_width) const;
 		pixel_t _render_content(pixel_t x, pixel_t y, bool second_pass, const containing_block_context &self_size, formatting_context* fmt_ctx) override;
 
 	public:
@@ -25,6 +26,7 @@ namespace litehtml
 		}
 		pixel_t get_first_baseline() override;
 		pixel_t get_last_baseline() override;
+		void apply_vertical_align() override;
 	};
 }
 

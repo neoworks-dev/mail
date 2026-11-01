@@ -639,14 +639,17 @@ namespace litehtml
 		element_position_fixed,
 	};
 
-#define text_align_strings		"left;right;center;justify"
+#define text_align_strings		"left;right;center;justify;-webkit-center"
 
 	enum text_align
 	{
 		text_align_left,
 		text_align_right,
 		text_align_center,
-		text_align_justify
+		text_align_justify,
+		// neoworks: the legacy centring of align="center" and <center>, which also centres
+		// block children narrower than their container.
+		text_align_webkit_center
 	};
 
 #define text_transform_strings		"none;capitalize;uppercase;lowercase"

@@ -57,6 +57,26 @@ litehtml::pixel_t litehtml::render_item::render(pixel_t x, pixel_t y, const cont
 	return ret;
 }
 
+// neoworks: a render whose only use is the width it returns, as a table's minimum and maximum
+// cell widths. The result depends only on the containing block, so it is cached; without that,
+// every nesting level of tables tripled the work and deeply nested mail took seconds.
+// The element's position is left stale on a cache hit, so callers must render it for real later.
+litehtml::pixel_t litehtml::render_item::measure(const containing_block_context& containing_block_size, formatting_context* fmt_ctx)
+{
+	for (const auto& cached : m_measurements)
+	{
+		bool same_width = cached.width == containing_block_size.width.value && cached.width_type == containing_block_size.width.type;
+		bool same_height = cached.height == containing_block_size.height.value && cached.height_type == containing_block_size.height.type;
+		if (same_width && same_height && cached.size_mode == containing_block_size.size_mode)
+		{
+			return cached.result;
+		}
+	}
+	pixel_t result = render(0, 0, containing_block_size, fmt_ctx);
+	m_measurements.push_back({containing_block_size.width.value, containing_block_size.width.type, containing_block_size.height.value, containing_block_size.height.type, containing_block_size.size_mode, result});
+	return result;
+}
+
 void litehtml::render_item::calc_outlines( pixel_t parent_width )
 {
     m_padding.left	= m_element->css().get_padding().left.calc_percent(parent_width);
@@ -1314,6 +1334,20 @@ void litehtml::render_item::calc_cb_length(const css_length& len, pixel_t percen
 	}
 }
 
+// neoworks: a percentage height of a containing block whose height is auto computes to auto
+// (CSS 2.1 10.5). Upstream resolved it against the height value carried down from the
+// viewport, so `height: 100%` under an auto-height parent stretched to the window.
+void litehtml::render_item::calc_cb_height_length(const css_length& len, const containing_block_context::typed_pixel& percent_base, containing_block_context::typed_pixel& out_value) const
+{
+	bool is_positioned = src_el()->css().get_position() == element_position_absolute || src_el()->css().get_position() == element_position_fixed;
+	bool base_is_auto = percent_base.type == containing_block_context::cbc_value_type_auto;
+	if (!len.is_predefined() && len.units() == css_units_percentage && base_is_auto && !is_positioned)
+	{
+		return;
+	}
+	calc_cb_length(len, percent_base, out_value);
+}
+
 litehtml::containing_block_context litehtml::render_item::calculate_containing_block_context(const containing_block_context& cb_context)
 {
 	containing_block_context ret;
@@ -1374,7 +1408,7 @@ litehtml::containing_block_context litehtml::render_item::calculate_containing_b
 			}
 			if(height)
 			{
-				calc_cb_length(*height, cb_context.height, ret.height);
+				calc_cb_height_length(*height, cb_context.height, ret.height);
 			}
 		}
 		if (ret.width.type != containing_block_context::cbc_value_type_auto && (src_el()->css().get_display() == display_table || src_el()->is_root()))
@@ -1391,8 +1425,8 @@ litehtml::containing_block_context litehtml::render_item::calculate_containing_b
 	calc_cb_length(src_el()->css().get_min_width(), cb_context.width, ret.min_width);
 	calc_cb_length(src_el()->css().get_max_width(), cb_context.width, ret.max_width);
 
-	calc_cb_length(src_el()->css().get_min_height(), cb_context.height, ret.min_height);
-	calc_cb_length(src_el()->css().get_max_height(), cb_context.height, ret.max_height);
+	calc_cb_height_length(src_el()->css().get_min_height(), cb_context.height, ret.min_height);
+	calc_cb_height_length(src_el()->css().get_max_height(), cb_context.height, ret.max_height);
 
 	// Fix box sizing
 	if(ret.width.type != containing_block_context::cbc_value_type_auto)

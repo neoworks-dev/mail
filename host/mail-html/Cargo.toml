@@ -9,3 +9,7 @@ publish = false
 
 [dependencies]
 litehtml = { version = "0.2.6", default-features = false, features = ["vendored"] }
+
+[patch.crates-io]
+# litehtml with our layout fixes; see host/vendor/litehtml-sys/PATCHES.md.
+litehtml-sys = { path = "../vendor/litehtml-sys" }

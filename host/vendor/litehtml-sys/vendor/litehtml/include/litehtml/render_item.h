@@ -30,8 +30,21 @@ namespace litehtml
         std::vector<std::shared_ptr<render_item>>   m_positioned;
     	std::shared_ptr<scroll_view>				m_scroll_view;
 
+		// neoworks: widths returned by measuring renders, keyed on the inputs they depend on.
+		struct measurement
+		{
+			pixel_t width;
+			containing_block_context::cbc_value_type width_type;
+			pixel_t height;
+			containing_block_context::cbc_value_type height_type;
+			uint32_t size_mode;
+			pixel_t result;
+		};
+		std::vector<measurement>					m_measurements;
+
 		containing_block_context calculate_containing_block_context(const containing_block_context& cb_context);
 		void calc_cb_length(const css_length& len, pixel_t percent_base, containing_block_context::typed_pixel& out_value) const;
+		void calc_cb_height_length(const css_length& len, const containing_block_context::typed_pixel& percent_base, containing_block_context::typed_pixel& out_value) const;
 		virtual pixel_t _render(pixel_t /*x*/, pixel_t /*y*/, const containing_block_context& /*containing_block_size*/, formatting_context* /*fmt_ctx*/, bool /*second_pass = false*/)
 		{
 			return 0;
@@ -433,6 +446,7 @@ namespace litehtml
 		}
 
 		pixel_t render(pixel_t x, pixel_t y, const containing_block_context& containing_block_size, formatting_context* fmt_ctx, bool second_pass = false);
+		pixel_t measure(const containing_block_context& containing_block_size, formatting_context* fmt_ctx);
         void apply_relative_shift(const containing_block_context &containing_block_size);
         void calc_outlines( pixel_t parent_width );
         pixel_t calc_auto_margins(pixel_t parent_width);	// returns left margin

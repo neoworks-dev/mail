@@ -308,6 +308,7 @@ std::list< std::unique_ptr<litehtml::line_box_item> > litehtml::line_box::finish
             }
             break;
         case text_align_center:
+        case text_align_webkit_center:
             if(m_width < (m_right - m_left))
             {
 				shift_x = ((m_right - m_left) - m_width) / 2;

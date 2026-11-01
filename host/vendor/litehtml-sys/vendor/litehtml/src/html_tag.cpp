@@ -1606,3 +1606,14 @@ void html_tag::map_to_dimension_property_ignoring_zero(string_id prop_name, stri
 }
 
 } // namespace litehtml
+
+// neoworks: align="center" (or "middle") on div, td, th and tr centres block children too,
+// as browsers do through their -webkit-center text-align; plain "center" only centres lines.
+const char* litehtml::html_tag::legacy_align_value(const char* align)
+{
+	if (t_strcasecmp(align, "center") == 0 || t_strcasecmp(align, "middle") == 0)
+	{
+		return "-webkit-center";
+	}
+	return align;
+}

@@ -80,3 +80,111 @@ fn numbers_ordered_list_markers() {
     assert!(labels.contains(&"ii.".to_string()), "{labels:?}");
     assert!(labels.contains(&"3.".to_string()), "{labels:?}");
 }
+
+fn text_origin(commands: &[DrawCommand], wanted: &str) -> (f32, f32) {
+    commands
+        .iter()
+        .find_map(|command| match command {
+            DrawCommand::Text { text, origin, .. } if text == wanted => Some(*origin),
+            _ => None,
+        })
+        .unwrap_or_else(|| panic!("no text {wanted:?} in {:?}", texts(commands)))
+}
+
+fn layout_html(html: &str) -> mail_html::DisplayList {
+    let mut fonts = FixedWidthFonts { sizes: Vec::new() };
+    layout(html, VIEWPORT, &mut fonts, &HashMap::new()).unwrap()
+}
+
+#[test]
+fn percentage_height_under_auto_parent_stays_auto() {
+    let list = layout_html(r#"<!DOCTYPE html><body style="margin:0"><div style="height:100%">short</div></body>"#);
+
+    assert!(list.height < 100.0, "page is {} tall", list.height);
+}
+
+#[test]
+fn align_center_centres_block_children() {
+    let html = r#"<body style="margin:0"><table width="600" cellspacing="0" cellpadding="0"><tr><td align="center">
+        <table style="width:200px" cellspacing="0" cellpadding="0"><tr><td style="text-align:left">middle</td></tr></table>
+    </td></tr></table></body>"#;
+    let list = layout_html(html);
+
+    let (x, _) = text_origin(&list.commands, "middle");
+    assert!((x - 200.0).abs() < 2.0, "table starts at {x}");
+}
+
+#[test]
+fn empty_cell_with_height_keeps_it() {
+    let html = r#"<body style="margin:0"><table cellspacing="0" cellpadding="0"><tr><td height="40"></td></tr></table><p style="margin:0">after</p></body>"#;
+    let list = layout_html(html);
+
+    let (_, baseline) = text_origin(&list.commands, "after");
+    assert!(baseline > 40.0, "text baseline at {baseline}");
+}
+
+#[test]
+fn margins_collapse_through_empty_blocks() {
+    let html = r#"<body style="margin:0"><div style="padding-top:1px"><p style="margin:20px 0"></p><p style="margin:20px 0"></p><div>after</div></div></body>"#;
+    let list = layout_html(html);
+
+    let (_, baseline) = text_origin(&list.commands, "after");
+    assert!(baseline < 40.0, "text baseline at {baseline}, margins stacked");
+}
+
+#[test]
+fn max_width_bounds_shrink_to_fit_columns() {
+    let column = r#"<div style="width:100%;max-width:150px;display:inline-block;font-size:16px">COLUMN</div>"#;
+    let html = format!(r#"<body style="margin:0"><table width="600" cellspacing="0" cellpadding="0"><tr><td><div style="font-size:0">{column}{column}{column}</div></td></tr></table></body>"#);
+    let list = layout_html(&html);
+
+    let rows: Vec<f32> = list
+        .commands
+        .iter()
+        .filter_map(|command| match command {
+            DrawCommand::Text { text, origin, .. } if text == "COLUMN" => Some(origin.1),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(rows.len(), 3);
+    assert!(rows.iter().all(|row| *row == rows[0]), "columns wrapped: {rows:?}");
+}
+
+#[test]
+fn long_urls_wrap_at_punctuation() {
+    let html = r#"<body style="margin:0"><div style="width:200px">https://example.com/project/302125/inbox/reports/11f1f28a?link_source=first_report_email</div></body>"#;
+    let list = layout_html(html);
+
+    let right_edge = list
+        .commands
+        .iter()
+        .filter_map(|command| match command {
+            DrawCommand::Text { origin, width, .. } => Some(origin.0 + width),
+            _ => None,
+        })
+        .fold(0.0, f32::max);
+    assert!(right_edge <= 200.0, "text reaches {right_edge}");
+}
+
+#[test]
+fn cells_centre_block_content_vertically() {
+    let html = r#"<body style="margin:0"><table cellspacing="0" cellpadding="0"><tr><td style="height:100px"><div>middle</div></td></tr></table></body>"#;
+    let list = layout_html(html);
+
+    let (_, baseline) = text_origin(&list.commands, "middle");
+    assert!(baseline > 40.0 && baseline < 70.0, "text baseline at {baseline}");
+}
+
+#[test]
+fn deeply_nested_tables_lay_out_quickly() {
+    let depth = 20;
+    let opening = r#"<table><tr><td>"#.repeat(depth);
+    let closing = r#"</td></tr></table>"#.repeat(depth);
+    let html = format!("{opening}deep{closing}");
+    let started = std::time::Instant::now();
+    let list = layout_html(&html);
+
+    assert!(texts(&list.commands).contains(&"deep".to_string()));
+    // Measuring each cell anew at every level made this grow as 3^depth.
+    assert!(started.elapsed().as_millis() < 500, "took {:?}", started.elapsed());
+}

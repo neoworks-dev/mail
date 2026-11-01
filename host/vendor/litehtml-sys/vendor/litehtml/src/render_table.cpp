@@ -3,6 +3,19 @@
 #include "iterators.h"
 
 
+// neoworks: the outer height a cell's own fixed `height` asks for. Cells skip height in their
+// containing block context, so without this a spacer such as <td height="32"></td> collapsed.
+static litehtml::pixel_t specified_cell_height(const std::shared_ptr<litehtml::render_item>& cell)
+{
+	const litehtml::css_length& height = cell->src_el()->css().get_height();
+	if (height.is_predefined() || height.units() == litehtml::css_units_percentage)
+	{
+		return 0;
+	}
+	litehtml::pixel_t content_height = cell->src_el()->get_document()->to_pixels(height, cell->css().get_font_metrics(), 0);
+	return content_height - cell->box_sizing_height() + cell->content_offset_height();
+}
+
 litehtml::render_item_table::render_item_table(std::shared_ptr<element> _src_el) :
         render_item(std::move(_src_el)),
         m_border_spacing_x(0),
@@ -52,7 +65,7 @@ litehtml::pixel_t litehtml::render_item_table::_render(pixel_t x, pixel_t y, con
             table_cell* cell = m_grid->cell(0, row);
             if (cell && cell->el)
             {
-                cell->min_width = cell->max_width = cell->el->render(0, 0, self_size.new_width(self_size.render_width - table_width_spacing), fmt_ctx);
+                cell->min_width = cell->max_width = cell->el->measure(self_size.new_width(self_size.render_width - table_width_spacing), fmt_ctx);
                 cell->el->pos().width = cell->min_width - cell->el->content_offset_left() -
 						cell->el->content_offset_right();
             }
@@ -70,7 +83,7 @@ litehtml::pixel_t litehtml::render_item_table::_render(pixel_t x, pixel_t y, con
                     if (!m_grid->column(col).css_width.is_predefined() && m_grid->column(col).css_width.units() != css_units_percentage)
                     {
                         pixel_t css_w = m_grid->column(col).css_width.calc_percent(self_size.width);
-                        pixel_t el_w = cell->el->render(0, 0, self_size.new_width(css_w),fmt_ctx);
+                        pixel_t el_w = cell->el->measure(self_size.new_width(css_w), fmt_ctx);
                         cell->min_width = cell->max_width = std::max(css_w, el_w);
                         cell->el->pos().width = cell->min_width - cell->el->content_offset_left() -
 								cell->el->content_offset_right();
@@ -78,9 +91,9 @@ litehtml::pixel_t litehtml::render_item_table::_render(pixel_t x, pixel_t y, con
                     else
                     {
                         // calculate minimum content width
-                        cell->min_width = cell->el->render(0, 0, self_size.new_width(cell->el->content_offset_width()), fmt_ctx);
+                        cell->min_width = cell->el->measure(self_size.new_width(cell->el->content_offset_width()), fmt_ctx);
                         // calculate maximum content width
-                        cell->max_width = cell->el->render(0, 0, self_size.new_width(self_size.render_width - table_width_spacing), fmt_ctx);
+                        cell->max_width = cell->el->measure(self_size.new_width(self_size.render_width - table_width_spacing), fmt_ctx);
                     }
                 }
             }
@@ -194,6 +207,7 @@ litehtml::pixel_t litehtml::render_item_table::_render(pixel_t x, pixel_t y, con
                 if (cell->rowspan <= 1)
                 {
                     m_grid->row(row).height = std::max(m_grid->row(row).height, cell->el->height());
+                    m_grid->row(row).height = std::max(m_grid->row(row).height, specified_cell_height(cell->el));
                 }
                 else
                 {
