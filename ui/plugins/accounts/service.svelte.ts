@@ -45,10 +45,12 @@ export class AccountsService {
 
 	async load(): Promise<void> {
 		this.state.accounts = await this.ctx.sidecar.call('accounts.list')
-		for (const status of await this.ctx.sidecar.call('sync.statuses')) {
+		// Sync and embeddings are plugins of their own; without them there is just no status.
+		const statuses = await this.ctx.sidecar.call('sync.statuses').catch(() => [])
+		for (const status of statuses) {
 			this.state.syncStatuses[status.accountId] = status
 		}
-		this.state.embeddingStatus = await this.ctx.sidecar.call('embeddings.status')
+		this.state.embeddingStatus = await this.ctx.sidecar.call('embeddings.status').catch(() => null)
 		this.state.loaded = true
 		const first = this.state.accounts[0]
 		if (first && this.state.selectedAccountId === null) await this.select(first.accountId)

@@ -21,11 +21,18 @@ export function assistantItem(item: ViewItem): AssistantItem {
 	return {
 		ref: item.ref,
 		kind: item.kind,
-		label: item.label ?? null,
+		label: labelOf(item),
 		state: item.state ?? null,
 		blocks,
 		buttons
 	}
+}
+
+/** A tool call's title, or the shell command it ran when it has no title of its own. */
+function labelOf(item: ViewItem): string | null {
+	if (item.label) return item.label
+	if (item.command) return item.command
+	return null
 }
 
 function collectComponent(component: Component, blocks: Block[], buttons: AssistantButton[]): void {

@@ -71,10 +71,15 @@ export class AssistantService {
 
 	constructor(private ctx: Context) {}
 
+	/** Reads the agent's state; without the sidecar's neo plugin the assistant just stays off. */
 	async load(): Promise<void> {
-		this.state.status = await this.ctx.sidecar.call('assistant.status')
-		this.state.view = await this.ctx.sidecar.call('assistant.view')
-		this.state.prompts = await this.ctx.sidecar.call('assistant.prompts')
+		try {
+			this.state.status = await this.ctx.sidecar.call('assistant.status')
+			this.state.view = await this.ctx.sidecar.call('assistant.view')
+			this.state.prompts = await this.ctx.sidecar.call('assistant.prompts')
+		} catch {
+			this.state.status = { state: 'off', error: null, sessionId: null, focusApp: null }
+		}
 	}
 
 	get available(): boolean {
