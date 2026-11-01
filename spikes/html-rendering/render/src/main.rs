@@ -1,23 +1,27 @@
-//! Renders every `.html` file in a corpus directory to a PNG with litehtml's CPU renderer.
-//! Each document is laid out twice: once to learn its height, once into a pixmap that fits it.
+//! Renders every `.html` file in a corpus directory to a PNG: mail-html lays it out into a
+//! display list, and a tiny-skia painter standing in for GPUI draws that list.
 //! Usage: litehtml-render <corpus directory> <output directory>
 
+mod fonts;
+mod paint;
+
 use std::{
+    collections::HashMap,
     env, fs, panic,
     path::{Path, PathBuf},
     time::Instant,
 };
 
-use litehtml::{
-    html::{decode_data_uri, preprocess_attrs},
-    pixbuf::PixbufContainer,
-    Document, DrawContext, Position,
-};
+use fonts::CosmicFonts;
+use litehtml::html::{decode_data_uri, preprocess_attrs};
+use mail_html::{layout, Viewport};
+use paint::Painter;
+use tiny_skia::Pixmap;
 
 /// The reading pane's width the comparison is made at.
-const VIEWPORT_WIDTH: u32 = 800;
-/// The viewport height media queries see while the height is measured.
-const VIEWPORT_HEIGHT: u32 = 900;
+const VIEWPORT_WIDTH: f32 = 800.0;
+/// The viewport height media queries and viewport units see.
+const VIEWPORT_HEIGHT: f32 = 900.0;
 /// Pages taller than this are cut off rather than allocating a huge pixmap.
 const MAX_HEIGHT: u32 = 20_000;
 
@@ -31,8 +35,9 @@ fn main() {
     let output_directory = PathBuf::from(&arguments[2]);
     fs::create_dir_all(&output_directory).expect("cannot create the output directory");
 
+    let mut fonts = CosmicFonts::new();
     for path in corpus_files(&corpus_directory) {
-        render_file(&path, &output_directory);
+        render_file(&path, &output_directory, &mut fonts);
     }
 }
 
@@ -46,45 +51,67 @@ fn corpus_files(directory: &Path) -> Vec<PathBuf> {
     files
 }
 
-fn render_file(path: &Path, output_directory: &Path) {
+fn render_file(path: &Path, output_directory: &Path, fonts: &mut CosmicFonts) {
     let stem = path.file_stem().unwrap().to_string_lossy().to_string();
     let started = Instant::now();
     let raw = fs::read_to_string(path).expect("cannot read a corpus file");
     let html = preprocess_attrs(&cellpadding_to_css(&raw));
-    let images = data_images(&html);
+    let images = decoded_images(&html);
+    let image_sizes: HashMap<String, (f32, f32)> = images
+        .iter()
+        .map(|(url, pixmap)| (url.clone(), (pixmap.width() as f32, pixmap.height() as f32)))
+        .collect();
 
-    let rendered = panic::catch_unwind(|| {
-        let height = measure_height(&html, &images);
-        (height, draw(&html, &images, height))
-    });
-    let Ok((height, pixels)) = rendered else {
-        println!("{stem}: FAILED (panic)");
+    let viewport = Viewport { width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT };
+    let rendered = panic::catch_unwind(panic::AssertUnwindSafe(|| layout(&html, viewport, fonts, &image_sizes)));
+    let Ok(Ok(list)) = rendered else {
+        println!("{stem}: FAILED");
         return;
     };
+    let laid_out = started.elapsed();
 
-    let output = output_directory.join(format!("{stem}.png"));
-    save_on_white(&pixels, VIEWPORT_WIDTH, height, &output);
+    let height = (list.height.ceil() as u32).clamp(1, MAX_HEIGHT);
+    let pixmap = Painter::new(VIEWPORT_WIDTH as u32, height, fonts, &images).paint(&list);
+    pixmap
+        .save_png(output_directory.join(format!("{stem}.png")))
+        .expect("cannot write a PNG");
     println!(
-        "{stem}: {VIEWPORT_WIDTH}x{height} in {} ms",
+        "{stem}: {}x{height}, {} commands, layout {} ms, total {} ms",
+        VIEWPORT_WIDTH,
+        list.commands.len(),
+        laid_out.as_millis(),
         started.elapsed().as_millis()
     );
 }
 
-/// The `data:` URLs the document's `src` attributes use, decoded, keyed by the exact URL
-/// litehtml will ask the container for.
-fn data_images(html: &str) -> Vec<(String, Vec<u8>)> {
-    let mut images = Vec::new();
+/// The `data:` images the document's `src` attributes use, decoded and keyed by the exact
+/// URL litehtml will ask about.
+fn decoded_images(html: &str) -> HashMap<String, Pixmap> {
+    let mut images = HashMap::new();
     let mut rest = html;
     while let Some(start) = rest.find("src=\"data:") {
         let after_quote = &rest[start + 5..];
         let end = after_quote.find('"').unwrap_or(after_quote.len());
         let uri = &after_quote[..end];
-        if let Some(bytes) = decode_data_uri(uri) {
-            images.push((uri.to_string(), bytes));
+        if let Some(pixmap) = decode_data_uri(uri).and_then(|bytes| decode_image(&bytes)) {
+            images.insert(uri.to_string(), pixmap);
         }
         rest = &after_quote[end..];
     }
     images
+}
+
+fn decode_image(bytes: &[u8]) -> Option<Pixmap> {
+    let rgba = image::load_from_memory(bytes).ok()?.to_rgba8();
+    let (width, height) = rgba.dimensions();
+    let mut premultiplied = rgba.into_raw();
+    for pixel in premultiplied.chunks_exact_mut(4) {
+        let alpha = pixel[3] as u32;
+        for channel in &mut pixel[..3] {
+            *channel = ((*channel as u32 * alpha + 127) / 255) as u8;
+        }
+    }
+    Pixmap::from_vec(premultiplied, tiny_skia::IntSize::from_wh(width, height)?)
 }
 
 /// litehtml ignores `cellpadding`, so each such table gets a class and a rule padding its own
@@ -127,53 +154,4 @@ fn cellpadding_value(tag: &str) -> Option<u32> {
         .take_while(|character| character.is_ascii_digit())
         .collect();
     digits.parse().ok()
-}
-
-fn new_container(height: u32, images: &[(String, Vec<u8>)]) -> PixbufContainer {
-    let mut container = PixbufContainer::new(VIEWPORT_WIDTH, height);
-    for (uri, bytes) in images {
-        container.load_image_data(uri, bytes);
-    }
-    container
-}
-
-fn measure_height(html: &str, images: &[(String, Vec<u8>)]) -> u32 {
-    let mut container = new_container(VIEWPORT_HEIGHT, images);
-    let Ok(mut document) = Document::from_html(html, &mut container, None, None) else {
-        return 1;
-    };
-    let _ = document.render(VIEWPORT_WIDTH as f32);
-    (document.height().ceil() as u32).clamp(1, MAX_HEIGHT)
-}
-
-fn draw(html: &str, images: &[(String, Vec<u8>)], height: u32) -> Vec<u8> {
-    let mut container = new_container(height, images);
-    {
-        let Ok(mut document) = Document::from_html(html, &mut container, None, None) else {
-            return container.pixels().to_vec();
-        };
-        let _ = document.render(VIEWPORT_WIDTH as f32);
-        let clip = Position {
-            x: 0.0,
-            y: 0.0,
-            width: VIEWPORT_WIDTH as f32,
-            height: height as f32,
-        };
-        document.draw(DrawContext::default(), 0.0, 0.0, Some(clip));
-    }
-    container.pixels().to_vec()
-}
-
-/// Composites premultiplied RGBA over white, as a browser page without a background shows.
-fn save_on_white(pixels: &[u8], width: u32, height: u32, output: &Path) {
-    let mut opaque = Vec::with_capacity(pixels.len());
-    for pixel in pixels.chunks_exact(4) {
-        let transparency = 255 - pixel[3] as u32;
-        for channel in &pixel[..3] {
-            opaque.push((*channel as u32 + transparency).min(255) as u8);
-        }
-        opaque.push(255);
-    }
-    image::save_buffer(output, &opaque, width, height, image::ColorType::Rgba8)
-        .expect("cannot write a PNG");
 }

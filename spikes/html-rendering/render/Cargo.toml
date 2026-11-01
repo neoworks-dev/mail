@@ -7,5 +7,9 @@ publish = false
 [workspace]
 
 [dependencies]
-litehtml = { version = "0.2.6", features = ["pixbuf", "html"] }
-image = { version = "0.25", default-features = false, features = ["png"] }
+mail-html = { path = "../../../host/mail-html" }
+# Only for its data: URI and legacy attribute helpers.
+litehtml = { version = "0.2.6", features = ["html"] }
+cosmic-text = "0.14"
+tiny-skia = "0.11"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "gif", "webp"] }

@@ -222,11 +222,22 @@ dependencies = [
  "byteorder-lite",
  "color_quant",
  "gif",
+ "image-webp",
  "moxcms",
  "num-traits",
  "png 0.18.1",
  "zune-core",
  "zune-jpeg",
+]
+
+[[package]]
+name = "image-webp"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "525e9ff3e1a4be2fbea1fdf0e98686a6d98b4d8f937e1bf7402245af1909e8c3"
+dependencies = [
+ "byteorder-lite",
+ "quick-error",
 ]
 
 [[package]]
@@ -248,20 +259,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "644e44fa76f6191cbd110acdd675072372fc0e4201c5eb2535a65723017be85b"
 dependencies = [
  "base64",
- "cosmic-text",
  "encoding_rs",
- "image",
  "litehtml-sys",
  "log",
- "tiny-skia",
 ]
 
 [[package]]
 name = "litehtml-render"
 version = "0.0.0"
 dependencies = [
+ "cosmic-text",
  "image",
  "litehtml",
+ "mail-html",
+ "tiny-skia",
 ]
 
 [[package]]
@@ -278,6 +289,13 @@ name = "log"
 version = "0.4.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5d15f86d12da44cd8d4ec3c73984537eb7f4cadcb9776a575a0a8a05ca11005c"
+
+[[package]]
+name = "mail-html"
+version = "0.1.0"
+dependencies = [
+ "litehtml",
+]
 
 [[package]]
 name = "memmap2"
@@ -379,6 +397,12 @@ name = "pxfm"
 version = "0.1.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d55d956fa96f5ec02be2e13af0e20391a5aa83d6a074e3ad368959d0fab299ea"
+
+[[package]]
+name = "quick-error"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a993555f31e5a609f617c12db6250dedcac1b0a85076912c436e6fc9b2c8e6a3"
 
 [[package]]
 name = "quote"

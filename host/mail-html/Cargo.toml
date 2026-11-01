@@ -1,0 +1,11 @@
+[package]
+name = "mail-html"
+version = "0.1.0"
+edition = "2021"
+description = "Lays out HTML mail with litehtml into a display list a native painter draws."
+publish = false
+
+[workspace]
+
+[dependencies]
+litehtml = { version = "0.2.6", default-features = false, features = ["vendored"] }
