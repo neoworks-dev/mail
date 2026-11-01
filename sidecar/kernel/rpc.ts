@@ -29,6 +29,8 @@ export class RouteError extends Error {
 export class RpcService extends Service {
 	private handlers = new Map<string, { handler: AnyHandler; owner: string }>()
 	private transport: Transport
+	/** Requests that arrived while the plugins were still loading, answered once they have. */
+	private heldBack: RequestFrame[] | null = []
 
 	constructor(ctx: Context, transport: Transport) {
 		super(ctx, 'rpc')
@@ -62,8 +64,20 @@ export class RpcService extends Service {
 		return [...this.handlers.keys()].sort()
 	}
 
+	/** Answers the requests held back during startup, and every one from now on at once. */
+	open(): void {
+		const waiting = this.heldBack
+		this.heldBack = null
+		if (!waiting) return
+		for (const frame of waiting) void this.answer(frame)
+	}
+
 	private receive(frame: Frame): void {
 		if (frame.kind !== 'request') return
+		if (this.heldBack) {
+			this.heldBack.push(frame)
+			return
+		}
 		void this.answer(frame)
 	}
 

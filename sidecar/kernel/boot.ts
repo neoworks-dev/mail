@@ -46,6 +46,10 @@ export async function bootSidecar(plugins: SidecarPlugin[], transport: Transport
 		plugins: fibers.map(reportFiber)
 	}))
 
+	// A route asked for before its plugin registered it would answer UnknownRoute, so requests
+	// wait until loading is over.
+	void untilSettled(fibers).then(() => context.rpc.open())
+
 	const kernel: SidecarKernel = {
 		context,
 		fibers,
@@ -55,6 +59,26 @@ export async function bootSidecar(plugins: SidecarPlugin[], transport: Transport
 		void kernel.shutdown().finally(() => process.exit(0))
 	})
 	return kernel
+}
+
+const SETTLE_POLL_MS = 20
+const SETTLE_TIMEOUT_MS = 15_000
+
+/**
+ * Resolves once no plugin is loading and the set still waiting for a dependency has stopped
+ * changing, or after a timeout, so a plugin whose dependency never comes cannot hold startup.
+ */
+async function untilSettled(fibers: SidecarKernel['fibers']): Promise<void> {
+	const deadline = Date.now() + SETTLE_TIMEOUT_MS
+	let previousPending = -1
+	while (Date.now() < deadline) {
+		await new Promise((resolve) => setTimeout(resolve, SETTLE_POLL_MS))
+		const states = fibers.map((entry) => entry.fiber.state)
+		if (states.includes(FiberState.LOADING)) continue
+		const pending = states.filter((state) => state === FiberState.PENDING).length
+		if (pending === previousPending) return
+		previousPending = pending
+	}
 }
 
 /** The plugins minus those `NEOMAIL_DISABLE` names (comma separated), such as `sync,neo` for test runs. */
