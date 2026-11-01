@@ -37,7 +37,7 @@
 	})
 </script>
 
-<View style={{ gap: dense ? 8 : 12, minWidth: 0 }}>
+<View style={{ gap: dense ? 8 : 16, minWidth: 0 }}>
 	{#each blocks as block, index (index)}
 		<BlockView {block} />
 	{/each}

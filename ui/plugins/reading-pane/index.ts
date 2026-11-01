@@ -1,6 +1,7 @@
 // The reading area: draws the reader's panes and their tabs into the frame's `content` slot, and
 // declares the places other plugins add to a thread and its messages.
 //
+// - `thread.navigation` (list): the start of the thread's toolbar, such as back and forward.
 // - `thread.header` (list; props `{ tab }`): above the messages, such as the summary.
 // - `thread.actions` (list; props `{ tab }`): buttons in the thread's toolbar.
 // - `message.banners` (list; props `{ message, body }`): notes above an expanded message's body.
@@ -15,6 +16,7 @@ export const readingPane = {
 	name: 'reading-pane',
 	inject: ['slots', 'sidecar', 'reader', 'mailbox', 'accounts', 'composer'],
 	apply(ctx: Context) {
+		ctx.slots.declare('thread.navigation', 'list')
 		ctx.slots.declare('thread.header', 'list')
 		ctx.slots.declare('thread.actions', 'list')
 		ctx.slots.declare('message.banners', 'list')

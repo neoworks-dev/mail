@@ -1,9 +1,9 @@
-<!-- A sender as a circle with their initials, tinted by one of the theme's colour scales. -->
+<!-- A person as a quiet grey circle with their initials, as the NeoWorks website draws its account. -->
 <script lang="ts">
 	import { Text, View } from '@neoworks/svelte-gpui/ui'
 	import type { Style } from '@neoworks/svelte-gpui/ui'
 	import { currentTheme } from '@neoworks/svelte-gpui-ui'
-	import { avatarInitials, avatarScale } from '../lib/avatar'
+	import { avatarInitials } from '../lib/avatar'
 
 	interface Props {
 		name: string
@@ -16,7 +16,6 @@
 	let { name, address, size = 32, style }: Props = $props()
 
 	const theme = $derived(currentTheme())
-	const scale = $derived(theme.scales[avatarScale(address)])
 </script>
 
 <View
@@ -26,16 +25,16 @@
 		radius: size / 2,
 		align: 'center',
 		justify: 'center',
-		background: scale[4],
+		background: theme.colors.pressed,
 		...style
 	}}
 >
 	<Text
 		style={{
 			fontFamily: 'sans',
-			fontSize: Math.round(size * 0.38),
-			fontWeight: 600,
-			color: scale[11]
+			fontSize: Math.round(size * 0.36),
+			fontWeight: 500,
+			color: theme.colors.text
 		}}>{avatarInitials(name, address)}</Text
 	>
 </View>

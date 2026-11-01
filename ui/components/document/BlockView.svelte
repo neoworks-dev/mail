@@ -31,7 +31,13 @@
 				overflowWrap: 'anywhere'
 			}
 		}
-		return { ...typeStyle('bodySmall'), color: theme.colors.text, overflowWrap: 'anywhere' }
+		return {
+			...typeStyle('body'),
+			fontSize: 16,
+			lineHeight: 26,
+			color: theme.colors.text,
+			overflowWrap: 'anywhere'
+		}
 	}
 
 	function alignStyle(align: TextAlign | undefined): Style {

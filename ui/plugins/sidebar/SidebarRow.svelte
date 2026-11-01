@@ -1,6 +1,6 @@
 <!--
   One destination of the sidebar: an optional icon, the title and an optional count. Indented
-  rows are the categories under an inbox, in a smaller type.
+  rows sit under the row they belong to.
 -->
 <script lang="ts">
 	import { Button, Icon, Text } from '@neoworks/svelte-gpui/ui'
@@ -10,6 +10,8 @@
 	interface Props {
 		title: string
 		icon?: string
+		/** The icon's own colour, else the row's text colour. */
+		iconColor?: string
 		count?: number
 		selected: boolean
 		indented?: boolean
@@ -20,6 +22,7 @@
 	let {
 		title,
 		icon,
+		iconColor,
 		count = 0,
 		selected,
 		indented = false,
@@ -35,19 +38,17 @@
 			align: 'center',
 			gap: 10,
 			height: 32,
-			paddingX: 12,
+			paddingX: 10,
 			radius: theme.radii.control,
 			cursor: 'pointer',
 			transition: 120,
-			...typeStyle('caption'),
-			fontSize: 13.5,
+			...typeStyle('nav'),
 			color: theme.colors.muted,
 			fontWeight: 400
 		}
 		if (indented) {
-			style.height = 26
-			style.paddingLeft = 36
-			style.fontSize = 12.5
+			style.height = 30
+			style.paddingLeft = 24
 		}
 		if (selected) {
 			style.background = theme.colors.hover
@@ -65,7 +66,7 @@
 	{onpress}
 >
 	{#if icon}
-		<Icon svg={icon} size={16} />
+		<Icon svg={icon} size={16} color={iconColor} />
 	{/if}
 	<Text style={{ flex: 1, minWidth: 0, truncate: true }}>{title}</Text>
 	{#if count > 0}

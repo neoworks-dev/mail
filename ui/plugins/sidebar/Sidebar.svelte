@@ -1,34 +1,36 @@
 <!--
-  The folders column: the one main action, writing a new message, then all inboxes (with more
-  than one account), the selected account's well-known
-  folders with the inbox's categories under it, the rest behind a "Folders" disclosure, the
-  account switcher and how sync and the search index are doing.
+  The folders column, after Notion Mail: the account switcher with the compose button beside it,
+  the `sidebar.top` slot (search), all inboxes (with more than one account), the inbox, its
+  categories, the other well-known folders, the rest behind a "Folders" disclosure, how sync and
+  the search index are doing, and the `sidebar.footer` slot (theme and assistant).
 -->
 <script lang="ts">
 	import { ContextMenu, Icon, Scroll, Text, View } from '@neoworks/svelte-gpui/ui'
 	import type { MenuItem, PointerEvent } from '@neoworks/svelte-gpui/ui'
-	import { Button, currentTheme, Divider } from '@neoworks/svelte-gpui-ui'
+	import { currentTheme, IconButton, typeStyle } from '@neoworks/svelte-gpui-ui'
 	import archiveIcon from '@phosphor-icons/core/regular/archive.svg'
 	import caretRightIcon from '@phosphor-icons/core/regular/caret-right.svg'
 	import caretDownIcon from '@phosphor-icons/core/regular/caret-down.svg'
 	import caretUpDownIcon from '@phosphor-icons/core/regular/caret-up-down.svg'
 	import folderIcon from '@phosphor-icons/core/regular/folder.svg'
 	import notePencilIcon from '@phosphor-icons/core/regular/note-pencil.svg'
-	import pencilSimpleIcon from '@phosphor-icons/core/regular/pencil-simple.svg'
 	import paperPlaneIcon from '@phosphor-icons/core/regular/paper-plane-tilt.svg'
 	import plusIcon from '@phosphor-icons/core/regular/plus.svg'
-	import stackIcon from '@phosphor-icons/core/regular/stack-simple.svg'
+	import stackIcon from '@phosphor-icons/core/fill/stack-simple-fill.svg'
+	import inboxIcon from '@phosphor-icons/core/fill/tray-fill.svg'
 	import trashIcon from '@phosphor-icons/core/regular/trash.svg'
 	import trayIcon from '@phosphor-icons/core/regular/tray.svg'
 	import warningIcon from '@phosphor-icons/core/regular/warning.svg'
 	import { ALL_MAIL_LABELS, type MailFolder } from '../../../shared/mail'
-	import { labelTitle } from '../../components/message-list/labels'
+	import { labelIcon, labelIconColor, labelTitle } from '../../components/message-list/labels'
 	import Avatar from '../../components/Avatar.svelte'
 	import type { CommandsService } from '../../kernel/commands'
 	import type { SettingsService } from '../../kernel/settings/service'
 	import type { AccountsService } from '../accounts/service.svelte'
 	import type { MailboxService } from '../mailbox/service.svelte'
 	import { folderDisplayName, otherFolders, primaryFolders, type SpecialKind } from './folders'
+	import Slot from '../../kernel/slots/Slot.svelte'
+	import SectionLabel from './SectionLabel.svelte'
 	import SidebarRow from './SidebarRow.svelte'
 	import SyncFooter from './SyncFooter.svelte'
 
@@ -58,6 +60,8 @@
 	const theme = $derived(currentTheme())
 	const primary = $derived(primaryFolders(accounts.state.folders))
 	const others = $derived(otherFolders(accounts.state.folders, primary))
+	const inboxes = $derived(primary.filter((entry) => entry.kind === 'inbox'))
+	const otherPrimary = $derived(primary.filter((entry) => entry.kind !== 'inbox'))
 	const foldersOpen = $derived(settings.get(FOLDERS_OPEN_SETTING, false))
 	const multipleAccounts = $derived(accounts.state.accounts.length > 1)
 
@@ -66,6 +70,16 @@
 	function categoryTitle(label: string | null): string {
 		if (label === null) return 'All'
 		return labelTitle(label)
+	}
+
+	function categoryIcon(label: string | null): string {
+		if (label === null) return inboxIcon
+		return labelIcon(label)
+	}
+
+	function categoryColor(label: string | null): string {
+		if (label === null) return theme.scales.lake[9]
+		return labelIconColor(theme, label)
 	}
 
 	function categoryCount(counts: Record<string, number>, label: string | null): number {
@@ -117,45 +131,99 @@
 	}
 </script>
 
-<View
-	style={{
-		width: 220,
-		borderRightWidth: 1,
-		borderColor: theme.colors.line,
-		background: theme.colors.canvas
-	}}
->
-	<View style={{ paddingX: 8, paddingTop: 10, paddingBottom: 6 }}>
-		<Button
-			variant="primary"
-			size="sm"
-			icon={pencilSimpleIcon}
-			full
-			onpress={() => void commands.run('compose.new')}><Text>New message</Text></Button
+<View style={{ width: 232, background: theme.colors.canvas }}>
+	<View style={{ direction: 'row', align: 'center', gap: 4, paddingLeft: 8, paddingRight: 6 }}>
+		<View
+			style={{
+				flex: 1,
+				minWidth: 0,
+				direction: 'row',
+				align: 'center',
+				gap: 8,
+				paddingX: 6,
+				height: 36,
+				radius: theme.radii.control,
+				cursor: 'pointer'
+			}}
+			hover={{ background: theme.colors.hover }}
+			onpress={openAccountMenu}
 		>
+			<Avatar name="" address={accountLabel()} size={24} />
+			<Text
+				style={{
+					...typeStyle('nav'),
+					fontWeight: 500,
+					color: theme.colors.text,
+					flex: 1,
+					minWidth: 0,
+					truncate: true
+				}}>{accountLabel()}</Text
+			>
+			<Icon svg={caretUpDownIcon} size={12} color={theme.colors.faint} />
+		</View>
+		<IconButton
+			icon={notePencilIcon}
+			label="New message (c)"
+			size="sm"
+			onpress={() => void commands.run('compose.new')}
+		/>
+	</View>
+	<View style={{ paddingX: 8, paddingTop: 2, gap: 1 }}>
+		<Slot name="sidebar.top" />
 	</View>
 	<Scroll style={{ flex: 1 }}>
-		<View style={{ padding: 8, gap: 2 }}>
+		<View style={{ paddingX: 8, paddingTop: 6, paddingBottom: 8, gap: 1 }}>
 			{#if multipleAccounts}
 				<SidebarRow
 					title="All inboxes"
 					icon={stackIcon}
+					iconColor={theme.scales.lake[9]}
 					selected={unifiedSelected(null)}
 					onpress={() => void mailbox.openUnified()}
 				/>
 				{#each CATEGORIES.slice(1) as label (label)}
 					<SidebarRow
 						title={categoryTitle(label)}
+						icon={categoryIcon(label)}
+						iconColor={categoryColor(label)}
 						indented
 						count={categoryCount(accounts.state.unifiedLabelCounts, label)}
 						selected={unifiedSelected(label)}
 						onpress={() => void mailbox.openUnified(label)}
 					/>
 				{/each}
-				<Divider style={{ marginY: 6 }} />
+				<SectionLabel title={accountLabel()} />
 			{/if}
 
-			{#each primary as entry (entry.folder.folderId)}
+			{#each inboxes as entry (entry.folder.folderId)}
+				<SidebarRow
+					title={folderDisplayName(entry.folder)}
+					icon={inboxIcon}
+					iconColor={categoryColor(null)}
+					count={entry.folder.unreadMessages}
+					selected={folderSelected(entry.folder, null)}
+					onpress={() => void mailbox.openFolder(entry.folder.folderId)}
+				/>
+			{/each}
+
+			{#each inboxes as entry (entry.folder.folderId)}
+				<SectionLabel title="Categories" />
+				{#each CATEGORIES.slice(1) as label (label)}
+					<SidebarRow
+						title={categoryTitle(label)}
+						icon={categoryIcon(label)}
+						iconColor={categoryColor(label)}
+						count={categoryCount(accounts.state.inboxLabelCounts, label)}
+						selected={folderSelected(entry.folder, label)}
+						onpress={() => void mailbox.openFolder(entry.folder.folderId, label)}
+					/>
+				{/each}
+			{/each}
+
+			{#if otherPrimary.length > 0 || others.length > 0}
+				<SectionLabel title="Mail" />
+			{/if}
+			{#each otherPrimary as entry (entry.folder.folderId)}
 				<SidebarRow
 					title={folderDisplayName(entry.folder)}
 					icon={SPECIAL_ICONS[entry.kind]}
@@ -163,17 +231,6 @@
 					selected={folderSelected(entry.folder, null)}
 					onpress={() => void mailbox.openFolder(entry.folder.folderId)}
 				/>
-				{#if entry.kind === 'inbox'}
-					{#each CATEGORIES.slice(1) as label (label)}
-						<SidebarRow
-							title={categoryTitle(label)}
-							indented
-							count={categoryCount(accounts.state.inboxLabelCounts, label)}
-							selected={folderSelected(entry.folder, label)}
-							onpress={() => void mailbox.openFolder(entry.folder.folderId, label)}
-						/>
-					{/each}
-				{/if}
 			{/each}
 
 			{#if others.length > 0}
@@ -199,28 +256,11 @@
 		</View>
 	</Scroll>
 
-	<View style={{ borderTopWidth: 1, borderColor: theme.colors.line, padding: 8, gap: 4 }}>
-		<View
-			style={{
-				direction: 'row',
-				align: 'center',
-				gap: 8,
-				paddingX: 8,
-				height: 40,
-				radius: theme.radii.control,
-				cursor: 'pointer'
-			}}
-			hover={{ background: theme.colors.hover }}
-			onpress={openAccountMenu}
-		>
-			<Avatar name="" address={accountLabel()} size={24} />
-			<Text
-				style={{ flex: 1, minWidth: 0, truncate: true, fontSize: 12.5, color: theme.colors.text }}
-				>{accountLabel()}</Text
-			>
-			<Icon svg={caretUpDownIcon} size={14} color={theme.colors.faint} />
-		</View>
+	<View style={{ paddingX: 8, paddingTop: 6, paddingBottom: 8, gap: 6 }}>
 		<SyncFooter {accounts} />
+		<View style={{ direction: 'row', align: 'center', gap: 2 }}>
+			<Slot name="sidebar.footer" />
+		</View>
 	</View>
 </View>
 <ContextMenu bind:this={accountMenu} />

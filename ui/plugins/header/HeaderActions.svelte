@@ -1,6 +1,5 @@
 <!--
-  The theme switch and the assistant toggle, at the right of the bar. Compose is the sidebar's
-  main button.
+  The theme switch and the assistant toggle, along the foot of the sidebar.
 -->
 <script lang="ts">
 	import { IconButton, themeMode } from '@neoworks/svelte-gpui-ui'

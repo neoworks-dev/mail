@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { AVATAR_SCALES, avatarInitials, avatarScale } from '../ui/lib/avatar'
+import { avatarInitials } from '../ui/lib/avatar'
 
 describe('avatarInitials', () => {
 	test('two words give the first letters of the first two', () => {
@@ -15,6 +15,11 @@ describe('avatarInitials', () => {
 		expect(avatarInitials('', 'terminservice@lbv-termine.de')).toBe('T')
 	})
 
+	test('an address with dots or dashes gives two letters', () => {
+		expect(avatarInitials('', 'moritz.utcke@gmx.de')).toBe('MU')
+		expect(avatarInitials('', 'no-reply@unity3d.com')).toBe('NR')
+	})
+
 	test('quotes and brackets around a name are skipped', () => {
 		expect(avatarInitials('"Mario" (Juskys)', 'mario@juskys.de')).toBe('MJ')
 	})
@@ -25,19 +30,5 @@ describe('avatarInitials', () => {
 
 	test('nothing at all gives a question mark', () => {
 		expect(avatarInitials('', '')).toBe('?')
-	})
-})
-
-describe('avatarScale', () => {
-	test('the same address always gets the same scale, whatever its case', () => {
-		expect(avatarScale('Ada@Example.com')).toBe(avatarScale('ada@example.com'))
-	})
-
-	test('addresses spread over every scale', () => {
-		const seen = new Set<string>()
-		for (let index = 0; index < 50; index++) {
-			seen.add(avatarScale(`sender${index}@example.com`))
-		}
-		expect(seen.size).toBe(AVATAR_SCALES.length)
 	})
 })

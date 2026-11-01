@@ -38,6 +38,8 @@
 
 	/** Load the next page when the end is closer than this, in pixels. */
 	const LOAD_MORE_DISTANCE = 600
+	/** From this width on, each conversation takes one line, as in Notion Mail. */
+	const WIDE_LIST_WIDTH = 560
 
 	const theme = $derived(currentTheme())
 	let expandedBundles = $state<Set<string>>(new Set())
@@ -45,6 +47,8 @@
 	let selectionAnchor = $state<number | null>(null)
 	let menu: ContextMenu | undefined = $state()
 	let menuPosition: [number, number] = [0, 0]
+	let listWidth = $state(0)
+	const wide = $derived(listWidth >= WIDE_LIST_WIDTH)
 
 	// A new view starts with its bundles folded and no range anchor.
 	$effect(() => {
@@ -188,7 +192,7 @@
 	}
 </script>
 
-<View style={{ flex: 1, minWidth: 0 }}>
+<View style={{ flex: 1, minWidth: 0 }} onlayout={(layout) => (listWidth = layout.width)}>
 	<ListHeader
 		{title}
 		total={mailbox.state.totalThreads}
@@ -219,7 +223,7 @@
 							fontSize: 12,
 							fontWeight: 600,
 							color: theme.colors.faint,
-							paddingLeft: 20,
+							paddingLeft: 28,
 							paddingTop: 14,
 							paddingBottom: 4
 						}}>{item.title}</Text
@@ -229,6 +233,7 @@
 						label={item.label}
 						threads={item.threads}
 						expanded={item.expanded}
+						{wide}
 						ontoggle={() => toggleBundle(item.label)}
 						onviewall={() => openBundleAsFilter(item.label)}
 					/>
@@ -237,6 +242,7 @@
 						thread={item.thread}
 						open={reader.openThreadId === item.thread.threadId}
 						selected={mailbox.state.selectedThreadIds.includes(item.thread.threadId)}
+						{wide}
 						showLabel={showLabel(item.thread)}
 						accountEmail={accountEmail(item.thread)}
 						onpress={(event) => pressThread(event, item.thread)}

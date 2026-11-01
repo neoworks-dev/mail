@@ -33,11 +33,9 @@
 		direction: 'row',
 		align: 'center',
 		gap: 4,
-		height: 48,
-		paddingLeft: 16,
-		paddingRight: 8,
-		borderBottomWidth: 1,
-		borderColor: theme.colors.line
+		height: 52,
+		paddingLeft: 20,
+		paddingRight: 12
 	}}
 >
 	{#if selectedCount > 0}
@@ -78,7 +76,7 @@
 		<Text
 			style={{
 				...typeStyle('caption'),
-				fontSize: 15,
+				fontSize: 16,
 				fontWeight: 600,
 				color: theme.colors.text,
 				flex: 1,

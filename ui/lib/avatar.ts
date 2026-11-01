@@ -1,27 +1,21 @@
-// What a sender's avatar shows: up to two initials, and one of the theme's colour scales picked
-// from the address, so a sender keeps their colour everywhere.
+// What a sender's avatar shows: up to two initials.
 
-export const AVATAR_SCALES = ['lake', 'larch', 'rock', 'pine'] as const
-
-export type AvatarScale = (typeof AVATAR_SCALES)[number]
-
-/** "Ada Lovelace" gives "AL", "ada@example.com" gives "A", nothing gives "?". */
+/**
+ * "Ada Lovelace" gives "AL". Without a name the address's part before the @ stands in, split at
+ * dots, dashes and underscores, so "moritz.utcke@gmx.de" gives "MU". Nothing gives "?".
+ */
 export function avatarInitials(name: string, address: string): string {
-	const words = wordsOf(name)
-	if (words.length >= 2) return (firstLetter(words[0]) + firstLetter(words[1])).toUpperCase()
-	if (words.length === 1) return firstLetter(words[0]).toUpperCase()
-	const localPart = address.split('@')[0]
-	if (localPart === undefined || localPart === '') return '?'
-	return firstLetter(localPart).toUpperCase()
+	const nameWords = wordsOf(name)
+	if (nameWords.length > 0) return initialsOf(nameWords)
+	const localPart = address.split('@')[0] || ''
+	const addressWords = wordsOf(localPart.replace(/[._-]+/g, ' '))
+	if (addressWords.length > 0) return initialsOf(addressWords)
+	return '?'
 }
 
-export function avatarScale(address: string): AvatarScale {
-	const key = address.toLowerCase()
-	let hash = 0
-	for (let index = 0; index < key.length; index++) {
-		hash = (hash * 31 + key.charCodeAt(index)) >>> 0
-	}
-	return AVATAR_SCALES[hash % AVATAR_SCALES.length]
+function initialsOf(words: string[]): string {
+	if (words.length === 1) return firstLetter(words[0]).toUpperCase()
+	return (firstLetter(words[0]) + firstLetter(words[1])).toUpperCase()
 }
 
 /** Words that start with a letter or digit, so quotes and brackets around a name don't count. */

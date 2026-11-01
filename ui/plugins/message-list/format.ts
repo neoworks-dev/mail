@@ -2,6 +2,9 @@
 
 import type { ThreadSummary } from '../../../shared/mail'
 
+/** The sender column of a wide list, which bundle rows line their category up with. */
+export const SENDER_COLUMN_WIDTH = 176
+
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 /**

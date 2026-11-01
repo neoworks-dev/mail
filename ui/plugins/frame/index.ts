@@ -1,7 +1,6 @@
 // The frame: fills the kernel's `root` slot with the window's layout and declares the slots the
 // other plugins draw into.
 //
-// - `header.start`, `header.center`, `header.end` (lists): the bar above the panes.
 // - `navigation` (list): side by side in the left surface, such as folders and the message list.
 // - `content` (single): the reading area.
 // - `aside` (list): panes right of the reading area, such as the assistant.
@@ -11,14 +10,7 @@
 import type { Context } from '@neoworks/extension-system'
 import Frame from './Frame.svelte'
 
-const LIST_SLOTS = [
-	'header.start',
-	'header.center',
-	'header.end',
-	'navigation',
-	'aside',
-	'overlays'
-]
+const LIST_SLOTS = ['navigation', 'aside', 'overlays']
 const SINGLE_SLOTS = ['content', 'onboarding']
 
 export const frame = {

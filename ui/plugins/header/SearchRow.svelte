@@ -1,9 +1,9 @@
 <!--
-  The search field look-alike in the middle of the bar. Pressing it opens the palette in search
-  mode; it shows the key that opens the palette.
+  The "Search" row at the top of the sidebar, as in Notion Mail. Pressing it opens the palette in
+  search mode; it shows the key that opens the palette.
 -->
 <script lang="ts">
-	import { Button, Icon, Text, View } from '@neoworks/svelte-gpui/ui'
+	import { Button, Icon, Text } from '@neoworks/svelte-gpui/ui'
 	import { currentTheme, typeStyle } from '@neoworks/svelte-gpui-ui'
 	import magnifyingGlass from '@phosphor-icons/core/regular/magnifying-glass.svg'
 	import type { CommandsService } from '../../kernel/commands'
@@ -31,36 +31,26 @@
 
 <Button
 	style={{
-		width: 520,
-		height: 34,
-		gap: 8,
-		paddingX: 12,
+		direction: 'row',
 		align: 'center',
+		gap: 10,
+		height: 32,
+		paddingX: 10,
 		radius: theme.radii.control,
-		borderWidth: 1,
-		borderColor: theme.colors.line,
-		background: theme.colors.surface,
 		color: theme.colors.muted,
-		transition: 120
+		cursor: 'pointer',
+		transition: 120,
+		...typeStyle('nav')
 	}}
-	hover={{ borderColor: theme.colors.lineStrong, color: theme.colors.text }}
+	hover={{ background: theme.colors.hover, color: theme.colors.text }}
+	active={{ background: theme.colors.pressed }}
 	onpress={open}
 >
-	<Icon svg={magnifyingGlass} size={14} />
-	<Text style={{ ...typeStyle('bodySmall'), flex: 1, truncate: true }}>Search mail…</Text>
+	<Icon svg={magnifyingGlass} size={16} />
+	<Text style={{ flex: 1, minWidth: 0, truncate: true }}>Search</Text>
 	{#if shortcut}
-		<View
-			style={{
-				paddingX: 6,
-				paddingY: 2,
-				radius: 4,
-				borderWidth: 1,
-				borderColor: theme.colors.line
-			}}
+		<Text style={{ ...typeStyle('caption'), fontSize: 11.5, color: theme.colors.faint }}
+			>{shortcut}</Text
 		>
-			<Text style={{ ...typeStyle('caption'), fontSize: 11, color: theme.colors.faint }}
-				>{shortcut}</Text
-			>
-		</View>
 	{/if}
 </Button>
