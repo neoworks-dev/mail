@@ -5,7 +5,7 @@ import {
 	comboLabel,
 	comboMatches,
 	isGlobalCombo
-} from '../src/renderer/src/state/keycombo'
+} from '../ui/lib/keycombo'
 
 function fakeEvent(key: string, modifiers: Partial<KeyboardEvent> = {}): KeyboardEvent {
 	return {

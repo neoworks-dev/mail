@@ -1,0 +1,19 @@
+[package]
+name = "neomail"
+version = "0.1.0"
+edition = "2024"
+description = "Neomail: a svelte-gpui window whose mail engine runs in a Bun sidecar."
+
+[[bin]]
+name = "neomail"
+path = "src/main.rs"
+
+[dependencies]
+# The sibling checkout, so the host matches the runtime the bundle is built against.
+svelte_gpui_host = { path = "../../svelte-gpui/host" }
+serde_json = "1"
+
+[patch.crates-io]
+xattr = { path = "../../svelte-gpui/host/vendor/xattr" }
+# GPUI 0.2.2 with svelte-gpui's text cache fix.
+gpui = { path = "../../svelte-gpui/host/vendor/gpui" }

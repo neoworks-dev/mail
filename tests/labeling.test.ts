@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { classifyHeuristic, type LabelSignals } from '../src/main/mail/labeling'
+import { classifyHeuristic, type LabelSignals } from '../sidecar/mail/labeling'
 
 function signals(overrides: Partial<LabelSignals>): LabelSignals {
 	return {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { parseListUnsubscribe, parseMailto } from '../src/main/mail/unsubscribe'
+import { parseListUnsubscribe, parseMailto } from '../sidecar/mail/unsubscribe'
 
 describe('parseListUnsubscribe', () => {
 	test('extracts https and mailto entries', () => {

@@ -5,7 +5,7 @@ import {
 	emailFromIdToken,
 	GMAIL_SCOPES,
 	pkceChallenge
-} from '../src/main/mail/oauth'
+} from '../sidecar/mail/oauth'
 
 describe('pkceChallenge', () => {
 	test('matches the RFC 7636 appendix B test vector', () => {

@@ -5,7 +5,7 @@ import {
 	cosineSimilarity,
 	nearestCentroid,
 	vectorFromBuffer
-} from '../src/main/mail/classify'
+} from '../sidecar/mail/classify'
 
 function vec(...values: number[]): Float32Array {
 	return new Float32Array(values)

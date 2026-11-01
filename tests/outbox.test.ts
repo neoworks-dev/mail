@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
-import { SendOutbox, type SendOutboxEvents } from '../src/main/mail/outbox'
-import type { OutgoingMessage } from '../src/shared/mail'
+import { SendOutbox, type SendOutboxEvents } from '../sidecar/mail/outbox'
+import type { OutgoingMessage } from '../shared/mail'
 
 const SHORT_DELAY_MS = 20
 

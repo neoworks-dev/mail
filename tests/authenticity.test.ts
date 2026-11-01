@@ -3,7 +3,7 @@ import {
 	detectNameSpoof,
 	parseAuthenticationResults,
 	registrableDomain
-} from '../src/main/mail/authenticity'
+} from '../sidecar/mail/authenticity'
 
 describe('parseAuthenticationResults', () => {
 	test('parses a typical gmail header', () => {

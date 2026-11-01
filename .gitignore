@@ -2,31 +2,21 @@
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
-bun.lock
-bun.lockb
 
 node_modules
 
-# electron-vite output
-/out
+# Bundle and host builds
 /dist
+/target
 
-# electron-builder
-/release
-
-# Compiled nib runtime (built by scripts/build-nib.ts)
-/resources/nib/dist
+# Compiled nib runtime
+/sidecar/nib/resources/dist
 
 # OS
 .DS_Store
-Thumbs.db
 
 # Env
 .env
 .env.*
 !.env.example
 !.env.test
-
-# Vite
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*

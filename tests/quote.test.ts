@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { extractQuote } from '../src/renderer/src/state/quote'
+import { extractQuote } from '../ui/lib/quote'
 
 describe('extractQuote', () => {
 	test('returns the quote block from a fresh reply', () => {

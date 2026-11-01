@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { stripTrackers, unwrapTrackingLink } from '../src/renderer/src/state/trackers'
+import { stripTrackers, unwrapTrackingLink } from '../sidecar/mail/trackers'
 
 describe('stripTrackers pixels', () => {
 	test('removes a 1x1 remote pixel by attributes', () => {

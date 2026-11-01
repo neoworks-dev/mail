@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
-import { extractShipment } from '../src/main/mail/shipping'
-import { parseActionsJson, parseDigestJson, parseShipmentJson } from '../src/renderer/src/state/extraction'
+import { extractShipment } from '../sidecar/mail/shipping'
+import { parseActionsJson, parseDigestJson, parseShipmentJson } from '../ui/lib/extraction'
 
 describe('extractShipment', () => {
 	test('DHL sender with 20-digit number and shipment wording', () => {

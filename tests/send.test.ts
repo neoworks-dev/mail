@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
-import { composeMail, renderMarkdownEmail, smtpSettings } from '../src/main/mail/send'
-import type { AccountCredentials } from '../src/main/mail/store'
+import { composeMail, renderMarkdownEmail, smtpSettings } from '../sidecar/mail/send'
+import type { AccountCredentials } from '../sidecar/mail/store'
 
 function credentials(overrides: Partial<AccountCredentials>): AccountCredentials {
 	return {

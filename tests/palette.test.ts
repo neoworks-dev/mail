@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { filterCommands, type PaletteCommand } from '../src/renderer/src/state/palette'
+import { filterCommands, type PaletteCommand } from '../ui/lib/palette'
 
 function command(id: string, label: string): PaletteCommand {
 	return { id, label, shortcut: null, run: () => {} }

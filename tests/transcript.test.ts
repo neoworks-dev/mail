@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
-import { applyEvent, emptyTranscript, type TranscriptState } from '../src/renderer/src/nib/transcript'
-import type { SessionEvent } from '../src/renderer/src/nib/types'
+import { applyEvent, emptyTranscript, type TranscriptState } from '../ui/nib/transcript'
+import type { SessionEvent } from '../ui/nib/types'
 
 let nextSeq = 1
 

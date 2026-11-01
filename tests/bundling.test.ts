@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test'
-import type { ThreadSummary } from '../src/shared/mail'
+import type { ThreadSummary } from '../shared/mail'
 import {
 	buildThreadListItems,
 	bundleSenders,
 	bundleUnreadCount,
 	visibleThreads
-} from '../src/renderer/src/state/bundling'
+} from '../ui/lib/bundling'
 
 let nextId = 1
 
