@@ -9,7 +9,11 @@
 	import type { SidecarService } from '../../kernel/sidecar/service'
 	import Banner from '../reading-pane/Banner.svelte'
 
-	let { message, body, sidecar }: { message: ThreadMessage; body: MessageBody; sidecar: SidecarService } = $props()
+	let {
+		message,
+		body,
+		sidecar
+	}: { message: ThreadMessage; body: MessageBody; sidecar: SidecarService } = $props()
 
 	type Step = 'idle' | 'confirm' | 'working' | 'done' | 'failed'
 
@@ -46,7 +50,7 @@
 			<Text style={typeStyle('caption')}>{outcome}</Text>
 		</Banner>
 	{:else}
-		<Banner icon={listIcon} tone={tone}>
+		<Banner icon={listIcon} {tone}>
 			{#if step === 'failed'}
 				<Text style={typeStyle('caption')}>Unsubscribing failed: {outcome}</Text>
 			{:else if step === 'confirm'}
@@ -58,10 +62,16 @@
 			{/if}
 			{#snippet actions()}
 				{#if step === 'confirm'}
-					<Button variant="danger" size="sm" onpress={() => void run()}><Text>Unsubscribe</Text></Button>
-					<Button variant="ghost" size="sm" onpress={() => (step = 'idle')}><Text>Cancel</Text></Button>
+					<Button variant="danger" size="sm" onpress={() => void run()}
+						><Text>Unsubscribe</Text></Button
+					>
+					<Button variant="ghost" size="sm" onpress={() => (step = 'idle')}
+						><Text>Cancel</Text></Button
+					>
 				{:else if step === 'idle' || step === 'failed'}
-					<Button variant="ghost" size="sm" onpress={() => (step = 'confirm')}><Text>Unsubscribe</Text></Button>
+					<Button variant="ghost" size="sm" onpress={() => (step = 'confirm')}
+						><Text>Unsubscribe</Text></Button
+					>
 				{/if}
 			{/snippet}
 		</Banner>

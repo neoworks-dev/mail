@@ -84,7 +84,12 @@
 	<Input
 		bind:value
 		{placeholder}
-		style={{ ...typeStyle('bodySmall'), background: 'transparent', color: theme.colors.text, paddingY: 6 }}
+		style={{
+			...typeStyle('bodySmall'),
+			background: 'transparent',
+			color: theme.colors.text,
+			paddingY: 6
+		}}
 		oninput={handleInput}
 		onkey={handleKey}
 		onfocus={() => (focused = true)}
@@ -92,17 +97,44 @@
 	/>
 	{#if open}
 		<Overlay side="bottom" align="start" offset={4} matchWidth keepFocus>
-			<View style={{ ...glassPanelLook(theme), padding: 6, gap: 2, borderWidth: 1, borderColor: theme.colors.line }}>
+			<View
+				style={{
+					...glassPanelLook(theme),
+					padding: 6,
+					gap: 2,
+					borderWidth: 1,
+					borderColor: theme.colors.line
+				}}
+			>
 				{#each suggestions as suggestion, index (suggestion.address)}
 					<View
-						style={{ direction: 'row', align: 'center', gap: 8, paddingX: 10, paddingY: 6, radius: theme.radii.control, background: rowBackground(index), cursor: 'pointer' }}
+						style={{
+							direction: 'row',
+							align: 'center',
+							gap: 8,
+							paddingX: 10,
+							paddingY: 6,
+							radius: theme.radii.control,
+							background: rowBackground(index),
+							cursor: 'pointer'
+						}}
 						onhover={(hovered) => hovered && (selectedIndex = index)}
 						onpress={() => apply(suggestion)}
 					>
 						{#if suggestion.name !== ''}
-							<Text style={{ ...typeStyle('bodySmall'), color: theme.colors.text }}>{suggestion.name}</Text>
+							<Text style={{ ...typeStyle('bodySmall'), color: theme.colors.text }}
+								>{suggestion.name}</Text
+							>
 						{/if}
-						<Text style={{ ...typeStyle('caption'), color: theme.colors.muted, flex: 1, minWidth: 0, truncate: true }}>{suggestion.address}</Text>
+						<Text
+							style={{
+								...typeStyle('caption'),
+								color: theme.colors.muted,
+								flex: 1,
+								minWidth: 0,
+								truncate: true
+							}}>{suggestion.address}</Text
+						>
 					</View>
 				{/each}
 			</View>

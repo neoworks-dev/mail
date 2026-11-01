@@ -19,7 +19,10 @@ declare module '@neoworks/extension-system' {
 export interface Sender {
 	sendMessage(input: OutgoingMessage): Promise<void>
 	/** Sends a plain message from an account, for unsubscribe mail; no Sent copy is kept. */
-	sendPlain(accountId: number, message: Pick<ComposeInput, 'to' | 'subject' | 'markdown'>): Promise<void>
+	sendPlain(
+		accountId: number,
+		message: Pick<ComposeInput, 'to' | 'subject' | 'markdown'>
+	): Promise<void>
 	saveDraft(input: OutgoingMessage): Promise<number | null>
 	discardDraft(messageId: number): Promise<void>
 }
@@ -59,14 +62,19 @@ function createSender(ctx: Context): Sender {
 	const resolveReplyHeaders = (input: OutgoingMessage): ReplyHeaders => {
 		if (input.replyToMessageId === null) return { inReplyTo: null, references: [], location: null }
 		const location = ctx.store.getMessageLocation(input.replyToMessageId)
-		if (!location || location.rfcMessageId === '') return { inReplyTo: null, references: [], location }
+		if (!location || location.rfcMessageId === '')
+			return { inReplyTo: null, references: [], location }
 		const body = ctx.store.getMessageBody(input.replyToMessageId)
 		let references: string[] = []
 		if (body) references = body.references
 		return { inReplyTo: location.rfcMessageId, references, location }
 	}
 
-	const composeInput = (input: OutgoingMessage, from: string, reply: ReplyHeaders): ComposeInput => ({
+	const composeInput = (
+		input: OutgoingMessage,
+		from: string,
+		reply: ReplyHeaders
+	): ComposeInput => ({
 		from,
 		to: input.to,
 		cc: input.cc,
@@ -91,7 +99,14 @@ function createSender(ctx: Context): Sender {
 				await connection.syncFolder(sent.folderId, sent.path)
 				return
 			}
-			const parsed = await parseRawMessage(raw, accountId, sent.folderId, uid, new Set(['\\Seen']), raw.length)
+			const parsed = await parseRawMessage(
+				raw,
+				accountId,
+				sent.folderId,
+				uid,
+				new Set(['\\Seen']),
+				raw.length
+			)
 			ctx.store.insertMessage(parsed)
 			ctx.emit('mail/messages-changed', accountId, sent.folderId)
 		} catch (error) {
@@ -154,7 +169,9 @@ function createSender(ctx: Context): Sender {
 				logger.warn('no drafts folder found — draft not saved')
 				return null
 			}
-			const composed = await composeMail(composeInput(input, credentials.email, resolveReplyHeaders(input)))
+			const composed = await composeMail(
+				composeInput(input, credentials.email, resolveReplyHeaders(input))
+			)
 			const connection = ctx.mailOps.opsFor(input.accountId)
 			const uid = await connection.append(drafts.path, composed.raw, ['\\Draft', '\\Seen'])
 
@@ -169,7 +186,14 @@ function createSender(ctx: Context): Sender {
 				return null
 			}
 			const flags = new Set(['\\Draft', '\\Seen'])
-			const parsed = await parseRawMessage(composed.raw, input.accountId, drafts.folderId, uid, flags, composed.raw.length)
+			const parsed = await parseRawMessage(
+				composed.raw,
+				input.accountId,
+				drafts.folderId,
+				uid,
+				flags,
+				composed.raw.length
+			)
 			const messageId = ctx.store.insertMessage(parsed)
 			ctx.emit('mail/messages-changed', input.accountId, drafts.folderId)
 			return messageId

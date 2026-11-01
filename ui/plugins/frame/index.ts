@@ -11,7 +11,14 @@
 import type { Context } from '@neoworks/extension-system'
 import Frame from './Frame.svelte'
 
-const LIST_SLOTS = ['header.start', 'header.center', 'header.end', 'navigation', 'aside', 'overlays']
+const LIST_SLOTS = [
+	'header.start',
+	'header.center',
+	'header.end',
+	'navigation',
+	'aside',
+	'overlays'
+]
 const SINGLE_SLOTS = ['content', 'onboarding']
 
 export const frame = {
@@ -20,6 +27,10 @@ export const frame = {
 	apply(ctx: Context) {
 		for (const name of LIST_SLOTS) ctx.slots.declare(name, 'list')
 		for (const name of SINGLE_SLOTS) ctx.slots.declare(name, 'single')
-		ctx.slots.register('root', { id: 'frame', component: Frame, props: { accounts: ctx.accounts } })
+		ctx.slots.register('root', {
+			id: 'frame',
+			component: Frame,
+			props: { accounts: ctx.accounts }
+		})
 	}
 }

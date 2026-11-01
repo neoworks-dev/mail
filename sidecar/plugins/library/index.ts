@@ -24,11 +24,15 @@ export const library = {
 		ctx.rpc.handle('threads.listUnified', (limit, offset, label) =>
 			store.listThreadsUnified(Math.min(limit, LIST_LIMIT_MAX), offset, label)
 		)
-		ctx.rpc.handle('threads.messages', (accountId, threadId) => store.getThreadMessages(accountId, threadId))
+		ctx.rpc.handle('threads.messages', (accountId, threadId) =>
+			store.getThreadMessages(accountId, threadId)
+		)
 		ctx.rpc.handle('threads.locate', (threadId) => store.findThreadAccount(threadId))
 
 		ctx.rpc.handle('messages.body', (messageId) => store.getMessageBody(messageId))
-		ctx.rpc.handle('messages.byRfcId', (accountId, rfcMessageId) => store.findMessageIdByRfcId(accountId, rfcMessageId))
+		ctx.rpc.handle('messages.byRfcId', (accountId, rfcMessageId) =>
+			store.findMessageIdByRfcId(accountId, rfcMessageId)
+		)
 		ctx.rpc.handle('messages.locate', (messageId) => {
 			const location = store.getMessageLocation(messageId)
 			if (!location) return null
@@ -63,6 +67,8 @@ export const library = {
 		)
 
 		ctx.rpc.handle('labels.counts', (folderId) => store.labelCounts(folderId))
-		ctx.rpc.handle('contacts.suggest', (accountId, query) => store.suggestRecipients(accountId, query, SUGGESTION_LIMIT))
+		ctx.rpc.handle('contacts.suggest', (accountId, query) =>
+			store.suggestRecipients(accountId, query, SUGGESTION_LIMIT)
+		)
 	}
 }

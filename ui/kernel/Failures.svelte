@@ -37,7 +37,9 @@
 				<Text style={{ ...typeStyle('label'), color: theme.colors.danger }}>
 					Plugin "{failure.name}" failed to load
 				</Text>
-				<Text style={{ ...typeStyle('caption'), color: theme.colors.danger }}>{failure.message}</Text>
+				<Text style={{ ...typeStyle('caption'), color: theme.colors.danger }}
+					>{failure.message}</Text
+				>
 			</View>
 		{/each}
 	</View>

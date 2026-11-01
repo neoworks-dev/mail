@@ -104,7 +104,11 @@
 			onselect: () => void accounts.select(account.accountId)
 		}))
 		items.push({ separator: true })
-		items.push({ label: 'Add account', icon: plusIcon, onselect: () => void commands.run('accounts.add') })
+		items.push({
+			label: 'Add account',
+			icon: plusIcon,
+			onselect: () => void commands.run('accounts.add')
+		})
 		accountMenu.openAt(event.windowX, event.windowY, items)
 	}
 </script>
@@ -113,7 +117,12 @@
 	<Scroll style={{ flex: 1 }}>
 		<View style={{ padding: 8, gap: 2 }}>
 			{#if multipleAccounts}
-				<SidebarRow title="All inboxes" icon={stackIcon} selected={unifiedSelected(null)} onpress={() => void mailbox.openUnified()} />
+				<SidebarRow
+					title="All inboxes"
+					icon={stackIcon}
+					selected={unifiedSelected(null)}
+					onpress={() => void mailbox.openUnified()}
+				/>
 				{#each CATEGORIES.slice(1) as label (label)}
 					<SidebarRow
 						title={categoryTitle(label)}
@@ -148,7 +157,13 @@
 			{/each}
 
 			{#if others.length > 0}
-				<SidebarRow title="Folders" icon={folderIcon} selected={false} trailingIcon={folderToggleIcon()} onpress={toggleFolders} />
+				<SidebarRow
+					title="Folders"
+					icon={folderIcon}
+					selected={false}
+					trailingIcon={folderToggleIcon()}
+					onpress={toggleFolders}
+				/>
 				{#if foldersOpen}
 					{#each others as folder (folder.folderId)}
 						<SidebarRow
@@ -166,11 +181,22 @@
 
 	<View style={{ borderTopWidth: 1, borderColor: theme.colors.line, padding: 8, gap: 4 }}>
 		<View
-			style={{ direction: 'row', align: 'center', gap: 6, paddingX: 12, height: 30, radius: theme.radii.control, cursor: 'pointer' }}
+			style={{
+				direction: 'row',
+				align: 'center',
+				gap: 6,
+				paddingX: 12,
+				height: 30,
+				radius: theme.radii.control,
+				cursor: 'pointer'
+			}}
 			hover={{ background: theme.colors.hover }}
 			onpress={openAccountMenu}
 		>
-			<Text style={{ flex: 1, minWidth: 0, truncate: true, fontSize: 12, color: theme.colors.muted }}>{accountLabel()}</Text>
+			<Text
+				style={{ flex: 1, minWidth: 0, truncate: true, fontSize: 12, color: theme.colors.muted }}
+				>{accountLabel()}</Text
+			>
 			<Text style={{ fontSize: 11, color: theme.colors.faint }}>▾</Text>
 		</View>
 		<SyncFooter {accounts} />

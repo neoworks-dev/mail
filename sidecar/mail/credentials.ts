@@ -43,7 +43,8 @@ export function createCredentialCipher(
 			const format = stored[0]
 			const payload = stored.subarray(1)
 			if (format === FORMAT_KEYCHAIN_GCM) {
-				if (key === null) throw new Error('this secret needs the OS keychain, which is not reachable')
+				if (key === null)
+					throw new Error('this secret needs the OS keychain, which is not reachable')
 				return decryptGcm(key, payload)
 			}
 			if (format === FORMAT_SAFE_STORAGE) {
@@ -78,7 +79,9 @@ export function decryptSafeStorage(payload: Buffer, keyringPassword: () => strin
 	if (version === 'v11') {
 		const fromKeyring = keyringPassword()
 		if (fromKeyring === null) {
-			throw new Error('this password was stored in the keyring by the Electron build, which is not reachable')
+			throw new Error(
+				'this password was stored in the keyring by the Electron build, which is not reachable'
+			)
 		}
 		password = fromKeyring
 	} else if (version !== 'v10') {

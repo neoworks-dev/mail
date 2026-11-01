@@ -22,9 +22,7 @@ function loadConfig(dataDirectory: string): TrackingConfig {
 	const envKey = process.env.NEOMAIL_DHL_API_KEY
 	if (envKey) return { dhlApiKey: envKey }
 	try {
-		const parsed = JSON.parse(
-			readFileSync(join(dataDirectory, 'tracking-api.json'), 'utf8')
-		)
+		const parsed = JSON.parse(readFileSync(join(dataDirectory, 'tracking-api.json'), 'utf8'))
 		if (typeof parsed.dhlApiKey === 'string' && parsed.dhlApiKey !== '') {
 			return { dhlApiKey: parsed.dhlApiKey }
 		}
@@ -55,7 +53,11 @@ export async function trackShipment(
 interface DhlShipment {
 	status?: { timestamp?: string; status?: string; description?: string }
 	estimatedTimeOfDelivery?: string
-	events?: Array<{ timestamp?: string; description?: string; location?: { address?: { addressLocality?: string } } }>
+	events?: Array<{
+		timestamp?: string
+		description?: string
+		location?: { address?: { addressLocality?: string } }
+	}>
 }
 
 async function trackWithDhl(apiKey: string, trackingNumber: string): Promise<TrackingResult> {

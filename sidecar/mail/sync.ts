@@ -68,7 +68,11 @@ export class AccountSync {
 		this.client = null
 	}
 
-	private emitStatus(phase: SyncStatus['phase'], folderPath: string | null, errorMessage: string | null = null): void {
+	private emitStatus(
+		phase: SyncStatus['phase'],
+		folderPath: string | null,
+		errorMessage: string | null = null
+	): void {
 		this.onStatus({
 			accountId: this.credentials.accountId,
 			phase,
@@ -233,11 +237,19 @@ export class AccountSync {
 		this.store.setFolderUidvalidity(folderId, uidValidity)
 	}
 
-	private async fetchBatch(client: ImapFlow, target: SyncFolderTarget, uids: number[]): Promise<void> {
+	private async fetchBatch(
+		client: ImapFlow,
+		target: SyncFolderTarget,
+		uids: number[]
+	): Promise<void> {
 		const range = uids.join(',')
 		let highestUid = 0
 		const arrivals: NewMessageInfo[] = []
-		for await (const message of client.fetch(range, { source: true, flags: true, size: true }, { uid: true })) {
+		for await (const message of client.fetch(
+			range,
+			{ source: true, flags: true, size: true },
+			{ uid: true }
+		)) {
 			if (!message.source) continue
 			const flags = message.flags || new Set<string>()
 			const parsed = await parseRawMessage(
@@ -266,7 +278,10 @@ export class AccountSync {
 		this.onMessagesChanged(this.credentials.accountId, target.folderId)
 
 		const shouldNotify =
-			this.initialSyncComplete && target.path === 'INBOX' && arrivals.length > 0 && this.onNewMessages
+			this.initialSyncComplete &&
+			target.path === 'INBOX' &&
+			arrivals.length > 0 &&
+			this.onNewMessages
 		if (shouldNotify && this.onNewMessages) this.onNewMessages(arrivals)
 	}
 
@@ -275,7 +290,13 @@ export class AccountSync {
 	 * events; reconcile INBOX on events, everything on a timer.
 	 */
 	private async watchLoop(client: ImapFlow): Promise<void> {
-		const inboxFolderId = this.store.upsertFolder(this.credentials.accountId, 'INBOX', 'INBOX', null, '\\Inbox')
+		const inboxFolderId = this.store.upsertFolder(
+			this.credentials.accountId,
+			'INBOX',
+			'INBOX',
+			null,
+			'\\Inbox'
+		)
 		const inboxTarget: SyncFolderTarget = { folderId: inboxFolderId, path: 'INBOX' }
 
 		const markDirty = (): void => {

@@ -25,8 +25,18 @@
 	})
 </script>
 
-<IconButton icon={pencilSimple} label="New message" size="sm" onpress={() => void commands.run('compose.new')} />
-<IconButton icon={themeIcon} label={themeLabel} size="sm" onpress={() => void commands.run('theme.toggle')} />
+<IconButton
+	icon={pencilSimple}
+	label="New message"
+	size="sm"
+	onpress={() => void commands.run('compose.new')}
+/>
+<IconButton
+	icon={themeIcon}
+	label={themeLabel}
+	size="sm"
+	onpress={() => void commands.run('theme.toggle')}
+/>
 <IconButton
 	icon={sparkle}
 	label="Assistant"

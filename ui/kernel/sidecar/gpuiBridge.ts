@@ -16,7 +16,8 @@ declare module '@neoworks/svelte-gpui' {
 export const gpuiBridge: SidecarBridge = {
 	send: (frame) => invoke('sidecar_send', frame),
 	onReply: (handler) => listen<ResponseFrame>('sidecar:reply', (frame) => handler(frame)),
-	onEvent: (channel, handler) => listen<unknown>(`sidecar:event:${channel}`, (payload) => handler(payload)),
+	onEvent: (channel, handler) =>
+		listen<unknown>(`sidecar:event:${channel}`, (payload) => handler(payload)),
 	onExit: (handler) => listen<{ message: string }>('sidecar:exit', (exit) => handler(exit)),
 	status: () => invoke('sidecar_status', {})
 }

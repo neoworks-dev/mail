@@ -9,7 +9,11 @@
 	import type { MailDocument } from '../../../shared/document'
 	import { plural } from './format'
 
-	let { document, imagesAllowed, onallow }: { document: MailDocument; imagesAllowed: boolean; onallow: () => void } = $props()
+	let {
+		document,
+		imagesAllowed,
+		onallow
+	}: { document: MailDocument; imagesAllowed: boolean; onallow: () => void } = $props()
 
 	const theme = $derived(currentTheme())
 	const trackers = $derived(document.trackersRemoved + document.linksUnwrapped)
@@ -40,7 +44,15 @@
 		}}
 	>
 		<Icon svg={shieldIcon} size={14} />
-		<Text style={{ ...typeStyle('caption'), color: theme.colors.muted, flex: 1, minWidth: 0, truncate: true }}>{text}</Text>
+		<Text
+			style={{
+				...typeStyle('caption'),
+				color: theme.colors.muted,
+				flex: 1,
+				minWidth: 0,
+				truncate: true
+			}}>{text}</Text
+		>
 		{#if imagesBlocked}
 			<Button variant="ghost" size="sm" onpress={onallow}><Text>Load images</Text></Button>
 		{/if}

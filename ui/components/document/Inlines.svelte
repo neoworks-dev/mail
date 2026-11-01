@@ -14,6 +14,20 @@
 	const document = useDocumentContext()
 	const theme = $derived(currentTheme())
 	const links = $derived(linksIn(inlines))
+	const lines = $derived(splitLines(inlines))
+
+	/** The runs between line breaks: text without `pre` collapses a newline, so each line is its own paragraph. */
+	function splitLines(all: Inline[]): TextRun[][] {
+		const result: TextRun[][] = [[]]
+		for (const inline of all) {
+			if (inline.kind === 'break') {
+				result.push([])
+				continue
+			}
+			result[result.length - 1].push(inline)
+		}
+		return result
+	}
 
 	function runStyle(run: TextRun): Style {
 		const runLook: Style = {}
@@ -41,16 +55,27 @@
 	}
 </script>
 
-{#snippet paragraph()}
+{#snippet line(runs: TextRun[])}
 	<Text {style}>
-		{#each inlines as inline, index (index)}
-			{#if inline.kind === 'break'}
-				<Text>{'\n'}</Text>
-			{:else}
-				<Text style={runStyle(inline)}>{inline.text}</Text>
-			{/if}
+		{#each runs as run, index (index)}
+			<Text style={runStyle(run)}>{run.text}</Text>
 		{/each}
+		{#if runs.length === 0}
+			<Text>{' '}</Text>
+		{/if}
 	</Text>
+{/snippet}
+
+{#snippet paragraph()}
+	{#if lines.length === 1}
+		{@render line(lines[0])}
+	{:else}
+		<View style={{ minWidth: 0 }}>
+			{#each lines as runs, index (index)}
+				{@render line(runs)}
+			{/each}
+		</View>
+	{/if}
 {/snippet}
 
 {#if links.length > 0}

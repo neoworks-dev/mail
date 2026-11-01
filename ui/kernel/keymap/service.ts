@@ -7,7 +7,13 @@
 // a combo with Ctrl, Alt or Meta fires anywhere.
 
 import { Service, type Context } from '@neoworks/extension-system'
-import { comboEquals, comboMatches, isGlobalCombo, type KeyCombo, type KeyInput } from '../../lib/keycombo'
+import {
+	comboEquals,
+	comboMatches,
+	isGlobalCombo,
+	type KeyCombo,
+	type KeyInput
+} from '../../lib/keycombo'
 import { createChangeSignal, type ChangeSignal } from '../reactive'
 
 declare module '@neoworks/extension-system' {

@@ -29,18 +29,39 @@ export interface ThreadMenuServices {
 }
 
 export function threadMenuItems(thread: ThreadSummary, services: ThreadMenuServices): MenuItem[] {
-	return [...openItems(thread, services), { separator: true }, ...stateItems(thread, services), { separator: true }, ...sortItems(thread, services), { separator: true }, ...removeItems(thread, services)]
+	return [
+		...openItems(thread, services),
+		{ separator: true },
+		...stateItems(thread, services),
+		{ separator: true },
+		...sortItems(thread, services),
+		{ separator: true },
+		...removeItems(thread, services)
+	]
 }
 
 function openItems(thread: ThreadSummary, { reader, commands }: ThreadMenuServices): MenuItem[] {
 	return [
-		{ label: 'Open', icon: envelopeIcon, onselect: () => void reader.openThread(thread.accountId, thread.threadId) },
+		{
+			label: 'Open',
+			icon: envelopeIcon,
+			onselect: () => void reader.openThread(thread.accountId, thread.threadId)
+		},
 		{
 			label: 'Open in new tab',
 			icon: plusIcon,
-			onselect: () => void reader.openInNewTab({ kind: 'thread', accountId: thread.accountId, threadId: thread.threadId })
+			onselect: () =>
+				void reader.openInNewTab({
+					kind: 'thread',
+					accountId: thread.accountId,
+					threadId: thread.threadId
+				})
 		},
-		{ label: 'Open in split view', icon: splitIcon, onselect: () => void reader.openInSplit(thread.accountId, thread.threadId) },
+		{
+			label: 'Open in split view',
+			icon: splitIcon,
+			onselect: () => void reader.openInSplit(thread.accountId, thread.threadId)
+		},
 		{
 			label: 'Reply',
 			icon: arrowBendIcon,
@@ -49,7 +70,11 @@ function openItems(thread: ThreadSummary, { reader, commands }: ThreadMenuServic
 	]
 }
 
-async function replyTo(thread: ThreadSummary, reader: ReaderService, commands: CommandsService): Promise<void> {
+async function replyTo(
+	thread: ThreadSummary,
+	reader: ReaderService,
+	commands: CommandsService
+): Promise<void> {
 	await reader.openThread(thread.accountId, thread.threadId)
 	await commands.run('thread.reply')
 }
@@ -67,7 +92,10 @@ function stateItems(thread: ThreadSummary, { mailbox }: ThreadMenuServices): Men
 	}
 	let flagLabel = 'Flag'
 	if (thread.flagged) flagLabel = 'Remove flag'
-	return [readItem, { label: flagLabel, icon: starIcon, onselect: () => void mailbox.toggleFlagged(thread) }]
+	return [
+		readItem,
+		{ label: flagLabel, icon: starIcon, onselect: () => void mailbox.toggleFlagged(thread) }
+	]
 }
 
 async function markThreadRead(thread: ThreadSummary, mailbox: MailboxService): Promise<void> {
@@ -77,31 +105,56 @@ async function markThreadRead(thread: ThreadSummary, mailbox: MailboxService): P
 
 function sortItems(thread: ThreadSummary, services: ThreadMenuServices): MenuItem[] {
 	const items: MenuItem[] = [
-		{ label: 'Category…', icon: tagIcon, onselect: () => services.reopen(categoryItems(thread, services.mailbox)) }
+		{
+			label: 'Category…',
+			icon: tagIcon,
+			onselect: () => services.reopen(categoryItems(thread, services.mailbox))
+		}
 	]
 	const targets = moveTargets(thread, services.folders)
 	if (targets.length > 0) {
-		items.push({ label: 'Move to…', icon: folderIcon, onselect: () => services.reopen(moveItems(thread, targets, services.mailbox)) })
+		items.push({
+			label: 'Move to…',
+			icon: folderIcon,
+			onselect: () => services.reopen(moveItems(thread, targets, services.mailbox))
+		})
 	}
 	return items
 }
 
 function categoryItems(thread: ThreadSummary, mailbox: MailboxService): MenuItem[] {
 	const items: MenuItem[] = [
-		{ label: 'No category', checked: thread.label === null, onselect: () => void mailbox.setLabel(thread, null) }
+		{
+			label: 'No category',
+			checked: thread.label === null,
+			onselect: () => void mailbox.setLabel(thread, null)
+		}
 	]
 	for (const label of ALL_MAIL_LABELS) {
-		items.push({ label: labelTitle(label), checked: thread.label === label, onselect: () => void mailbox.setLabel(thread, label) })
+		items.push({
+			label: labelTitle(label),
+			checked: thread.label === label,
+			onselect: () => void mailbox.setLabel(thread, label)
+		})
 	}
 	return items
 }
 
 function moveTargets(thread: ThreadSummary, folders: MailFolder[]): MailFolder[] {
-	return folders.filter((folder) => folder.accountId === thread.accountId && folder.folderId !== thread.folderId)
+	return folders.filter(
+		(folder) => folder.accountId === thread.accountId && folder.folderId !== thread.folderId
+	)
 }
 
-function moveItems(thread: ThreadSummary, targets: MailFolder[], mailbox: MailboxService): MenuItem[] {
-	return targets.map((folder) => ({ label: folder.name, onselect: () => void mailbox.move(thread, folder.folderId) }))
+function moveItems(
+	thread: ThreadSummary,
+	targets: MailFolder[],
+	mailbox: MailboxService
+): MenuItem[] {
+	return targets.map((folder) => ({
+		label: folder.name,
+		onselect: () => void mailbox.move(thread, folder.folderId)
+	}))
 }
 
 function removeItems(thread: ThreadSummary, { mailbox }: ThreadMenuServices): MenuItem[] {

@@ -10,7 +10,10 @@
 	import ChatItem from './ChatItem.svelte'
 	import NotConnected from './NotConnected.svelte'
 
-	let { assistant, onopenlink }: { assistant: AssistantService; onopenlink: (href: string) => void } = $props()
+	let {
+		assistant,
+		onopenlink
+	}: { assistant: AssistantService; onopenlink: (href: string) => void } = $props()
 
 	const theme = $derived(currentTheme())
 	const status = $derived(assistant.state.status)
@@ -24,19 +27,15 @@
 {#if status.state === 'open'}
 	{#if items.length === 0}
 		<View style={{ flex: 1, padding: 24, justify: 'center', align: 'center', gap: 6 }}>
-			<Text style={{ ...typeStyle('bodySmall'), color: theme.colors.text }}>No conversation yet</Text>
+			<Text style={{ ...typeStyle('bodySmall'), color: theme.colors.text }}
+				>No conversation yet</Text
+			>
 			<Text style={{ ...typeStyle('caption'), color: theme.colors.muted, textAlign: 'center' }}>
 				Ask about your mail, or pick a prompt below.
 			</Text>
 		</View>
 	{:else}
-		<List
-			{items}
-			key={keyOf}
-			estimatedRowHeight={56}
-			stickToEnd
-			style={{ flex: 1, minHeight: 0 }}
-		>
+		<List {items} key={keyOf} estimatedRowHeight={56} stickToEnd style={{ flex: 1, minHeight: 0 }}>
 			{#snippet row(item)}
 				<ChatItem {item} {assistant} {onopenlink} />
 			{/snippet}

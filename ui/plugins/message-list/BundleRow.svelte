@@ -43,23 +43,48 @@
 </script>
 
 <View
-	style={{ paddingX: 16, paddingY: 10, gap: 2, borderBottomWidth: 1, borderColor: theme.colors.line, background: theme.colors.canvas, cursor: 'pointer' }}
+	style={{
+		paddingX: 16,
+		paddingY: 10,
+		gap: 2,
+		borderBottomWidth: 1,
+		borderColor: theme.colors.line,
+		background: theme.colors.canvas,
+		cursor: 'pointer'
+	}}
 	hover={{ background: theme.colors.hover }}
 	onpress={ontoggle}
 >
 	<View style={{ direction: 'row', align: 'center', gap: 6 }}>
 		<LabelPill {label} />
-		<Text style={{ ...typeStyle('caption'), fontSize: 13.5, color: theme.colors.text, flex: 1, minWidth: 0, truncate: true }}>
+		<Text
+			style={{
+				...typeStyle('caption'),
+				fontSize: 13.5,
+				color: theme.colors.text,
+				flex: 1,
+				minWidth: 0,
+				truncate: true
+			}}
+		>
 			<Text style={{ fontWeight: countWeight() }}>{countLabel()}</Text>
 			{#if unreadCount > 0}
-				<Text style={{ fontWeight: 400, fontSize: 12, color: theme.colors.faint }}>{`  ${unreadCount} unread`}</Text>
+				<Text style={{ fontWeight: 400, fontSize: 12, color: theme.colors.faint }}
+					>{`  ${unreadCount} unread`}</Text
+				>
 			{/if}
 		</Text>
-		<Text style={{ fontSize: 12, color: theme.colors.faint }}>{formatListDate(threads[0].date)}</Text>
+		<Text style={{ fontSize: 12, color: theme.colors.faint }}
+			>{formatListDate(threads[0].date)}</Text
+		>
 		<Icon svg={caret()} size={12} color={theme.colors.faint} />
 	</View>
-	<Text style={{ fontSize: 13, color: theme.colors.muted, truncate: true }}>{bundleSenders(threads, 3).join(', ')}</Text>
+	<Text style={{ fontSize: 13, color: theme.colors.muted, truncate: true }}
+		>{bundleSenders(threads, 3).join(', ')}</Text
+	>
 	<View style={{ alignSelf: 'start', cursor: 'pointer' }} onpress={onviewall}>
-		<Text style={{ fontSize: 12, color: theme.colors.accent, underline: true }}>View all {labelTitle(label).toLowerCase()}</Text>
+		<Text style={{ fontSize: 12, color: theme.colors.accent, underline: true }}
+			>View all {labelTitle(label).toLowerCase()}</Text
+		>
 	</View>
 </View>

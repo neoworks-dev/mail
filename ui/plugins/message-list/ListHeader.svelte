@@ -28,15 +28,64 @@
 	}
 </script>
 
-<View style={{ direction: 'row', align: 'center', gap: 4, height: 48, paddingLeft: 16, paddingRight: 8, borderBottomWidth: 1, borderColor: theme.colors.line }}>
+<View
+	style={{
+		direction: 'row',
+		align: 'center',
+		gap: 4,
+		height: 48,
+		paddingLeft: 16,
+		paddingRight: 8,
+		borderBottomWidth: 1,
+		borderColor: theme.colors.line
+	}}
+>
 	{#if selectedCount > 0}
-		<Text style={{ ...typeStyle('caption'), fontWeight: 500, color: theme.colors.text, flex: 1, minWidth: 0 }}>{selectedCount} selected</Text>
-		<IconButton icon={envelopeOpenIcon} label="Mark as read" size="sm" onpress={() => void commands.run('selection.markRead')} />
-		<IconButton icon={archiveIcon} label="Archive" size="sm" onpress={() => void commands.run('selection.archive')} />
-		<IconButton icon={trashIcon} label="Delete" size="sm" onpress={() => void commands.run('selection.delete')} />
-		<IconButton icon={xIcon} label="Clear selection" size="sm" onpress={() => void commands.run('selection.clear')} />
+		<Text
+			style={{
+				...typeStyle('caption'),
+				fontWeight: 500,
+				color: theme.colors.text,
+				flex: 1,
+				minWidth: 0
+			}}>{selectedCount} selected</Text
+		>
+		<IconButton
+			icon={envelopeOpenIcon}
+			label="Mark as read"
+			size="sm"
+			onpress={() => void commands.run('selection.markRead')}
+		/>
+		<IconButton
+			icon={archiveIcon}
+			label="Archive"
+			size="sm"
+			onpress={() => void commands.run('selection.archive')}
+		/>
+		<IconButton
+			icon={trashIcon}
+			label="Delete"
+			size="sm"
+			onpress={() => void commands.run('selection.delete')}
+		/>
+		<IconButton
+			icon={xIcon}
+			label="Clear selection"
+			size="sm"
+			onpress={() => void commands.run('selection.clear')}
+		/>
 	{:else}
-		<Text style={{ ...typeStyle('caption'), fontSize: 14, fontWeight: 500, color: theme.colors.text, flex: 1, minWidth: 0, truncate: true }}>{title}</Text>
+		<Text
+			style={{
+				...typeStyle('caption'),
+				fontSize: 14,
+				fontWeight: 500,
+				color: theme.colors.text,
+				flex: 1,
+				minWidth: 0,
+				truncate: true
+			}}>{title}</Text
+		>
 		<Text style={{ fontSize: 12, color: theme.colors.faint }}>{countLabel()}</Text>
 	{/if}
 </View>

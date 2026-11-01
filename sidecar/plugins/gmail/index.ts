@@ -14,7 +14,10 @@ export const gmail = {
 	apply(ctx: Context) {
 		const dataDirectory = ctx.paths.data
 
-		ctx.rpc.handle('accounts.gmailClientConfigured', () => getGoogleClientConfig(dataDirectory) !== null)
+		ctx.rpc.handle(
+			'accounts.gmailClientConfigured',
+			() => getGoogleClientConfig(dataDirectory) !== null
+		)
 
 		ctx.rpc.handle('accounts.setGmailClientConfig', (config) => {
 			if (config.clientId.trim() === '' || config.clientSecret.trim() === '') {
@@ -41,7 +44,9 @@ async function addGmailAccount(ctx: Context, dataDirectory: string): Promise<Mai
 		throw new Error('Google OAuth client is not configured yet')
 	}
 
-	const tokens = await runGoogleOauthFlow(config.clientId, config.clientSecret, '', (url) => ctx.opener.openUrl(url))
+	const tokens = await runGoogleOauthFlow(config.clientId, config.clientSecret, '', (url) =>
+		ctx.opener.openUrl(url)
+	)
 	if (tokens.email === null) {
 		throw new Error('Google sign-in did not return an email address')
 	}
@@ -62,5 +67,8 @@ async function addGmailAccount(ctx: Context, dataDirectory: string): Promise<Mai
 	await probe.connect()
 	await probe.logout()
 
-	return ctx.store.createGmailAccount({ email, clientId: config.clientId, clientSecret: config.clientSecret }, tokens)
+	return ctx.store.createGmailAccount(
+		{ email, clientId: config.clientId, clientSecret: config.clientSecret },
+		tokens
+	)
 }

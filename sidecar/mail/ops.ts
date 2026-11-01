@@ -122,7 +122,11 @@ export class MailOps {
 
 	private async fetchBatch(client: ImapFlow, folderId: number, uids: number[]): Promise<void> {
 		const range = uids.join(',')
-		for await (const message of client.fetch(range, { source: true, flags: true, size: true }, { uid: true })) {
+		for await (const message of client.fetch(
+			range,
+			{ source: true, flags: true, size: true },
+			{ uid: true }
+		)) {
 			if (!message.source) continue
 			const parsed = await parseRawMessage(
 				message.source,

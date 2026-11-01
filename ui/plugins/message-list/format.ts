@@ -10,7 +10,8 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
  */
 export function formatListDate(iso: string, now: Date = new Date()): string {
 	const date = new Date(iso)
-	if (date.toDateString() === now.toDateString()) return `${twoDigits(date.getHours())}:${twoDigits(date.getMinutes())}`
+	if (date.toDateString() === now.toDateString())
+		return `${twoDigits(date.getHours())}:${twoDigits(date.getMinutes())}`
 	const dayAndMonth = `${date.getDate()} ${MONTHS[date.getMonth()]}`
 	if (date.getFullYear() === now.getFullYear()) return dayAndMonth
 	return `${dayAndMonth} ${date.getFullYear()}`

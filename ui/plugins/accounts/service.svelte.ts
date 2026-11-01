@@ -57,7 +57,9 @@ export class AccountsService {
 	}
 
 	get selectedAccount(): MailAccount | null {
-		const found = this.state.accounts.find((account) => account.accountId === this.state.selectedAccountId)
+		const found = this.state.accounts.find(
+			(account) => account.accountId === this.state.selectedAccountId
+		)
 		if (!found) return null
 		return found
 	}
@@ -115,17 +117,23 @@ export class AccountsService {
 	private async refreshLabelCounts(): Promise<void> {
 		const inbox = this.inbox()
 		if (inbox) {
-			this.state.inboxLabelCounts = toCountRecord(await this.ctx.sidecar.call('labels.counts', inbox.folderId))
+			this.state.inboxLabelCounts = toCountRecord(
+				await this.ctx.sidecar.call('labels.counts', inbox.folderId)
+			)
 		} else {
 			this.state.inboxLabelCounts = {}
 		}
 		if (this.state.accounts.length > 1) {
-			this.state.unifiedLabelCounts = toCountRecord(await this.ctx.sidecar.call('labels.counts', null))
+			this.state.unifiedLabelCounts = toCountRecord(
+				await this.ctx.sidecar.call('labels.counts', null)
+			)
 		}
 	}
 }
 
-function toCountRecord(rows: Array<{ label: string | null; count: number }>): Record<string, number> {
+function toCountRecord(
+	rows: Array<{ label: string | null; count: number }>
+): Record<string, number> {
 	const record: Record<string, number> = {}
 	let total = 0
 	for (const row of rows) {

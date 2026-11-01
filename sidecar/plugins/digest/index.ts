@@ -11,7 +11,10 @@ export const digest = {
 	inject: ['store', 'paths', 'rpc'],
 	apply(ctx: Context) {
 		ctx.effect(
-			() => startDigestScheduler(ctx.paths.file('digest.json'), () => ctx.rpc.broadcast('digest.due', null)),
+			() =>
+				startDigestScheduler(ctx.paths.file('digest.json'), () =>
+					ctx.rpc.broadcast('digest.due', null)
+				),
 			'digest scheduler'
 		)
 		ctx.rpc.handle('digest.candidates', () => ctx.store.digestCandidates(CANDIDATE_LIMIT))

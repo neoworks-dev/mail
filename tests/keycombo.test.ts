@@ -37,8 +37,15 @@ describe('comboMatches', () => {
 	})
 
 	test('shift enforced on letters and named keys', () => {
-		expect(comboMatches({ key: 'a', ctrl: true, shift: true }, fakeEvent('A', { ctrl: true, shift: true }))).toBe(true)
-		expect(comboMatches({ key: 'a', ctrl: true }, fakeEvent('A', { ctrl: true, shift: true }))).toBe(false)
+		expect(
+			comboMatches(
+				{ key: 'a', ctrl: true, shift: true },
+				fakeEvent('A', { ctrl: true, shift: true })
+			)
+		).toBe(true)
+		expect(
+			comboMatches({ key: 'a', ctrl: true }, fakeEvent('A', { ctrl: true, shift: true }))
+		).toBe(false)
 	})
 
 	test('named keys match case-insensitively', () => {

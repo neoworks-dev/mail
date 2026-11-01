@@ -5,7 +5,14 @@
 -->
 <script lang="ts">
 	import { Text, View } from '@neoworks/svelte-gpui/ui'
-	import { Chip, currentTheme, IconButton, Menu, typeStyle, type MenuEntry } from '@neoworks/svelte-gpui-ui'
+	import {
+		Chip,
+		currentTheme,
+		IconButton,
+		Menu,
+		typeStyle,
+		type MenuEntry
+	} from '@neoworks/svelte-gpui-ui'
 	import starFilledIcon from '@phosphor-icons/core/fill/star-fill.svg'
 	import archiveIcon from '@phosphor-icons/core/regular/archive.svg'
 	import replyAllIcon from '@phosphor-icons/core/regular/arrow-bend-double-up-left.svg'
@@ -21,7 +28,11 @@
 	import { describeError } from './format'
 	import type { ReadingServices } from './services'
 
-	let { services, tab, paneIndex }: { services: ReadingServices; tab: ReadingTab; paneIndex: number } = $props()
+	let {
+		services,
+		tab,
+		paneIndex
+	}: { services: ReadingServices; tab: ReadingTab; paneIndex: number } = $props()
 
 	const theme = $derived(currentTheme())
 	let actionError = $state<string | null>(null)
@@ -40,7 +51,9 @@
 
 	const isDraft = $derived.by(() => {
 		if (!target) return false
-		const folder = services.accounts.state.folders.find((entry) => entry.folderId === target.folderId)
+		const folder = services.accounts.state.folders.find(
+			(entry) => entry.folderId === target.folderId
+		)
 		if (!folder) return false
 		return folder.specialUse === '\\Drafts' || folder.name === 'Drafts'
 	})
@@ -58,9 +71,19 @@
 	const labelItems = $derived.by((): MenuEntry[] => {
 		const current = target
 		if (!current) return []
-		const choices: MenuEntry[] = [{ label: 'No category', selected: current.label === null, onselect: () => setLabel(current, null) }]
+		const choices: MenuEntry[] = [
+			{
+				label: 'No category',
+				selected: current.label === null,
+				onselect: () => setLabel(current, null)
+			}
+		]
 		for (const label of ALL_MAIL_LABELS) {
-			choices.push({ label: capitalize(label), selected: current.label === label, onselect: () => setLabel(current, label) })
+			choices.push({
+				label: capitalize(label),
+				selected: current.label === label,
+				onselect: () => setLabel(current, label)
+			})
 		}
 		return choices
 	})
@@ -69,8 +92,14 @@
 		const current = target
 		if (!current) return []
 		return services.accounts.state.folders
-			.filter((folder) => folder.accountId === current.accountId && folder.folderId !== current.folderId)
-			.map((folder) => ({ label: folder.name, onselect: () => void closingAction((message) => services.mailbox.move(message, folder.folderId)) }))
+			.filter(
+				(folder) => folder.accountId === current.accountId && folder.folderId !== current.folderId
+			)
+			.map((folder) => ({
+				label: folder.name,
+				onselect: () =>
+					void closingAction((message) => services.mailbox.move(message, folder.folderId))
+			}))
 	})
 
 	function capitalize(word: string): string {
@@ -133,7 +162,15 @@
 
 <View style={{ direction: 'row', align: 'center', gap: 2, wrap: true }}>
 	{#if actionError}
-		<Text style={{ ...typeStyle('caption'), color: theme.colors.danger, maxWidth: 260, truncate: true, marginRight: 6 }}>
+		<Text
+			style={{
+				...typeStyle('caption'),
+				color: theme.colors.danger,
+				maxWidth: 260,
+				truncate: true,
+				marginRight: 6
+			}}
+		>
 			{actionError}
 		</Text>
 	{/if}
@@ -141,7 +178,12 @@
 		<IconButton icon={pencilIcon} label="Edit draft" size="sm" onpress={() => void editDraft()} />
 	{:else}
 		<IconButton icon={replyIcon} label="Reply (r)" size="sm" onpress={() => void reply(false)} />
-		<IconButton icon={replyAllIcon} label="Reply all (a)" size="sm" onpress={() => void reply(true)} />
+		<IconButton
+			icon={replyAllIcon}
+			label="Reply all (a)"
+			size="sm"
+			onpress={() => void reply(true)}
+		/>
 	{/if}
 	<Slot name="thread.actions" props={{ tab }} />
 	{#if target}
@@ -154,7 +196,12 @@
 			size="sm"
 			onpress={() => void toggleFlag()}
 		/>
-		<IconButton icon={unreadIcon} label="Mark as unread (u)" size="sm" onpress={() => void markUnread()} />
+		<IconButton
+			icon={unreadIcon}
+			label="Mark as unread (u)"
+			size="sm"
+			onpress={() => void markUnread()}
+		/>
 		<IconButton
 			icon={archiveIcon}
 			label="Archive (e)"
@@ -177,7 +224,12 @@
 		{#if moveItems.length > 0}
 			<Menu items={moveItems} placement="bottom-end">
 				{#snippet trigger(triggerProps)}
-					<Chip label="Move to…" trailingIcon={caretDownIcon} onpress={triggerProps.onpress} style={{ marginLeft: 4 }} />
+					<Chip
+						label="Move to…"
+						trailingIcon={caretDownIcon}
+						onpress={triggerProps.onpress}
+						style={{ marginLeft: 4 }}
+					/>
 				{/snippet}
 			</Menu>
 		{/if}

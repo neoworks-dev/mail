@@ -11,10 +11,17 @@
 	let { tab, assistant }: { tab: ReadingTab; assistant: AssistantService } = $props()
 
 	const threadId = $derived(threadOf(tab))
-	const hasSummary = $derived(threadId !== null && assistant.state.summaries[threadId] !== undefined)
+	const hasSummary = $derived(
+		threadId !== null && assistant.state.summaries[threadId] !== undefined
+	)
 </script>
 
 {#if assistant.available && threadId !== null && !hasSummary}
 	{@const id = threadId}
-	<IconButton icon={sparkleIcon} label="Summarize with AI" size="sm" onpress={() => void assistant.summarize(id)} />
+	<IconButton
+		icon={sparkleIcon}
+		label="Summarize with AI"
+		size="sm"
+		onpress={() => void assistant.summarize(id)}
+	/>
 {/if}

@@ -5,7 +5,15 @@
 -->
 <script lang="ts">
 	import { Input, Scroll, Text, View } from '@neoworks/svelte-gpui/ui'
-	import { Button, Chip, Divider, IconButton, LoadingSpinner, currentTheme, typeStyle } from '@neoworks/svelte-gpui-ui'
+	import {
+		Button,
+		Chip,
+		Divider,
+		IconButton,
+		LoadingSpinner,
+		currentTheme,
+		typeStyle
+	} from '@neoworks/svelte-gpui-ui'
 	import eyeIcon from '@phosphor-icons/core/regular/eye.svg'
 	import paperclipIcon from '@phosphor-icons/core/regular/paperclip.svg'
 	import pencilIcon from '@phosphor-icons/core/regular/pencil-simple.svg'
@@ -55,7 +63,13 @@
 	let lastSavedSnapshot = ''
 	$effect(() => {
 		if (!draft) return
-		const snapshot = JSON.stringify([draft.to, draft.cc, draft.subject, draft.markdown, draft.attachments])
+		const snapshot = JSON.stringify([
+			draft.to,
+			draft.cc,
+			draft.subject,
+			draft.markdown,
+			draft.attachments
+		])
 		if (draft.to === '' && draft.subject === '' && draft.markdown === '') return
 		if (snapshot === lastSavedSnapshot) return
 		const timer = setTimeout(() => {
@@ -121,12 +135,21 @@
 		return eyeIcon
 	}
 
-	const fieldLabelStyle = $derived({ ...typeStyle('caption'), color: theme.colors.faint, width: 56 })
+	const fieldLabelStyle = $derived({
+		...typeStyle('caption'),
+		color: theme.colors.faint,
+		width: 56
+	})
 </script>
 
 {#if draft}
-	<ModalScrim onclose={() => composer.close()} panelStyle={{ width: 760, maxWidth: '100%', height: '86%' }}>
-		<View style={{ direction: 'row', align: 'center', paddingLeft: 20, paddingRight: 8, paddingY: 8 }}>
+	<ModalScrim
+		onclose={() => composer.close()}
+		panelStyle={{ width: 760, maxWidth: '100%', height: '86%' }}
+	>
+		<View
+			style={{ direction: 'row', align: 'center', paddingLeft: 20, paddingRight: 8, paddingY: 8 }}
+		>
 			<Text style={{ ...typeStyle('title'), flex: 1 }}>{title}</Text>
 			<Text style={{ ...typeStyle('caption'), color: theme.colors.faint, marginRight: 8 }}>
 				From {accounts.ownEmail(draft.accountId)}
@@ -136,19 +159,33 @@
 		<Divider />
 		<View style={{ direction: 'row', align: 'center', paddingX: 20, minHeight: 40 }}>
 			<Text style={fieldLabelStyle}>To</Text>
-			<RecipientField bind:value={draft.to} placeholder="recipient@example.com, …" suggest={(term) => actions.suggest(draft.accountId, term)} />
+			<RecipientField
+				bind:value={draft.to}
+				placeholder="recipient@example.com, …"
+				suggest={(term) => actions.suggest(draft.accountId, term)}
+			/>
 		</View>
 		<Divider />
 		<View style={{ direction: 'row', align: 'center', paddingX: 20, minHeight: 40 }}>
 			<Text style={fieldLabelStyle}>Cc</Text>
-			<RecipientField bind:value={draft.cc} suggest={(term) => actions.suggest(draft.accountId, term)} />
+			<RecipientField
+				bind:value={draft.cc}
+				suggest={(term) => actions.suggest(draft.accountId, term)}
+			/>
 		</View>
 		<Divider />
 		<View style={{ direction: 'row', align: 'center', paddingX: 20, minHeight: 40 }}>
 			<Text style={fieldLabelStyle}>Subject</Text>
 			<Input
 				bind:value={draft.subject}
-				style={{ ...typeStyle('bodySmall'), flex: 1, minWidth: 0, background: 'transparent', color: theme.colors.text, paddingY: 6 }}
+				style={{
+					...typeStyle('bodySmall'),
+					flex: 1,
+					minWidth: 0,
+					background: 'transparent',
+					color: theme.colors.text,
+					paddingY: 6
+				}}
 			/>
 		</View>
 		<Divider />
@@ -163,7 +200,17 @@
 				bind:value={draft.markdown}
 				multiline
 				placeholder="Write in markdown…"
-				style={{ flex: 1, minHeight: 0, paddingX: 24, paddingY: 16, background: 'transparent', color: theme.colors.text, fontFamily: 'mono', fontSize: 14, lineHeight: 21 }}
+				style={{
+					flex: 1,
+					minHeight: 0,
+					paddingX: 24,
+					paddingY: 16,
+					background: 'transparent',
+					color: theme.colors.text,
+					fontFamily: 'mono',
+					fontSize: 14,
+					lineHeight: 21
+				}}
 			/>
 		{/if}
 		{#if draft.attachments.length > 0}
@@ -181,18 +228,33 @@
 		{/if}
 		<Divider />
 		<View style={{ direction: 'row', align: 'center', gap: 8, paddingX: 16, paddingY: 12 }}>
-			<Button variant="ghost" size="sm" icon={previewIcon()} onpress={() => (showPreview = !showPreview)}>
+			<Button
+				variant="ghost"
+				size="sm"
+				icon={previewIcon()}
+				onpress={() => (showPreview = !showPreview)}
+			>
 				<Text>{previewLabel()}</Text>
 			</Button>
-			<Button variant="ghost" size="sm" icon={paperclipIcon} onpress={() => void attach()}><Text>Attach</Text></Button>
+			<Button variant="ghost" size="sm" icon={paperclipIcon} onpress={() => void attach()}
+				><Text>Attach</Text></Button
+			>
 			{#if draft.replyToMessageId !== null}
 				{#if assistant.state.draftingReply}
 					<View style={{ direction: 'row', align: 'center', gap: 6, paddingX: 8 }}>
 						<LoadingSpinner size={14} thickness={3} />
-						<Text style={{ ...typeStyle('caption'), color: theme.colors.muted }}>The agent is drafting…</Text>
+						<Text style={{ ...typeStyle('caption'), color: theme.colors.muted }}
+							>The agent is drafting…</Text
+						>
 					</View>
 				{:else}
-					<Button variant="ghost" size="sm" icon={sparkleIcon} disabled={!assistant.available} onpress={() => void draftWithAssistant()}>
+					<Button
+						variant="ghost"
+						size="sm"
+						icon={sparkleIcon}
+						disabled={!assistant.available}
+						onpress={() => void draftWithAssistant()}
+					>
 						<Text>Draft with agent</Text>
 					</Button>
 				{/if}
@@ -200,13 +262,25 @@
 			<Slot name="composer.toolbar" />
 			<View style={{ flex: 1, minWidth: 0, direction: 'row', align: 'center', gap: 8 }}>
 				{#if shownError() !== null}
-					<Text style={{ ...typeStyle('caption'), color: theme.colors.danger, flex: 1, minWidth: 0, truncate: true }}>{shownError()}</Text>
+					<Text
+						style={{
+							...typeStyle('caption'),
+							color: theme.colors.danger,
+							flex: 1,
+							minWidth: 0,
+							truncate: true
+						}}>{shownError()}</Text
+					>
 				{:else if composer.state.savedAt !== null}
-					<Text style={{ ...typeStyle('caption'), color: theme.colors.faint }}>Draft saved {formatTime(composer.state.savedAt)}</Text>
+					<Text style={{ ...typeStyle('caption'), color: theme.colors.faint }}
+						>Draft saved {formatTime(composer.state.savedAt)}</Text
+					>
 				{/if}
 			</View>
 			<Button variant="ghost" onpress={() => composer.close()}><Text>Cancel</Text></Button>
-			<Button variant="primary" icon={sendIcon} disabled={sending} onpress={() => void send()}><Text>Send</Text></Button>
+			<Button variant="primary" icon={sendIcon} disabled={sending} onpress={() => void send()}
+				><Text>Send</Text></Button
+			>
 		</View>
 	</ModalScrim>
 {/if}

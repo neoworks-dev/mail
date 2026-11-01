@@ -58,7 +58,9 @@
 				borderColor: theme.colors.line
 			}}
 		>
-			<Text style={{ ...typeStyle('caption'), fontSize: 11, color: theme.colors.faint }}>{shortcut}</Text>
+			<Text style={{ ...typeStyle('caption'), fontSize: 11, color: theme.colors.faint }}
+				>{shortcut}</Text
+			>
 		</View>
 	{/if}
 </Button>

@@ -8,6 +8,8 @@ export const search = {
 	name: 'search',
 	inject: ['store', 'rpc'],
 	apply(ctx: Context) {
-		ctx.rpc.handle('search.text', (query, accountId) => ctx.store.search(query, accountId, SEARCH_LIMIT))
+		ctx.rpc.handle('search.text', (query, accountId) =>
+			ctx.store.search(query, accountId, SEARCH_LIMIT)
+		)
 	}
 }

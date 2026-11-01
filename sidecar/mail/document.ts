@@ -38,17 +38,63 @@ const PLAIN_STYLE: RunStyle = {
 }
 
 const SKIPPED_TAGS = new Set([
-	'head', 'style', 'script', 'title', 'meta', 'link', 'noscript', 'template', 'iframe', 'object',
-	'embed', 'svg', 'math', 'input', 'select', 'textarea', 'option', 'video', 'audio', 'map', 'area'
+	'head',
+	'style',
+	'script',
+	'title',
+	'meta',
+	'link',
+	'noscript',
+	'template',
+	'iframe',
+	'object',
+	'embed',
+	'svg',
+	'math',
+	'input',
+	'select',
+	'textarea',
+	'option',
+	'video',
+	'audio',
+	'map',
+	'area'
 ])
 
 const CONTAINER_TAGS = new Set([
-	'html', 'body', 'p', 'div', 'section', 'article', 'header', 'footer', 'main', 'aside', 'nav',
-	'center', 'figure', 'figcaption', 'address', 'dl', 'dt', 'dd', 'form', 'fieldset', 'details',
-	'summary', 'caption'
+	'html',
+	'body',
+	'p',
+	'div',
+	'section',
+	'article',
+	'header',
+	'footer',
+	'main',
+	'aside',
+	'nav',
+	'center',
+	'figure',
+	'figcaption',
+	'address',
+	'dl',
+	'dt',
+	'dd',
+	'form',
+	'fieldset',
+	'details',
+	'summary',
+	'caption'
 ])
 
-const HEADING_LEVELS: Record<string, 1 | 2 | 3 | 4 | 5 | 6> = { h1: 1, h2: 2, h3: 3, h4: 4, h5: 5, h6: 6 }
+const HEADING_LEVELS: Record<string, 1 | 2 | 3 | 4 | 5 | 6> = {
+	h1: 1,
+	h2: 2,
+	h3: 3,
+	h4: 4,
+	h5: 5,
+	h6: 6
+}
 
 const MAX_DEPTH = 160
 /** Spacer images in layout tables. */
@@ -167,7 +213,12 @@ class BlockBuilder {
 		return previous.text.endsWith(' ')
 	}
 
-	private addHeading(element: Element, level: 1 | 2 | 3 | 4 | 5 | 6, style: RunStyle, depth: number): void {
+	private addHeading(
+		element: Element,
+		level: 1 | 2 | 3 | 4 | 5 | 6,
+		style: RunStyle,
+		depth: number
+	): void {
 		this.flushParagraph()
 		this.walkChildren(element.children, { ...style, bold: true }, depth)
 		const inlines = trimInlines(this.inlines)
@@ -225,12 +276,16 @@ class BlockBuilder {
 	/** Where an image's pixels come from; undefined drops an image that can never be drawn. */
 	private resolveImage(source: string): { src: string | null; remote: boolean } | undefined {
 		if (/^cid:/i.test(source)) {
-			return { src: this.options.resolveInlineImage(source.slice(4).replace(/^<|>$/g, '')), remote: false }
+			return {
+				src: this.options.resolveInlineImage(source.slice(4).replace(/^<|>$/g, '')),
+				remote: false
+			}
 		}
 		if (/^data:image\//i.test(source)) return { src: source, remote: false }
 		if (/^https?:\/\//i.test(source)) {
 			this.remoteImages += 1
-			if (this.options.remoteImages) return { src: source.replace(/^http:/i, 'https:'), remote: true }
+			if (this.options.remoteImages)
+				return { src: source.replace(/^http:/i, 'https:'), remote: true }
 			return { src: null, remote: true }
 		}
 		return undefined
@@ -266,7 +321,8 @@ function listStart(element: Element): number {
 function styleFor(element: Element, name: string, inherited: RunStyle): RunStyle {
 	const style = { ...inherited }
 	const css = (element.attribs.style ?? '').toLowerCase()
-	if (name === 'b' || name === 'strong' || /font-weight\s*:\s*(bold|[6-9]00)/.test(css)) style.bold = true
+	if (name === 'b' || name === 'strong' || /font-weight\s*:\s*(bold|[6-9]00)/.test(css))
+		style.bold = true
 	if (name === 'i' || name === 'em' || /font-style\s*:\s*italic/.test(css)) style.italic = true
 	if (name === 'u' || name === 'ins') style.underline = true
 	if (name === 's' || name === 'strike' || name === 'del') style.strike = true
@@ -299,7 +355,12 @@ function safeHref(href: string | undefined): string | null {
 function isHidden(element: Element): boolean {
 	if (element.attribs.hidden !== undefined) return true
 	const css = (element.attribs.style ?? '').toLowerCase().replace(/\s+/g, '')
-	if (css.includes('display:none') || css.includes('visibility:hidden') || css.includes('mso-hide:all')) return true
+	if (
+		css.includes('display:none') ||
+		css.includes('visibility:hidden') ||
+		css.includes('mso-hide:all')
+	)
+		return true
 	// Preheaders hide this way, to show in the inbox list but not in the body.
 	return /max-height:0(px)?[;!]/.test(`${css};`) && css.includes('overflow:hidden')
 }
@@ -375,7 +436,8 @@ function trimInlines(inlines: Inline[]): Inline[] {
 	while (trimmed.length > 0 && isBlankInline(trimmed[trimmed.length - 1])) trimmed.pop()
 	if (trimmed.length === 0) return []
 	const last = trimmed[trimmed.length - 1]
-	if (last.kind === 'text') trimmed[trimmed.length - 1] = { ...last, text: last.text.replace(/ +$/, '') }
+	if (last.kind === 'text')
+		trimmed[trimmed.length - 1] = { ...last, text: last.text.replace(/ +$/, '') }
 	return trimmed
 }
 

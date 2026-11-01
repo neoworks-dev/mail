@@ -28,7 +28,13 @@ export interface MailboxState {
 }
 
 function createState(): MailboxState {
-	const state: MailboxState = $state({ view: null, threads: [], totalThreads: 0, loading: false, selectedThreadIds: [] })
+	const state: MailboxState = $state({
+		view: null,
+		threads: [],
+		totalThreads: 0,
+		loading: false,
+		selectedThreadIds: []
+	})
 	return state
 }
 
@@ -124,7 +130,9 @@ export class MailboxService {
 	}
 
 	selectedThreads(): ThreadSummary[] {
-		return this.state.threads.filter((thread) => this.state.selectedThreadIds.includes(thread.threadId))
+		return this.state.threads.filter((thread) =>
+			this.state.selectedThreadIds.includes(thread.threadId)
+		)
 	}
 
 	async markSelectedRead(): Promise<void> {
@@ -176,11 +184,15 @@ export class MailboxService {
 	}
 
 	async archive(message: MessageSummary): Promise<void> {
-		await this.withoutThread(message.threadId, () => this.ctx.sidecar.call('messages.archive', message.messageId))
+		await this.withoutThread(message.threadId, () =>
+			this.ctx.sidecar.call('messages.archive', message.messageId)
+		)
 	}
 
 	async remove(message: MessageSummary): Promise<void> {
-		await this.withoutThread(message.threadId, () => this.ctx.sidecar.call('messages.delete', message.messageId))
+		await this.withoutThread(message.threadId, () =>
+			this.ctx.sidecar.call('messages.delete', message.messageId)
+		)
 	}
 
 	async move(message: MessageSummary, targetFolderId: number): Promise<void> {
@@ -224,7 +236,8 @@ export class MailboxService {
 	private fetchPage(limit: number, offset: number): Promise<ThreadPage> {
 		const view = this.state.view
 		if (!view) return Promise.resolve({ threads: [], total: 0 })
-		if (view.kind === 'unified') return this.ctx.sidecar.call('threads.listUnified', limit, offset, view.label)
+		if (view.kind === 'unified')
+			return this.ctx.sidecar.call('threads.listUnified', limit, offset, view.label)
 		return this.ctx.sidecar.call('threads.list', view.folderId, limit, offset, view.label)
 	}
 

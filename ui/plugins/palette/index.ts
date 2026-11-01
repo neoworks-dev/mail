@@ -25,7 +25,8 @@ export const palette = {
 				palette: state,
 				commands: () => paletteCommands(ctx),
 				search: (term: string, semantic: boolean) => searchMail(ctx, term, semantic),
-				openResult: (result: { accountId: number; threadId: number }) => void ctx.reader.openThread(result.accountId, result.threadId)
+				openResult: (result: { accountId: number; threadId: number }) =>
+					void ctx.reader.openThread(result.accountId, result.threadId)
 			}
 		})
 		registerCommands(ctx, state)

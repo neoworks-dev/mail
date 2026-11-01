@@ -14,8 +14,13 @@ export const composer = {
 		ctx.provide('composer', service)
 
 		ctx.sidecar.on('send.done', ({ sendId }) => service.dropPending(sendId))
-		ctx.sidecar.on('send.failed', ({ sendId, errorMessage }) => service.markFailed(sendId, errorMessage))
-		ctx.on('assistant/reply-draft', (messageId, markdown) => void acceptReplyDraft(ctx, service, messageId, markdown))
+		ctx.sidecar.on('send.failed', ({ sendId, errorMessage }) =>
+			service.markFailed(sendId, errorMessage)
+		)
+		ctx.on(
+			'assistant/reply-draft',
+			(messageId, markdown) => void acceptReplyDraft(ctx, service, messageId, markdown)
+		)
 
 		ctx.commands.register({
 			id: 'compose.new',
@@ -55,7 +60,12 @@ async function reply(ctx: Context, service: ComposerService, replyAll: boolean):
  * Puts the agent's reply above the quote of the open reply, or opens a reply to the message it
  * answers. A draft for another message than the open composer's replaces nothing.
  */
-async function acceptReplyDraft(ctx: Context, service: ComposerService, messageId: number | null, markdown: string): Promise<void> {
+async function acceptReplyDraft(
+	ctx: Context,
+	service: ComposerService,
+	messageId: number | null,
+	markdown: string
+): Promise<void> {
 	const draft = service.state.draft
 	if (draft && (messageId === null || draft.replyToMessageId === messageId)) {
 		const quote = extractQuote(draft.markdown)

@@ -76,11 +76,25 @@
 	{#if item.kind === 'user'}
 		<View style={{ alignSelf: 'end', maxWidth: '88%', gap: 2 }}>
 			{#if item.label}
-				<Text style={{ ...typeStyle('caption'), fontSize: 11, color: theme.colors.faint, textAlign: 'right' }}>
+				<Text
+					style={{
+						...typeStyle('caption'),
+						fontSize: 11,
+						color: theme.colors.faint,
+						textAlign: 'right'
+					}}
+				>
 					{item.label}
 				</Text>
 			{/if}
-			<View style={{ background: theme.colors.sunken, radius: theme.radii.control, paddingX: 12, paddingY: 8 }}>
+			<View
+				style={{
+					background: theme.colors.sunken,
+					radius: theme.radii.control,
+					paddingX: 12,
+					paddingY: 8
+				}}
+			>
 				<DocumentView blocks={item.blocks} {onopenlink} dense />
 			</View>
 		</View>
@@ -92,7 +106,14 @@
 		</View>
 	{:else if foldable}
 		<Button
-			style={{ direction: 'row', align: 'center', gap: 8, paddingY: 2, radius: 6, color: theme.colors.muted }}
+			style={{
+				direction: 'row',
+				align: 'center',
+				gap: 8,
+				paddingY: 2,
+				radius: 6,
+				color: theme.colors.muted
+			}}
 			hover={{ color: theme.colors.text }}
 			onpress={() => (unfolded = !unfolded)}
 		>
@@ -101,7 +122,9 @@
 			{:else if item.kind === 'tool'}
 				<Icon svg={stateIcon} size={12} color={stateColor} />
 			{/if}
-			<Text style={{ ...typeStyle('caption'), flex: 1, minWidth: 0, truncate: true }}>{rowTitle}</Text>
+			<Text style={{ ...typeStyle('caption'), flex: 1, minWidth: 0, truncate: true }}
+				>{rowTitle}</Text
+			>
 			{#if item.blocks.length > 0}
 				<Icon svg={caret} size={12} />
 			{/if}

@@ -44,7 +44,10 @@
 	}
 
 	function checkedAt(trackedAt: string): string {
-		return new Date(trackedAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+		return new Date(trackedAt).toLocaleTimeString(undefined, {
+			hour: '2-digit',
+			minute: '2-digit'
+		})
 	}
 
 	async function copyTrackingNumber(trackingNumber: string): Promise<void> {
@@ -79,7 +82,9 @@
 {#if extracting}
 	<View style={{ direction: 'row', align: 'center', gap: 8, paddingX: 20, paddingBottom: 14 }}>
 		<LoadingSpinner size={14} />
-		<Text style={{ ...typeStyle('caption'), color: theme.colors.muted }}>The agent is looking for a shipment…</Text>
+		<Text style={{ ...typeStyle('caption'), color: theme.colors.muted }}
+			>The agent is looking for a shipment…</Text
+		>
 	</View>
 {:else if shipment}
 	<View
@@ -99,23 +104,33 @@
 			<Text style={{ ...typeStyle('bodySmall'), fontWeight: 600 }}>{shipment.carrier}</Text>
 			{#if shipment.trackingNumber}
 				{@const trackingNumber = shipment.trackingNumber}
-				<Chip label={trackingChipLabel(trackingNumber)} onpress={() => void copyTrackingNumber(trackingNumber)} />
+				<Chip
+					label={trackingChipLabel(trackingNumber)}
+					onpress={() => void copyTrackingNumber(trackingNumber)}
+				/>
 			{/if}
 			<View style={{ flex: 1 }} />
 			{#if shipment.trackingNumber}
-				<Button variant="ghost" size="sm" disabled={tracking} onpress={() => void track()}><Text>{trackLabel}</Text></Button>
+				<Button variant="ghost" size="sm" disabled={tracking} onpress={() => void track()}
+					><Text>{trackLabel}</Text></Button
+				>
 			{/if}
 			{#if shipment.trackingUrl}
 				{@const url = shipment.trackingUrl}
-				<Button variant="secondary" size="sm" onpress={() => openTrackingPage(url)}><Text>Tracking page</Text></Button>
+				<Button variant="secondary" size="sm" onpress={() => openTrackingPage(url)}
+					><Text>Tracking page</Text></Button
+				>
 			{/if}
 		</View>
 		{#if details(shipment) !== ''}
-			<Text style={{ ...typeStyle('caption'), color: theme.colors.muted }}>{details(shipment)}</Text>
+			<Text style={{ ...typeStyle('caption'), color: theme.colors.muted }}>{details(shipment)}</Text
+			>
 		{/if}
 		{#if shipment.lastEvent}
 			<Text style={{ ...typeStyle('caption'), color: theme.colors.muted }}>
-				{shipment.lastEvent}{#if shipment.trackedAt}<Text style={{ color: theme.colors.faint }}> · checked {checkedAt(shipment.trackedAt)}</Text>{/if}
+				{shipment.lastEvent}{#if shipment.trackedAt}<Text style={{ color: theme.colors.faint }}>
+						· checked {checkedAt(shipment.trackedAt)}</Text
+					>{/if}
 			</Text>
 		{/if}
 		{#if error}

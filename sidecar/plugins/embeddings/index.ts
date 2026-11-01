@@ -6,7 +6,12 @@
 import type { Context } from '@neoworks/extension-system'
 import type { EmbeddingStatus } from '../../../shared/mail'
 import { bufferFromVector, cosineSimilarity, vectorFromBuffer } from '../../mail/classify'
-import { EMBEDDING_MODEL, embedPassages, embedQuery, setModelCacheDirectory } from '../../mail/embedder'
+import {
+	EMBEDDING_MODEL,
+	embedPassages,
+	embedQuery,
+	setModelCacheDirectory
+} from '../../mail/embedder'
 
 const EMBED_BATCH_SIZE = 16
 const EMBED_INTERVAL_MS = 20_000
@@ -23,7 +28,11 @@ export const embeddings = {
 		let latestStatus: EmbeddingStatus | null = null
 
 		const reportStatus = (passRunning: boolean, error: string | null): void => {
-			latestStatus = { pending: ctx.store.embeddingBacklog(EMBEDDING_MODEL), running: passRunning, error }
+			latestStatus = {
+				pending: ctx.store.embeddingBacklog(EMBEDDING_MODEL),
+				running: passRunning,
+				error
+			}
 			ctx.rpc.broadcast('embeddings.status', latestStatus)
 		}
 
@@ -36,7 +45,11 @@ export const embeddings = {
 					reportStatus(true, null)
 					const vectors = await embedPassages(candidates.map((candidate) => candidate.text))
 					for (let index = 0; index < candidates.length; index += 1) {
-						ctx.store.insertEmbedding(candidates[index].messageId, EMBEDDING_MODEL, bufferFromVector(vectors[index]))
+						ctx.store.insertEmbedding(
+							candidates[index].messageId,
+							EMBEDDING_MODEL,
+							bufferFromVector(vectors[index])
+						)
 					}
 				}
 				ctx.emit('mail/embedded')
@@ -70,7 +83,9 @@ export const embeddings = {
 				similarity: cosineSimilarity(queryVector, vectorFromBuffer(candidate.vector))
 			}))
 			scored.sort((first, second) => second.similarity - first.similarity)
-			return ctx.store.summariesWithFolder(scored.slice(0, SEARCH_LIMIT).map((entry) => entry.messageId))
+			return ctx.store.summariesWithFolder(
+				scored.slice(0, SEARCH_LIMIT).map((entry) => entry.messageId)
+			)
 		})
 	}
 }

@@ -55,7 +55,9 @@
 		return inbox !== null && inbox.folderId === view.folderId
 	})
 
-	const items = $derived(buildThreadListItems(mailbox.state.threads, bundlingEnabled, expandedBundles))
+	const items = $derived(
+		buildThreadListItems(mailbox.state.threads, bundlingEnabled, expandedBundles)
+	)
 	const orderedThreads = $derived(visibleThreads(items))
 
 	const title = $derived.by(() => {
@@ -117,11 +119,23 @@
 
 	function altPressThread(event: PointerEvent, thread: ThreadSummary): void {
 		if (event.button === 1) {
-			void reader.openInNewTab({ kind: 'thread', accountId: thread.accountId, threadId: thread.threadId })
+			void reader.openInNewTab({
+				kind: 'thread',
+				accountId: thread.accountId,
+				threadId: thread.threadId
+			})
 			return
 		}
 		menuPosition = [event.windowX, event.windowY]
-		openMenu(threadMenuItems(thread, { mailbox, reader, commands, folders: accounts.state.folders, reopen: reopenMenu }))
+		openMenu(
+			threadMenuItems(thread, {
+				mailbox,
+				reader,
+				commands,
+				folders: accounts.state.folders,
+				reopen: reopenMenu
+			})
+		)
 	}
 
 	function openMenu(menuItems: MenuItem[]): void {
@@ -148,7 +162,12 @@
 </script>
 
 <View style={{ flex: 1, minWidth: 0 }}>
-	<ListHeader {title} total={mailbox.state.totalThreads} selectedCount={mailbox.state.selectedThreadIds.length} {commands} />
+	<ListHeader
+		{title}
+		total={mailbox.state.totalThreads}
+		selectedCount={mailbox.state.selectedThreadIds.length}
+		{commands}
+	/>
 	{#if mailbox.state.threads.length === 0}
 		<View style={{ flex: 1, align: 'center', justify: 'center', padding: 24 }}>
 			{#if mailbox.state.loading}

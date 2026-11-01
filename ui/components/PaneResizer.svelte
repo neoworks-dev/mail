@@ -38,7 +38,13 @@
 </script>
 
 <View
-	style={{ width: 8, alignSelf: 'stretch', align: 'center', justify: 'center', cursor: 'col-resize' }}
+	style={{
+		width: 8,
+		alignSelf: 'stretch',
+		align: 'center',
+		justify: 'center',
+		cursor: 'col-resize'
+	}}
 	ondown={start}
 	onmove={move}
 	onup={end}

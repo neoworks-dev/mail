@@ -249,17 +249,20 @@ export class MailStore {
 
 	getOauthAccessToken(accountId: number): { accessToken: string; expiresAt: string } | null {
 		const row = this.database
-			.prepare('SELECT oauth_access_token, oauth_token_expires_at FROM accounts WHERE account_id = ?')
+			.prepare(
+				'SELECT oauth_access_token, oauth_token_expires_at FROM accounts WHERE account_id = ?'
+			)
 			.get(accountId) as
-			| { oauth_access_token: string | null; oauth_token_expires_at: string | null }
-			| undefined
+			{ oauth_access_token: string | null; oauth_token_expires_at: string | null } | undefined
 		if (!row || row.oauth_access_token === null || row.oauth_token_expires_at === null) return null
 		return { accessToken: row.oauth_access_token, expiresAt: row.oauth_token_expires_at }
 	}
 
 	setOauthAccessToken(accountId: number, accessToken: string, expiresAt: string): void {
 		this.database
-			.prepare('UPDATE accounts SET oauth_access_token = ?, oauth_token_expires_at = ? WHERE account_id = ?')
+			.prepare(
+				'UPDATE accounts SET oauth_access_token = ?, oauth_token_expires_at = ? WHERE account_id = ?'
+			)
 			.run(accessToken, expiresAt, accountId)
 	}
 
@@ -368,7 +371,9 @@ export class MailStore {
 		}))
 	}
 
-	getFolder(folderId: number): { folderId: number; accountId: number; path: string; specialUse: string | null } | null {
+	getFolder(
+		folderId: number
+	): { folderId: number; accountId: number; path: string; specialUse: string | null } | null {
 		const row = this.database
 			.prepare('SELECT folder_id, account_id, path, special_use FROM folders WHERE folder_id = ?')
 			.get(folderId) as
@@ -396,7 +401,9 @@ export class MailStore {
 
 		for (const name of nameFallbacks) {
 			const byName = this.database
-				.prepare('SELECT folder_id, path FROM folders WHERE account_id = ? AND (name = ? OR path = ?)')
+				.prepare(
+					'SELECT folder_id, path FROM folders WHERE account_id = ? AND (name = ? OR path = ?)'
+				)
 				.get(accountId, name, name) as { folder_id: number; path: string } | undefined
 			if (byName) return { folderId: byName.folder_id, path: byName.path }
 		}
@@ -571,7 +578,13 @@ export class MailStore {
 			if (message.shipment) {
 				this.saveExtraction(messageId, 'shipment', 'heuristic', JSON.stringify(message.shipment))
 			}
-			this.assignThread(messageId, message.accountId, message.rfcMessageId, message.inReplyTo, message.references)
+			this.assignThread(
+				messageId,
+				message.accountId,
+				message.rfcMessageId,
+				message.inReplyTo,
+				message.references
+			)
 			return messageId
 		})
 		return insert(input)
@@ -691,15 +704,22 @@ export class MailStore {
 		}
 
 		if (relatedThreadIds.size === 0) {
-			this.database.prepare('UPDATE messages SET thread_id = ? WHERE message_id = ?').run(messageId, messageId)
+			this.database
+				.prepare('UPDATE messages SET thread_id = ? WHERE message_id = ?')
+				.run(messageId, messageId)
 			return
 		}
 
 		const threadIds = [...relatedThreadIds].sort((a, b) => a - b)
 		const canonical = threadIds[0]
-		this.database.prepare('UPDATE messages SET thread_id = ? WHERE message_id = ?').run(canonical, messageId)
+		this.database
+			.prepare('UPDATE messages SET thread_id = ? WHERE message_id = ?')
+			.run(canonical, messageId)
 		if (threadIds.length > 1) {
-			const placeholders = threadIds.slice(1).map(() => '?').join(',')
+			const placeholders = threadIds
+				.slice(1)
+				.map(() => '?')
+				.join(',')
 			this.database
 				.prepare(`UPDATE messages SET thread_id = ? WHERE thread_id IN (${placeholders})`)
 				.run(canonical, ...threadIds.slice(1))
@@ -775,9 +795,17 @@ export class MailStore {
 		}
 	}
 
-	updateFlags(folderId: number, uid: number, seen: boolean, flagged: boolean, answered: boolean): void {
+	updateFlags(
+		folderId: number,
+		uid: number,
+		seen: boolean,
+		flagged: boolean,
+		answered: boolean
+	): void {
 		this.database
-			.prepare('UPDATE messages SET seen = ?, flagged = ?, answered = ? WHERE folder_id = ? AND uid = ?')
+			.prepare(
+				'UPDATE messages SET seen = ?, flagged = ?, answered = ? WHERE folder_id = ? AND uid = ?'
+			)
 			.run(seen ? 1 : 0, flagged ? 1 : 0, answered ? 1 : 0, folderId, uid)
 	}
 
@@ -847,7 +875,12 @@ export class MailStore {
 		return { clause: 'm.label = ?', parameters: [label] }
 	}
 
-	listThreads(folderId: number, limit: number, offset: number, label: string | null = null): ThreadPage {
+	listThreads(
+		folderId: number,
+		limit: number,
+		offset: number,
+		label: string | null = null
+	): ThreadPage {
 		const filter = this.labelFilterClause(label)
 		const rows = this.database
 			.prepare(
@@ -1083,8 +1116,7 @@ export class MailStore {
 				'SELECT list_unsubscribe, list_unsubscribe_one_click FROM messages WHERE message_id = ?'
 			)
 			.get(messageId) as
-			| { list_unsubscribe: string | null; list_unsubscribe_one_click: number }
-			| undefined
+			{ list_unsubscribe: string | null; list_unsubscribe_one_click: number } | undefined
 		if (!row || row.list_unsubscribe === null) return null
 		return { header: row.list_unsubscribe, oneClick: row.list_unsubscribe_one_click === 1 }
 	}
@@ -1226,7 +1258,10 @@ export class MailStore {
 	}
 
 	/** All embeddings with summary rows for brute-force semantic search. */
-	allEmbeddings(model: string, accountId: number | null): Array<{ messageId: number; vector: Buffer }> {
+	allEmbeddings(
+		model: string,
+		accountId: number | null
+	): Array<{ messageId: number; vector: Buffer }> {
 		const rows = this.database
 			.prepare(
 				`SELECT m.message_id, e.vector
@@ -1254,7 +1289,12 @@ export class MailStore {
 	 * The newest messages in folders with this path across accounts, optionally only unread or
 	 * from a sender whose address or name contains `sender`.
 	 */
-	recentMessages(options: { folderPath: string; sender: string | null; unreadOnly: boolean; limit: number }): SearchResult[] {
+	recentMessages(options: {
+		folderPath: string
+		sender: string | null
+		unreadOnly: boolean
+		limit: number
+	}): SearchResult[] {
 		const conditions = ['f.path = ?']
 		const parameters: SqlParameter[] = [options.folderPath]
 		if (options.unreadOnly) conditions.push('m.seen = 0')
@@ -1270,7 +1310,11 @@ export class MailStore {
 				 ORDER BY m.date DESC LIMIT ?`
 			)
 			.all(...parameters, options.limit) as Array<MessageRow & { folder_path: string }>
-		return rows.map((row) => ({ ...rowToSummary(row), folderPath: row.folder_path, matchSnippet: row.snippet }))
+		return rows.map((row) => ({
+			...rowToSummary(row),
+			folderPath: row.folder_path,
+			matchSnippet: row.snippet
+		}))
 	}
 
 	summariesWithFolder(messageIds: number[]): SearchResult[] {

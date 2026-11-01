@@ -11,7 +11,12 @@ export const messageList = {
 			id: 'message-list',
 			order: 10,
 			component: MessageList,
-			props: { accounts: ctx.accounts, mailbox: ctx.mailbox, reader: ctx.reader, commands: ctx.commands }
+			props: {
+				accounts: ctx.accounts,
+				mailbox: ctx.mailbox,
+				reader: ctx.reader,
+				commands: ctx.commands
+			}
 		})
 	}
 }

@@ -10,4 +10,8 @@ import { corePlugins } from './plugins'
 // The window opens at once and fills in as the kernel boots and the plugins activate.
 const boot = bootKernel({ plugins: corePlugins, bridge: gpuiBridge })
 
-start(Root, { boot }, { window: { title: 'Mail', width: 1440, height: 900, minWidth: 1024, minHeight: 640 } })
+start(
+	Root,
+	{ boot },
+	{ window: { title: 'Mail', width: 1440, height: 900, minWidth: 1024, minHeight: 640 } }
+)

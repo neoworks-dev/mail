@@ -52,14 +52,35 @@
 				}}
 			>
 				{#if pending.status === 'pending'}
-					<Text style={typeStyle('bodySmall')}>Sending to {recipientLabel(pending.to)} in {secondsLeft(pending)}s</Text>
-					<Button size="sm" variant="secondary" onpress={() => void composer.undoSend(pending.sendId)}><Text>Undo</Text></Button>
+					<Text style={typeStyle('bodySmall')}
+						>Sending to {recipientLabel(pending.to)} in {secondsLeft(pending)}s</Text
+					>
+					<Button
+						size="sm"
+						variant="secondary"
+						onpress={() => void composer.undoSend(pending.sendId)}><Text>Undo</Text></Button
+					>
 				{:else}
-					<Text style={{ ...typeStyle('bodySmall'), color: theme.colors.danger, flex: 1, minWidth: 0, truncate: true }}>
+					<Text
+						style={{
+							...typeStyle('bodySmall'),
+							color: theme.colors.danger,
+							flex: 1,
+							minWidth: 0,
+							truncate: true
+						}}
+					>
 						Send failed: {pending.errorMessage}
 					</Text>
-					<Button size="sm" variant="secondary" onpress={() => composer.reopenFailed(pending.sendId)}><Text>Edit &amp; retry</Text></Button>
-					<Button size="sm" variant="ghost" onpress={() => composer.dropPending(pending.sendId)}><Text>Dismiss</Text></Button>
+					<Button
+						size="sm"
+						variant="secondary"
+						onpress={() => composer.reopenFailed(pending.sendId)}
+						><Text>Edit &amp; retry</Text></Button
+					>
+					<Button size="sm" variant="ghost" onpress={() => composer.dropPending(pending.sendId)}
+						><Text>Dismiss</Text></Button
+					>
 				{/if}
 			</View>
 		{/each}

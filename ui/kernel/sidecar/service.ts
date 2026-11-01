@@ -74,7 +74,10 @@ export class SidecarService extends Service {
 	}
 
 	/** Calls a route. Waits while the sidecar starts; rejects once it has ended. */
-	async call<Name extends RouteName>(channel: Name, ...args: RouteArgs<Name>): Promise<RouteResult<Name>> {
+	async call<Name extends RouteName>(
+		channel: Name,
+		...args: RouteArgs<Name>
+	): Promise<RouteResult<Name>> {
 		if (this.current.state === 'starting') await this.untilSettled()
 		if (this.current.state === 'exited') {
 			throw new SidecarUnavailableError(this.current.message ?? 'the mail engine is not running')
@@ -84,7 +87,10 @@ export class SidecarService extends Service {
 	}
 
 	/** Hears an event the sidecar pushes, until the calling plugin unloads or the returned function runs. */
-	on<Name extends keyof PushEvents>(channel: Name, handler: (payload: PushEvents[Name]) => void): () => void {
+	on<Name extends keyof PushEvents>(
+		channel: Name,
+		handler: (payload: PushEvents[Name]) => void
+	): () => void {
 		return this.ctx.effect(
 			() => this.bridge.onEvent(channel, (payload) => handler(payload as PushEvents[Name])),
 			`sidecar.on(${channel})`

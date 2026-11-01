@@ -24,7 +24,8 @@ export const sync = {
 					latestStatus.set(status.accountId, status)
 					ctx.rpc.broadcast('sync.status', status)
 				},
-				(changedAccountId, folderId) => ctx.emit('mail/messages-changed', changedAccountId, folderId),
+				(changedAccountId, folderId) =>
+					ctx.emit('mail/messages-changed', changedAccountId, folderId),
 				(messages) => ctx.emit('mail/new-messages', messages)
 			)
 			syncs.set(accountId, accountSync)

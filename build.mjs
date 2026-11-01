@@ -17,6 +17,8 @@ await build({
 
 if (watch && hostFlag !== -1) {
 	const host = process.argv[hostFlag + 1]
-	const child = spawn(host, ['--bundle', here('./dist/neomail.js'), '--watch'], { stdio: 'inherit' })
+	const child = spawn(host, ['--bundle', here('./dist/neomail.js'), '--watch'], {
+		stdio: 'inherit'
+	})
 	child.on('exit', (code) => process.exit(code ?? 0))
 }

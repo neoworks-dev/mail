@@ -36,7 +36,11 @@ describe('parseMailto', () => {
 
 	test('defaults subject and body to unsubscribe', () => {
 		const request = parseMailto('mailto:leave@list.example')
-		expect(request).toEqual({ to: 'leave@list.example', subject: 'unsubscribe', body: 'unsubscribe' })
+		expect(request).toEqual({
+			to: 'leave@list.example',
+			subject: 'unsubscribe',
+			body: 'unsubscribe'
+		})
 	})
 
 	test('empty address is rejected', () => {

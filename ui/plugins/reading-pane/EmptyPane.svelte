@@ -39,7 +39,14 @@
 	<Scroll style={{ flex: 1 }}>
 		<View style={{ padding: 24, gap: 8, align: 'center' }}>
 			<View style={{ width: '100%', maxWidth: 560, gap: 6 }}>
-				<Text style={{ ...typeStyle('label'), uppercase: true, color: theme.colors.faint, marginBottom: 4 }}>
+				<Text
+					style={{
+						...typeStyle('label'),
+						uppercase: true,
+						color: theme.colors.faint,
+						marginBottom: 4
+					}}
+				>
 					Open tabs
 				</Text>
 				{#each openTabs as entry (entry.tab.id)}
@@ -58,11 +65,18 @@
 						}}
 						hover={{ background: theme.colors.hover }}
 					>
-						<Button style={{ flex: 1, minWidth: 0 }} onpress={() => reader.setActiveTab(entry.paneIndex, entry.tabIndex)}>
+						<Button
+							style={{ flex: 1, minWidth: 0 }}
+							onpress={() => reader.setActiveTab(entry.paneIndex, entry.tabIndex)}
+						>
 							<View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-								<Text style={{ ...typeStyle('bodySmall'), fontWeight: 500, truncate: true }}>{entry.tab.title}</Text>
+								<Text style={{ ...typeStyle('bodySmall'), fontWeight: 500, truncate: true }}
+									>{entry.tab.title}</Text
+								>
 								{#if subtitle(entry) !== ''}
-									<Text style={{ ...typeStyle('caption'), color: theme.colors.muted, truncate: true }}>
+									<Text
+										style={{ ...typeStyle('caption'), color: theme.colors.muted, truncate: true }}
+									>
 										{subtitle(entry)}
 									</Text>
 								{/if}
@@ -83,6 +97,8 @@
 {:else}
 	<View style={{ flex: 1, align: 'center', justify: 'center', gap: 12, color: theme.colors.faint }}>
 		<Icon svg={envelopeIcon} size={40} />
-		<Text style={{ ...typeStyle('bodySmall'), color: theme.colors.faint }}>Select a conversation to read</Text>
+		<Text style={{ ...typeStyle('bodySmall'), color: theme.colors.faint }}
+			>Select a conversation to read</Text
+		>
 	</View>
 {/if}

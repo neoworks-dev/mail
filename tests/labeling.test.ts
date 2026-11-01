@@ -27,7 +27,9 @@ describe('classifyHeuristic', () => {
 
 	test('social domains beat list headers', () => {
 		expect(
-			classifyHeuristic(signals({ fromAddress: 'notification@facebookmail.com', hasListHeaders: true }))
+			classifyHeuristic(
+				signals({ fromAddress: 'notification@facebookmail.com', hasListHeaders: true })
+			)
 		).toBe('social')
 		expect(classifyHeuristic(signals({ fromAddress: 'noreply@github.com' }))).toBe('social')
 	})
@@ -48,12 +50,16 @@ describe('classifyHeuristic', () => {
 
 	test('noreply senders without list headers are notifications', () => {
 		expect(classifyHeuristic(signals({ fromAddress: 'noreply@bank.example' }))).toBe('notification')
-		expect(classifyHeuristic(signals({ fromAddress: 'no-reply@service.example' }))).toBe('notification')
+		expect(classifyHeuristic(signals({ fromAddress: 'no-reply@service.example' }))).toBe(
+			'notification'
+		)
 		expect(classifyHeuristic(signals({ autoSubmitted: true }))).toBe('notification')
 	})
 
 	test('noreply-like prefixes only match with separators', () => {
 		expect(classifyHeuristic(signals({ fromAddress: 'alertson@example.com' }))).toBeNull()
-		expect(classifyHeuristic(signals({ fromAddress: 'alerts-eu@example.com' }))).toBe('notification')
+		expect(classifyHeuristic(signals({ fromAddress: 'alerts-eu@example.com' }))).toBe(
+			'notification'
+		)
 	})
 })

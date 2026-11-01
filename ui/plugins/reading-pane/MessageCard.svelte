@@ -55,10 +55,20 @@
 			hover={{ background: theme.colors.hover }}
 			onpress={toggle}
 		>
-			<Text style={{ ...typeStyle('bodySmall'), color: theme.colors.muted, width: 180, truncate: true }}>
+			<Text
+				style={{ ...typeStyle('bodySmall'), color: theme.colors.muted, width: 180, truncate: true }}
+			>
 				{senderName(message)}
 			</Text>
-			<Text style={{ ...typeStyle('caption'), color: theme.colors.faint, flex: 1, minWidth: 0, truncate: true }}>
+			<Text
+				style={{
+					...typeStyle('caption'),
+					color: theme.colors.faint,
+					flex: 1,
+					minWidth: 0,
+					truncate: true
+				}}
+			>
 				{message.snippet}
 			</Text>
 			{#if message.folderPath !== 'INBOX'}
@@ -66,7 +76,9 @@
 					<Text style={{ fontSize: 11, color: theme.colors.faint }}>{message.folderPath}</Text>
 				</View>
 			{/if}
-			<Text style={{ ...typeStyle('caption'), color: theme.colors.faint, nowrap: true }}>{formatFullDate(message.date)}</Text>
+			<Text style={{ ...typeStyle('caption'), color: theme.colors.faint, nowrap: true }}
+				>{formatFullDate(message.date)}</Text
+			>
 		</Button>
 	{:else}
 		<View
@@ -75,10 +87,21 @@
 			onpress={toggle}
 		>
 			<View style={{ direction: 'row', align: 'baseline', gap: 12 }}>
-				<Text style={{ ...typeStyle('bodySmall'), fontWeight: 600, color: senderColor, flex: 1, minWidth: 0, truncate: true }}>
+				<Text
+					style={{
+						...typeStyle('bodySmall'),
+						fontWeight: 600,
+						color: senderColor,
+						flex: 1,
+						minWidth: 0,
+						truncate: true
+					}}
+				>
 					{senderLabel(message)}
 				</Text>
-				<Text style={{ ...typeStyle('caption'), color: theme.colors.faint, nowrap: true }}>{formatFullDate(message.date)}</Text>
+				<Text style={{ ...typeStyle('caption'), color: theme.colors.faint, nowrap: true }}
+					>{formatFullDate(message.date)}</Text
+				>
 			</View>
 			{#if body && body.toAddresses.length > 0}
 				<Text style={{ ...typeStyle('caption'), color: theme.colors.muted, truncate: true }}>
@@ -101,7 +124,10 @@
 				onallow={() => void reader.allowRemoteImages(message.messageId)}
 			/>
 			<View style={{ paddingX: 20, paddingTop: 8, paddingBottom: 20 }}>
-				<DocumentView blocks={mailDocument.blocks} onopenlink={(href) => openLink(services, href)} />
+				<DocumentView
+					blocks={mailDocument.blocks}
+					onopenlink={(href) => openLink(services, href)}
+				/>
 			</View>
 		{:else}
 			<View style={{ padding: 20, align: 'start' }}>

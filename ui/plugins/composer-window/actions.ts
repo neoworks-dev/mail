@@ -37,7 +37,11 @@ export function composerActions(ctx: Context): ComposerActions {
 			if (open) return open
 			const location = await ctx.sidecar.call('messages.locate', messageId)
 			if (!location) return null
-			const messages = await ctx.sidecar.call('threads.messages', location.accountId, location.threadId)
+			const messages = await ctx.sidecar.call(
+				'threads.messages',
+				location.accountId,
+				location.threadId
+			)
 			const found = messages.find((message) => message.messageId === messageId)
 			if (!found) return null
 			return found

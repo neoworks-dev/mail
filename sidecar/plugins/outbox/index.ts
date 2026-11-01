@@ -11,7 +11,8 @@ export const outbox = {
 	apply(ctx: Context) {
 		const queue = new SendOutbox((input) => ctx.sender.sendMessage(input), {
 			onSent: (sendId) => ctx.rpc.broadcast('send.done', { sendId }),
-			onFailed: (sendId, errorMessage, input) => ctx.rpc.broadcast('send.failed', { sendId, errorMessage, input })
+			onFailed: (sendId, errorMessage, input) =>
+				ctx.rpc.broadcast('send.failed', { sendId, errorMessage, input })
 		})
 		ctx.effect(() => () => queue.flush(), 'flush outbox')
 		ctx.rpc.handle('send.queue', (input) => queue.queue(input))

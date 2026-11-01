@@ -16,10 +16,20 @@
 	<View style={{ align: 'center', paddingY: 64, paddingX: 24 }}>
 		<View style={{ width: 460, maxWidth: '100%', gap: 24 }}>
 			<View style={{ gap: 8 }}>
-				<Text style={{ ...typeStyle('label'), uppercase: true, color: theme.colors.muted }}>Mail</Text>
+				<Text style={{ ...typeStyle('label'), uppercase: true, color: theme.colors.muted }}
+					>Mail</Text
+				>
 				<Text style={typeStyle('heading')}>Add a mail account</Text>
 			</View>
-			<View style={{ ...surfacePanelLook(theme), padding: 24, radius: theme.radii.card, borderWidth: 1, borderColor: theme.colors.line }}>
+			<View
+				style={{
+					...surfacePanelLook(theme),
+					padding: 24,
+					radius: theme.radii.card,
+					borderWidth: 1,
+					borderColor: theme.colors.line
+				}}
+			>
 				<AccountForm {actions} />
 			</View>
 		</View>

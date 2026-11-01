@@ -37,7 +37,8 @@ describe('parseAuthenticationResults', () => {
 	})
 
 	test('any passing dkim signature wins within one header', () => {
-		const header = 'mx.google.com; dkim=fail header.i=@old.example.com; dkim=pass header.i=@example.com'
+		const header =
+			'mx.google.com; dkim=fail header.i=@old.example.com; dkim=pass header.i=@example.com'
 		const result = parseAuthenticationResults([header])
 		expect(result?.dkim).toBe('pass')
 	})

@@ -3,13 +3,13 @@
 // `$state` field never lands on a `Service` (see the extension-system skill). A service owns a
 // ChangeSignal instead: its readers call `track()` and its writers call `notify()`.
 
-import { createSubscriber } from "svelte/reactivity";
+import { createSubscriber } from 'svelte/reactivity'
 
 export interface ChangeSignal {
-  /** Makes the running effect or template depend on this signal; does nothing outside one. */
-  track(): void;
-  /** Reruns everything that tracked the signal. */
-  notify(): void;
+	/** Makes the running effect or template depend on this signal; does nothing outside one. */
+	track(): void
+	/** Reruns everything that tracked the signal. */
+	notify(): void
 }
 
 /**
@@ -18,19 +18,19 @@ export interface ChangeSignal {
  * services' plain logic is all the tests see.
  */
 export function createChangeSignal(): ChangeSignal {
-  let rerunReaders: (() => void) | undefined;
-  const subscribe = createSubscriber((update) => {
-    rerunReaders = update;
-    return () => {
-      rerunReaders = undefined;
-    };
-  });
-  return {
-    track: () => subscribe(),
-    notify: () => {
-      if (rerunReaders) {
-        rerunReaders();
-      }
-    },
-  };
+	let rerunReaders: (() => void) | undefined
+	const subscribe = createSubscriber((update) => {
+		rerunReaders = update
+		return () => {
+			rerunReaders = undefined
+		}
+	})
+	return {
+		track: () => subscribe(),
+		notify: () => {
+			if (rerunReaders) {
+				rerunReaders()
+			}
+		}
+	}
 }

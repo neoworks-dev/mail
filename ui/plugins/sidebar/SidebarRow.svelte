@@ -17,7 +17,15 @@
 		onpress: () => void
 	}
 
-	let { title, icon, count = 0, selected, indented = false, trailingIcon, onpress }: Props = $props()
+	let {
+		title,
+		icon,
+		count = 0,
+		selected,
+		indented = false,
+		trailingIcon,
+		onpress
+	}: Props = $props()
 
 	const theme = $derived(currentTheme())
 
@@ -50,13 +58,19 @@
 	}
 </script>
 
-<Button style={rowStyle()} hover={{ background: theme.colors.hover, color: theme.colors.text }} active={{ background: theme.colors.pressed }} {onpress}>
+<Button
+	style={rowStyle()}
+	hover={{ background: theme.colors.hover, color: theme.colors.text }}
+	active={{ background: theme.colors.pressed }}
+	{onpress}
+>
 	{#if icon}
 		<Icon svg={icon} size={16} />
 	{/if}
 	<Text style={{ flex: 1, minWidth: 0, truncate: true }}>{title}</Text>
 	{#if count > 0}
-		<Text style={{ ...typeStyle('caption'), fontSize: 12, color: theme.colors.faint }}>{count}</Text>
+		<Text style={{ ...typeStyle('caption'), fontSize: 12, color: theme.colors.faint }}>{count}</Text
+		>
 	{/if}
 	{#if trailingIcon}
 		<Icon svg={trailingIcon} size={12} color={theme.colors.faint} />

@@ -12,7 +12,11 @@
 	import type { ReadingServices } from './services'
 	import ThreadToolbar from './ThreadToolbar.svelte'
 
-	let { services, tab, paneIndex }: { services: ReadingServices; tab: ReadingTab; paneIndex: number } = $props()
+	let {
+		services,
+		tab,
+		paneIndex
+	}: { services: ReadingServices; tab: ReadingTab; paneIndex: number } = $props()
 
 	const theme = $derived(currentTheme())
 

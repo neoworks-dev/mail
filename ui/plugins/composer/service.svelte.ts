@@ -3,7 +3,12 @@
 // window brings it back, as does a send that failed.
 
 import type { Context } from '@neoworks/extension-system'
-import type { MessageBody, OutgoingAttachment, OutgoingMessage, ThreadMessage } from '../../../shared/mail'
+import type {
+	MessageBody,
+	OutgoingAttachment,
+	OutgoingMessage,
+	ThreadMessage
+} from '../../../shared/mail'
 
 declare module '@neoworks/extension-system' {
 	interface Context {
@@ -77,7 +82,9 @@ export class ComposerService {
 		if (replyAll && body) {
 			const others = [...body.toAddresses, ...body.ccAddresses]
 				.map((entry) => entry.address)
-				.filter((address) => address !== '' && address !== ownEmail && address !== message.fromAddress)
+				.filter(
+					(address) => address !== '' && address !== ownEmail && address !== message.fromAddress
+				)
 			cc = [...new Set(others)].join(', ')
 		}
 		if (to === ownEmail && body && body.toAddresses.length > 0) {
@@ -100,7 +107,11 @@ export class ComposerService {
 	async editDraft(message: ThreadMessage, body: MessageBody | null): Promise<void> {
 		let replyToMessageId: number | null = null
 		if (message.inReplyTo) {
-			replyToMessageId = await this.ctx.sidecar.call('messages.byRfcId', message.accountId, message.inReplyTo)
+			replyToMessageId = await this.ctx.sidecar.call(
+				'messages.byRfcId',
+				message.accountId,
+				message.inReplyTo
+			)
 		}
 		let to = ''
 		let cc = ''
@@ -207,7 +218,10 @@ export class ComposerService {
 	}
 
 	private restore(input: OutgoingMessage): void {
-		this.replace({ ...input, attachments: input.attachments.map((attachment) => ({ ...attachment })) })
+		this.replace({
+			...input,
+			attachments: input.attachments.map((attachment) => ({ ...attachment }))
+		})
 	}
 
 	private payload(): OutgoingMessage | null {

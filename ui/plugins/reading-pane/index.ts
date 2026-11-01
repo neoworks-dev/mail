@@ -28,6 +28,10 @@ export const readingPane = {
 			accounts: ctx.accounts,
 			composer: ctx.composer
 		}
-		ctx.slots.register('content', { id: 'reading-pane', component: ReadingArea, props: { services } })
+		ctx.slots.register('content', {
+			id: 'reading-pane',
+			component: ReadingArea,
+			props: { services }
+		})
 	}
 }

@@ -2,6 +2,7 @@
 const config = {
 	useTabs: true,
 	singleQuote: true,
+	semi: false,
 	trailingComma: 'none',
 	printWidth: 100,
 	plugins: ['prettier-plugin-svelte'],

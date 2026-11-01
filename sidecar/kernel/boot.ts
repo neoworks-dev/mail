@@ -5,7 +5,14 @@
 // When the host closes stdin, the plugins unload in reverse: their inverses log out of IMAP,
 // flush the outbox and stop the agent server before the process exits.
 
-import { Context, FiberState, Logger, LoggerLevel, type Exporter, type Fiber } from '@neoworks/extension-system'
+import {
+	Context,
+	FiberState,
+	Logger,
+	LoggerLevel,
+	type Exporter,
+	type Fiber
+} from '@neoworks/extension-system'
 import type { PluginReport } from '../../shared/routes'
 import { resolvePaths } from './paths'
 import { RpcService } from './rpc'
@@ -25,7 +32,10 @@ export interface SidecarKernel {
 
 const SHUTDOWN_TIMEOUT_MS = 15_000
 
-export async function bootSidecar(plugins: SidecarPlugin[], transport: Transport = stdioTransport()): Promise<SidecarKernel> {
+export async function bootSidecar(
+	plugins: SidecarPlugin[],
+	transport: Transport = stdioTransport()
+): Promise<SidecarKernel> {
 	const context = new Context()
 	mountStderrExporter(context)
 	context.provide('paths', resolvePaths())

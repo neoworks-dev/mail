@@ -10,7 +10,11 @@
 	import type { ReaderService } from '../reader/service.svelte'
 	import DigestCard from './DigestCard.svelte'
 
-	let { sidecar, reader, assistant }: { sidecar: SidecarService; reader: ReaderService; assistant: AssistantService } = $props()
+	let {
+		sidecar,
+		reader,
+		assistant
+	}: { sidecar: SidecarService; reader: ReaderService; assistant: AssistantService } = $props()
 
 	const theme = $derived(currentTheme())
 	const digest = $derived(assistant.state.digest)
@@ -27,7 +31,9 @@
 			<View style={{ width: '100%', maxWidth: 620, gap: 10 }}>
 				<View style={{ direction: 'row', align: 'center', gap: 8 }}>
 					<Text style={{ ...typeStyle('title'), flex: 1 }}>{heading}</Text>
-					<Button variant="ghost" size="sm" onpress={() => assistant.dismissDigest()}><Text>Dismiss</Text></Button>
+					<Button variant="ghost" size="sm" onpress={() => assistant.dismissDigest()}
+						><Text>Dismiss</Text></Button
+					>
 				</View>
 				{#if digest.pending}
 					<View style={{ direction: 'row', align: 'center', gap: 8 }}>
@@ -37,14 +43,25 @@
 						</Text>
 					</View>
 					{#if assistant.state.error}
-						<Text style={{ ...typeStyle('caption'), color: theme.colors.danger }}>{assistant.state.error}</Text>
+						<Text style={{ ...typeStyle('caption'), color: theme.colors.danger }}
+							>{assistant.state.error}</Text
+						>
 					{/if}
 				{/if}
 				{#if digest.intro}
-					<Text style={{ ...typeStyle('bodySmall'), color: theme.colors.muted }}>{digest.intro}</Text>
+					<Text style={{ ...typeStyle('bodySmall'), color: theme.colors.muted }}
+						>{digest.intro}</Text
+					>
 				{/if}
 				{#each digest.groups as group, groupIndex (groupIndex)}
-					<Text style={{ ...typeStyle('label'), uppercase: true, color: theme.colors.faint, marginTop: 12 }}>{group.title}</Text>
+					<Text
+						style={{
+							...typeStyle('label'),
+							uppercase: true,
+							color: theme.colors.faint,
+							marginTop: 12
+						}}>{group.title}</Text
+					>
 					{#each group.items as item (item.threadId)}
 						<DigestCard {item} {sidecar} {reader} />
 					{/each}
@@ -54,8 +71,15 @@
 	</Scroll>
 {:else}
 	<View style={{ flex: 1, align: 'center', justify: 'center', gap: 12 }}>
-		<Text style={{ ...typeStyle('bodySmall'), color: theme.colors.faint }}>No digest written yet</Text>
-		<Button size="sm" variant="secondary" disabled={!assistant.available} onpress={() => void assistant.generateDigest(false)}>
+		<Text style={{ ...typeStyle('bodySmall'), color: theme.colors.faint }}
+			>No digest written yet</Text
+		>
+		<Button
+			size="sm"
+			variant="secondary"
+			disabled={!assistant.available}
+			onpress={() => void assistant.generateDigest(false)}
+		>
 			<Text>Write digest</Text>
 		</Button>
 	</View>

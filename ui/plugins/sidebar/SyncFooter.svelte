@@ -22,7 +22,8 @@
 	function statusLabel(sync: SyncStatus): string {
 		if (sync.phase === 'connecting') return 'Connecting…'
 		if (sync.phase === 'listing') return 'Listing folders…'
-		if (sync.phase === 'backfill') return `Syncing ${sync.folderPath} · ${sync.downloadedMessages}/${sync.totalMessages}`
+		if (sync.phase === 'backfill')
+			return `Syncing ${sync.folderPath} · ${sync.downloadedMessages}/${sync.totalMessages}`
 		if (sync.phase === 'error') return `Error: ${sync.errorMessage}`
 		return 'Up to date'
 	}
@@ -50,10 +51,14 @@
 {#if status || indexLabel()}
 	<View style={{ paddingX: 12, gap: 2 }}>
 		{#if status}
-			<Text style={{ fontSize: 11.5, lineHeight: 16, color: statusColor(status), maxLines: 2 }}>{statusLabel(status)}</Text>
+			<Text style={{ fontSize: 11.5, lineHeight: 16, color: statusColor(status), maxLines: 2 }}
+				>{statusLabel(status)}</Text
+			>
 		{/if}
 		{#if indexLabel()}
-			<Text style={{ fontSize: 11.5, lineHeight: 16, color: indexColor(), truncate: true }}>{indexLabel()}</Text>
+			<Text style={{ fontSize: 11.5, lineHeight: 16, color: indexColor(), truncate: true }}
+				>{indexLabel()}</Text
+			>
 		{/if}
 	</View>
 {/if}

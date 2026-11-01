@@ -52,7 +52,9 @@
 			{/each}
 		</View>
 		{#if notice}
-			<Text style={{ ...typeStyle('caption'), color: noticeColor(notice.failed) }}>{notice.text}</Text>
+			<Text style={{ ...typeStyle('caption'), color: noticeColor(notice.failed) }}
+				>{notice.text}</Text
+			>
 		{/if}
 	</View>
 {/if}

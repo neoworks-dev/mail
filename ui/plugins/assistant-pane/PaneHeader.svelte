@@ -3,7 +3,13 @@
 -->
 <script lang="ts">
 	import { Text, View } from '@neoworks/svelte-gpui/ui'
-	import { Button, currentTheme, LoadingSpinner, StatusBadge, typeStyle } from '@neoworks/svelte-gpui-ui'
+	import {
+		Button,
+		currentTheme,
+		LoadingSpinner,
+		StatusBadge,
+		typeStyle
+	} from '@neoworks/svelte-gpui-ui'
 	import type { StatusTone } from '@neoworks/svelte-gpui-ui'
 	import stop from '@phosphor-icons/core/regular/stop.svg'
 	import type { AssistantService } from '../assistant/service.svelte'
@@ -13,7 +19,9 @@
 	const theme = $derived(currentTheme())
 	const status = $derived(assistant.state.status)
 	const running = $derived(assistant.state.view.running)
-	const agentElsewhere = $derived(status.state === 'open' && status.focusApp !== null && status.focusApp !== 'mail')
+	const agentElsewhere = $derived(
+		status.state === 'open' && status.focusApp !== null && status.focusApp !== 'mail'
+	)
 
 	const connection = $derived.by((): { label: string; tone: StatusTone } => {
 		if (status.state === 'open') return { label: 'Connected', tone: 'success' }
@@ -23,9 +31,19 @@
 	})
 </script>
 
-<View style={{ paddingX: 16, paddingY: 12, gap: 8, borderBottomWidth: 1, borderColor: theme.colors.line }}>
+<View
+	style={{
+		paddingX: 16,
+		paddingY: 12,
+		gap: 8,
+		borderBottomWidth: 1,
+		borderColor: theme.colors.line
+	}}
+>
 	<View style={{ direction: 'row', align: 'center', gap: 8 }}>
-		<Text style={{ ...typeStyle('label'), uppercase: true, color: theme.colors.muted, flex: 1 }}>Assistant</Text>
+		<Text style={{ ...typeStyle('label'), uppercase: true, color: theme.colors.muted, flex: 1 }}
+			>Assistant</Text
+		>
 		{#if running}
 			<LoadingSpinner size={14} thickness={2} label="Working" />
 			<Button variant="ghost" size="sm" icon={stop} onpress={() => void assistant.cancel()}>
@@ -36,7 +54,15 @@
 	</View>
 	{#if agentElsewhere}
 		<View style={{ direction: 'row', align: 'center', gap: 8 }}>
-			<Text style={{ ...typeStyle('caption'), color: theme.colors.muted, flex: 1, minWidth: 0, truncate: true }}>
+			<Text
+				style={{
+					...typeStyle('caption'),
+					color: theme.colors.muted,
+					flex: 1,
+					minWidth: 0,
+					truncate: true
+				}}
+			>
 				The agent is working in {status.focusApp}
 			</Text>
 			<Button variant="secondary" size="sm" onpress={() => void assistant.focusHere()}>

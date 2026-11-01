@@ -82,7 +82,12 @@ function registerNavigation(ctx: Context, service: ReaderService): void {
 }
 
 function registerThreadActions(ctx: Context, service: ReaderService): void {
-	const onTarget = (id: string, title: string, key: string, action: (target: ThreadMessage) => Promise<void>) => {
+	const onTarget = (
+		id: string,
+		title: string,
+		key: string,
+		action: (target: ThreadMessage) => Promise<void>
+	) => {
 		ctx.commands.register({
 			id,
 			title,

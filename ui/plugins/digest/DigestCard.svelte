@@ -10,7 +10,11 @@
 	import type { SidecarService } from '../../kernel/sidecar/service'
 	import type { ReaderService } from '../reader/service.svelte'
 
-	let { item, sidecar, reader }: { item: DigestItem; sidecar: SidecarService; reader: ReaderService } = $props()
+	let {
+		item,
+		sidecar,
+		reader
+	}: { item: DigestItem; sidecar: SidecarService; reader: ReaderService } = $props()
 
 	const theme = $derived(currentTheme())
 	let newest = $state<ThreadMessage | null>(null)
@@ -57,7 +61,10 @@
 	onpress={() => void open()}
 >
 	<View style={{ direction: 'row', align: 'baseline', gap: 8 }}>
-		<Text style={{ ...typeStyle('bodySmall'), fontWeight: 600, flex: 1, minWidth: 0, truncate: true }}>{sender}</Text>
+		<Text
+			style={{ ...typeStyle('bodySmall'), fontWeight: 600, flex: 1, minWidth: 0, truncate: true }}
+			>{sender}</Text
+		>
 		{#if newest && newest.label}
 			<Text style={{ ...typeStyle('caption'), color: theme.colors.faint }}>{newest.label}</Text>
 		{/if}

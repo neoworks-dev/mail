@@ -7,11 +7,22 @@
 // `NEOMAIL_NEO=off` keeps the sidecar off the bus, which tests use.
 
 import type { Context } from '@neoworks/extension-system'
-import { connect, createToolServer, ViewState, type Client, type ToolServer } from '@neoworks-dev/neo-sdk'
+import {
+	connect,
+	createToolServer,
+	ViewState,
+	type Client,
+	type ToolServer
+} from '@neoworks-dev/neo-sdk'
 import type { ViewItem } from '@neoworks-dev/neo-protocol/types'
 import { readdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import type { AssistantItem, AssistantPrompt, AssistantStatus, AssistantView } from '../../../shared/assistant'
+import type {
+	AssistantItem,
+	AssistantPrompt,
+	AssistantStatus,
+	AssistantView
+} from '../../../shared/assistant'
 import { RouteError } from '../../kernel/rpc'
 import { mailTools, TOOL_INSTRUCTIONS } from '../../neo/tools'
 import { assistantItem } from '../../neo/view'
@@ -39,7 +50,9 @@ export const neo = {
 		ctx.rpc.handle('assistant.action', (ref, action, args) => bridge.action(ref, action, args))
 		ctx.rpc.handle('assistant.focus', () => bridge.focusHere())
 		ctx.rpc.handle('assistant.setContext', (context) => bridge.setContext(context))
-		ctx.rpc.handle('assistant.prompts', () => loadPrompts(join(ctx.paths.appRoot, 'sidecar', 'neo', 'prompts')))
+		ctx.rpc.handle('assistant.prompts', () =>
+			loadPrompts(join(ctx.paths.appRoot, 'sidecar', 'neo', 'prompts'))
+		)
 	}
 }
 
@@ -64,7 +77,10 @@ class NeoBridge {
 			this.tools = await createToolServer({
 				name: APP_ID,
 				instructions: TOOL_INSTRUCTIONS,
-				tools: mailTools({ store: this.ctx.store, request: (request) => this.ctx.rpc.broadcast('assistant.request', request) })
+				tools: mailTools({
+					store: this.ctx.store,
+					request: (request) => this.ctx.rpc.broadcast('assistant.request', request)
+				})
 			})
 			if (this.stopped) return
 			this.client = await connect({
@@ -222,7 +238,9 @@ class NeoBridge {
 
 /** The prompt templates beside the plugin: markdown with a `description` in its frontmatter. */
 async function loadPrompts(directory: string): Promise<AssistantPrompt[]> {
-	const names = (await readdir(directory).catch(() => [] as string[])).filter((name) => name.endsWith('.md'))
+	const names = (await readdir(directory).catch(() => [] as string[])).filter((name) =>
+		name.endsWith('.md')
+	)
 	return Promise.all(
 		names.sort().map(async (name) => {
 			const source = await readFile(join(directory, name), 'utf8')

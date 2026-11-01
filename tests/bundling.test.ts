@@ -67,11 +67,7 @@ describe('buildThreadListItems', () => {
 	})
 
 	test('expanded bundle emits its threads right after the bundle row', () => {
-		const threads = [
-			thread({ label: 'newsletter' }),
-			thread({}),
-			thread({ label: 'newsletter' })
-		]
+		const threads = [thread({ label: 'newsletter' }), thread({}), thread({ label: 'newsletter' })]
 		const items = buildThreadListItems(threads, true, new Set(['newsletter']))
 		expect(items.map((item) => item.type)).toEqual(['bundle', 'thread', 'thread', 'thread'])
 		const secondRow = items[1]
@@ -100,7 +96,11 @@ describe('bundle summaries', () => {
 	})
 
 	test('bundleUnreadCount sums thread unread counts', () => {
-		const threads = [thread({ threadUnread: 2 }), thread({ threadUnread: 0 }), thread({ threadUnread: 1 })]
+		const threads = [
+			thread({ threadUnread: 2 }),
+			thread({ threadUnread: 0 }),
+			thread({ threadUnread: 1 })
+		]
 		expect(bundleUnreadCount(threads)).toBe(3)
 	})
 })

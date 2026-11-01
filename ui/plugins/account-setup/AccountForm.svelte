@@ -4,7 +4,15 @@
 -->
 <script lang="ts">
 	import { Text, View } from '@neoworks/svelte-gpui/ui'
-	import { Button, Checkbox, LoadingSpinner, SegmentedButton, TextField, currentTheme, typeStyle } from '@neoworks/svelte-gpui-ui'
+	import {
+		Button,
+		Checkbox,
+		LoadingSpinner,
+		SegmentedButton,
+		TextField,
+		currentTheme,
+		typeStyle
+	} from '@neoworks/svelte-gpui-ui'
 	import type { AccountActions } from './actions'
 	import { guessFromEmail } from './guess'
 
@@ -79,7 +87,10 @@
 	function connectGmail(): Promise<void> {
 		return run(async () => {
 			if (gmailConfigured !== true) {
-				await actions.setGmailClientConfig({ clientId: gmailClientId, clientSecret: gmailClientSecret })
+				await actions.setGmailClientConfig({
+					clientId: gmailClientId,
+					clientSecret: gmailClientSecret
+				})
 				gmailConfigured = true
 			}
 			await actions.addGmail()
@@ -113,32 +124,61 @@
 	/>
 
 	{#if mode === 'imap'}
-		<TextField label="Email address" type="email" placeholder="you@example.com" bind:value={email} oninput={handleEmail} />
+		<TextField
+			label="Email address"
+			type="email"
+			placeholder="you@example.com"
+			bind:value={email}
+			oninput={handleEmail}
+		/>
 		<View style={{ direction: 'row', gap: 12 }}>
-			<TextField label="IMAP host" bind:value={imapHost} oninput={() => (hostTouched = true)} style={{ flex: 1 }} />
+			<TextField
+				label="IMAP host"
+				bind:value={imapHost}
+				oninput={() => (hostTouched = true)}
+				style={{ flex: 1 }}
+			/>
 			<TextField label="Port" type="number" bind:value={imapPort} style={{ width: 104 }} />
 		</View>
 		<View style={{ direction: 'row', gap: 12 }}>
-			<TextField label="SMTP host" bind:value={smtpHost} oninput={() => (smtpHostTouched = true)} style={{ flex: 1 }} />
+			<TextField
+				label="SMTP host"
+				bind:value={smtpHost}
+				oninput={() => (smtpHostTouched = true)}
+				style={{ flex: 1 }}
+			/>
 			<TextField label="Port" type="number" bind:value={smtpPort} style={{ width: 104 }} />
 		</View>
 		<TextField label="Username" bind:value={imapUser} oninput={() => (userTouched = true)} />
-		<TextField label="Password" type="password" bind:value={imapPassword} onsubmit={() => void connectImap()} />
-		<Checkbox label="Use TLS (port 993)" checked={useTls} onchange={(checked) => (useTls = checked)} />
+		<TextField
+			label="Password"
+			type="password"
+			bind:value={imapPassword}
+			onsubmit={() => void connectImap()}
+		/>
+		<Checkbox
+			label="Use TLS (port 993)"
+			checked={useTls}
+			onchange={(checked) => (useTls = checked)}
+		/>
 	{:else if gmailConfigured === null}
 		<View style={{ align: 'center', paddingY: 16 }}><LoadingSpinner size={20} /></View>
 	{:else if gmailConfigured === false}
 		<Text style={{ ...typeStyle('caption'), color: theme.colors.muted }}>
-			One-time setup: Google requires a registered OAuth client. Create one in the Google Cloud Console (type "Desktop
-			app", Gmail API enabled) and paste it here. It is stored for the whole app, and every later sign-in is the button
-			below.
+			One-time setup: Google requires a registered OAuth client. Create one in the Google Cloud
+			Console (type "Desktop app", Gmail API enabled) and paste it here. It is stored for the whole
+			app, and every later sign-in is the button below.
 		</Text>
-		<TextField label="OAuth client ID" placeholder="….apps.googleusercontent.com" bind:value={gmailClientId} />
+		<TextField
+			label="OAuth client ID"
+			placeholder="….apps.googleusercontent.com"
+			bind:value={gmailClientId}
+		/>
 		<TextField label="OAuth client secret" type="password" bind:value={gmailClientSecret} />
 	{:else}
 		<Text style={{ ...typeStyle('bodySmall'), color: theme.colors.muted }}>
-			Your browser opens Google's sign-in page; pick the account and Mail does the rest. The address is detected
-			automatically.
+			Your browser opens Google's sign-in page; pick the account and Mail does the rest. The address
+			is detected automatically.
 		</Text>
 	{/if}
 
@@ -154,6 +194,8 @@
 	{:else if mode === 'imap'}
 		<Button variant="primary" full onpress={() => void connectImap()}><Text>Connect</Text></Button>
 	{:else if gmailConfigured !== null}
-		<Button variant="primary" full onpress={() => void connectGmail()}><Text>Sign in with Google</Text></Button>
+		<Button variant="primary" full onpress={() => void connectGmail()}
+			><Text>Sign in with Google</Text></Button
+		>
 	{/if}
 </View>

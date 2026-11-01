@@ -28,7 +28,11 @@ function blockOf(token: Token): Block | null {
 		case 'text':
 			return { kind: 'paragraph', inlines: inlinesOf(childTokens(token), {}) }
 		case 'heading':
-			return { kind: 'heading', level: headingLevel((token as Tokens.Heading).depth), inlines: inlinesOf((token as Tokens.Heading).tokens, {}) }
+			return {
+				kind: 'heading',
+				level: headingLevel((token as Tokens.Heading).depth),
+				inlines: inlinesOf((token as Tokens.Heading).tokens, {})
+			}
 		case 'blockquote':
 			return { kind: 'quote', blocks: blocksOf((token as Tokens.Blockquote).tokens) }
 		case 'list':
@@ -85,7 +89,10 @@ function inlineOf(token: Token, style: RunStyle): Inline[] {
 		case 'codespan':
 			return [run(unescape((token as Tokens.Codespan).text), { ...style, code: true })]
 		case 'link':
-			return inlinesOf((token as Tokens.Link).tokens, { ...style, href: safeHref((token as Tokens.Link).href) })
+			return inlinesOf((token as Tokens.Link).tokens, {
+				...style,
+				href: safeHref((token as Tokens.Link).href)
+			})
 		case 'br':
 			return [{ kind: 'break' }]
 		case 'image':

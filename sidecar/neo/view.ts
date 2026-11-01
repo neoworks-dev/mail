@@ -41,7 +41,12 @@ function collectComponent(component: Component, blocks: Block[], buttons: Assist
 			blocks.push(...component.blocks.map(convertBlock))
 			return
 		case 'card':
-			if (component.title) blocks.push({ kind: 'heading', level: 4, inlines: [{ kind: 'text', text: component.title }] })
+			if (component.title)
+				blocks.push({
+					kind: 'heading',
+					level: 4,
+					inlines: [{ kind: 'text', text: component.title }]
+				})
 			for (const child of component.children) collectComponent(child, blocks, buttons)
 			return
 		case 'row':
@@ -61,7 +66,12 @@ function collectComponent(component: Component, blocks: Block[], buttons: Assist
 			blocks.push(paragraph(component.name ?? component.path))
 			return
 		case 'button':
-			buttons.push({ label: component.label, action: component.action, args: component.args, current: component.current })
+			buttons.push({
+				label: component.label,
+				action: component.action,
+				args: component.args,
+				current: component.current
+			})
 			return
 		default:
 			collectOther(component, blocks, buttons)
@@ -85,9 +95,18 @@ function convertBlock(block: ViewBlock): Block {
 		case 'paragraph':
 			return { kind: 'paragraph', inlines: convertSpans(block.spans) }
 		case 'heading':
-			return { kind: 'heading', level: headingLevel(block.level), inlines: convertSpans(block.spans) }
+			return {
+				kind: 'heading',
+				level: headingLevel(block.level),
+				inlines: convertSpans(block.spans)
+			}
 		case 'list':
-			return { kind: 'list', ordered: block.ordered, start: block.start ?? 1, items: block.items.map(convertListItem) }
+			return {
+				kind: 'list',
+				ordered: block.ordered,
+				start: block.start ?? 1,
+				items: block.items.map(convertListItem)
+			}
 		case 'code_block':
 			return { kind: 'preformatted', text: block.code }
 		case 'quote':

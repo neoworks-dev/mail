@@ -33,7 +33,9 @@ async function keychainKey(ctx: Context): Promise<Buffer | null> {
 		return created
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error)
-		ctx.logger('credentials').warn(`no OS keychain (${message}); new passwords are stored unencrypted`)
+		ctx
+			.logger('credentials')
+			.warn(`no OS keychain (${message}); new passwords are stored unencrypted`)
 		return null
 	}
 }

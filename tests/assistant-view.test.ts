@@ -26,7 +26,11 @@ describe('assistantItem', () => {
 		}
 		const converted = assistantItem(item)
 		expect(converted.kind).toBe('agent')
-		expect(converted.blocks.map((block) => block.kind)).toEqual(['heading', 'paragraph', 'preformatted'])
+		expect(converted.blocks.map((block) => block.kind)).toEqual([
+			'heading',
+			'paragraph',
+			'preformatted'
+		])
 		const paragraph = converted.blocks[1]
 		if (paragraph.kind !== 'paragraph') throw new Error('expected a paragraph')
 		const runs = paragraph.inlines.filter((inline) => inline.kind === 'text')
@@ -48,8 +52,18 @@ describe('assistantItem', () => {
 					{
 						type: 'row',
 						children: [
-							{ type: 'button', label: 'Allow', action: 'neo.permit', args: { id: 1, option: 'allow' } },
-							{ type: 'button', label: 'Deny', action: 'neo.permit', args: { id: 1, option: 'deny' } }
+							{
+								type: 'button',
+								label: 'Allow',
+								action: 'neo.permit',
+								args: { id: 1, option: 'allow' }
+							},
+							{
+								type: 'button',
+								label: 'Deny',
+								action: 'neo.permit',
+								args: { id: 1, option: 'deny' }
+							}
 						]
 					}
 				]

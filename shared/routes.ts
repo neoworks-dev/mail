@@ -57,7 +57,12 @@ export interface Routes {
 
 	'folders.list': (accountId: number) => MailFolder[]
 
-	'threads.list': (folderId: number, limit: number, offset: number, label: string | null) => ThreadPage
+	'threads.list': (
+		folderId: number,
+		limit: number,
+		offset: number,
+		label: string | null
+	) => ThreadPage
 	'threads.listUnified': (limit: number, offset: number, label: string | null) => ThreadPage
 	'threads.messages': (accountId: number, threadId: number) => ThreadMessage[]
 	'threads.locate': (threadId: number) => number | null
@@ -76,13 +81,18 @@ export interface Routes {
 	'messages.unsubscribe': (messageId: number) => 'posted' | 'sent' | 'opened'
 	'messages.saveShipment': (messageId: number, payload: Omit<ShipmentExtraction, 'source'>) => void
 	'messages.trackShipment': (messageId: number) => void
-	'messages.saveActions': (messageId: number, items: Array<{ title: string; due: string | null }>) => void
+	'messages.saveActions': (
+		messageId: number,
+		items: Array<{ title: string; due: string | null }>
+	) => void
 
 	'attachments.data': (attachmentId: number) => AttachmentData | null
 	/** Writes an attachment to a path the UI picked; resolves to that path. */
 	'attachments.saveTo': (attachmentId: number, path: string) => string
 	/** Describes files the UI picked, for the composer's attachment list. */
-	'attachments.describeFiles': (paths: string[]) => Array<{ path: string; name: string; size: number }>
+	'attachments.describeFiles': (
+		paths: string[]
+	) => Array<{ path: string; name: string; size: number }>
 
 	'drafts.save': (input: OutgoingMessage) => number | null
 	'drafts.discard': (messageId: number) => void

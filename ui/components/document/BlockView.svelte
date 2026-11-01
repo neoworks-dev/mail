@@ -23,7 +23,13 @@
 	function bodyStyle(): Style {
 		// Long URLs are single words; without breaking anywhere they run out of the column.
 		if (document.dense) {
-			return { ...typeStyle('caption'), fontSize: 14, lineHeight: 21, color: theme.colors.text, overflowWrap: 'anywhere' }
+			return {
+				...typeStyle('caption'),
+				fontSize: 14,
+				lineHeight: 21,
+				color: theme.colors.text,
+				overflowWrap: 'anywhere'
+			}
 		}
 		return { ...typeStyle('bodySmall'), color: theme.colors.text, overflowWrap: 'anywhere' }
 	}
@@ -36,7 +42,14 @@
 
 	function headingStyle(level: number, align: TextAlign | undefined): Style {
 		const fontSize = HEADING_SIZES[level]
-		return { fontFamily: 'sans', fontSize, lineHeight: Math.round(fontSize * 1.3), fontWeight: 600, color: theme.colors.text, ...alignStyle(align) }
+		return {
+			fontFamily: 'sans',
+			fontSize,
+			lineHeight: Math.round(fontSize * 1.3),
+			fontWeight: 600,
+			color: theme.colors.text,
+			...alignStyle(align)
+		}
 	}
 
 	function imageAlign(align: TextAlign | undefined): Style {
@@ -79,7 +92,15 @@
 {:else if block.kind === 'heading'}
 	<Inlines inlines={block.inlines} style={headingStyle(block.level, block.align)} />
 {:else if block.kind === 'quote'}
-	<View style={{ borderLeftWidth: 3, borderColor: theme.colors.line, paddingLeft: 12, gap: 8, color: theme.colors.muted }}>
+	<View
+		style={{
+			borderLeftWidth: 3,
+			borderColor: theme.colors.line,
+			paddingLeft: 12,
+			gap: 8,
+			color: theme.colors.muted
+		}}
+	>
 		{#each block.blocks as child, index (index)}
 			<BlockView block={child} />
 		{/each}
@@ -88,7 +109,9 @@
 	<View style={{ gap: 4 }}>
 		{#each block.items as item, index (index)}
 			<View style={{ direction: 'row', gap: 8 }}>
-				<Text style={{ ...bodyStyle(), color: theme.colors.muted, minWidth: 18 }}>{listMarker(block.ordered, block.start, index)}</Text>
+				<Text style={{ ...bodyStyle(), color: theme.colors.muted, minWidth: 18 }}
+					>{listMarker(block.ordered, block.start, index)}</Text
+				>
 				<View style={{ flex: 1, minWidth: 0, gap: 4 }}>
 					{#each item as child, childIndex (childIndex)}
 						<BlockView block={child} />
@@ -99,7 +122,16 @@
 	</View>
 {:else if block.kind === 'preformatted'}
 	<View style={{ background: theme.colors.sunken, radius: 8, padding: 12 }}>
-		<Text pre style={{ fontFamily: 'mono', fontSize: 13, lineHeight: 19, color: theme.colors.text, overflowWrap: 'anywhere' }}>{block.text}</Text>
+		<Text
+			pre
+			style={{
+				fontFamily: 'mono',
+				fontSize: 13,
+				lineHeight: 19,
+				color: theme.colors.text,
+				overflowWrap: 'anywhere'
+			}}>{block.text}</Text
+		>
 	</View>
 {:else if block.kind === 'rule'}
 	<View style={{ height: 1, background: theme.colors.line }} />
@@ -124,12 +156,17 @@
 		>
 			<Icon svg={imageIcon} size={14} />
 			{#if !isIcon(block)}
-				<Text style={{ ...typeStyle('caption'), truncate: true, maxWidth: 360, minWidth: 0 }}>{blockedLabel(block)}</Text>
+				<Text style={{ ...typeStyle('caption'), truncate: true, maxWidth: 360, minWidth: 0 }}
+					>{blockedLabel(block)}</Text
+				>
 			{/if}
 		</View>
 	{:else if block.href}
 		{@const href = block.href}
-		<View style={{ cursor: 'pointer', ...imageAlign(block.align), maxWidth: '100%' }} onpress={() => document.openLink(href)}>
+		<View
+			style={{ cursor: 'pointer', ...imageAlign(block.align), maxWidth: '100%' }}
+			onpress={() => document.openLink(href)}
+		>
 			<Image src={block.src} fit="contain" style={imageStyle(block)} />
 		</View>
 	{:else}

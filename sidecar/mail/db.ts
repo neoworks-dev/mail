@@ -170,18 +170,18 @@ function migrateExistingTables(database: Database): void {
 	addColumnIfMissing(database, 'messages', 'label', 'TEXT')
 	addColumnIfMissing(database, 'messages', 'label_source', 'TEXT')
 	addColumnIfMissing(database, 'messages', 'list_unsubscribe', 'TEXT')
-	addColumnIfMissing(database, 'messages', 'list_unsubscribe_one_click', 'INTEGER NOT NULL DEFAULT 0')
+	addColumnIfMissing(
+		database,
+		'messages',
+		'list_unsubscribe_one_click',
+		'INTEGER NOT NULL DEFAULT 0'
+	)
 	addColumnIfMissing(database, 'messages', 'auth_results_json', 'TEXT')
 	// TEXT: MODSEQ is a 63-bit counter, past Number.MAX_SAFE_INTEGER territory.
 	addColumnIfMissing(database, 'folders', 'highest_modseq', 'TEXT')
 }
 
-function addColumnIfMissing(
-	database: Database,
-	table: string,
-	column: string,
-	type: string
-): void {
+function addColumnIfMissing(database: Database, table: string, column: string, type: string): void {
 	const exists = database
 		.prepare(`SELECT 1 FROM pragma_table_info(?) WHERE name = ?`)
 		.get(table, column)
@@ -192,4 +192,3 @@ function addColumnIfMissing(
 	if (!tablePresent) return
 	database.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`)
 }
-

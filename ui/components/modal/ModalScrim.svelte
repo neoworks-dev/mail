@@ -22,7 +22,13 @@
 	const theme = $derived(currentTheme())
 
 	function layerStyle(): Style {
-		const layer: Style = { position: 'absolute', inset: 0, background: scrimColor(theme), align: 'center', padding: 24 }
+		const layer: Style = {
+			position: 'absolute',
+			inset: 0,
+			background: scrimColor(theme),
+			align: 'center',
+			padding: 24
+		}
 		if (placement === 'top') return { ...layer, justify: 'start', paddingTop: 96 }
 		return { ...layer, justify: 'center' }
 	}
@@ -33,7 +39,14 @@
 
 <View style={layerStyle()} onpress={onclose}>
 	<View
-		style={{ ...surfacePanelLook(theme), radius: theme.radii.card, borderWidth: 1, borderColor: theme.colors.line, overflow: 'hidden', ...panelStyle }}
+		style={{
+			...surfacePanelLook(theme),
+			radius: theme.radii.card,
+			borderWidth: 1,
+			borderColor: theme.colors.line,
+			overflow: 'hidden',
+			...panelStyle
+		}}
 		onpress={absorb}
 	>
 		{@render children()}

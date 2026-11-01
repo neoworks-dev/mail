@@ -28,7 +28,10 @@
 		openLink: (href) => onopenlink(href),
 		chooseLink: (links, x, y) => {
 			if (!linkMenu) return
-			const items = links.map((link) => ({ label: link.label, onselect: () => onopenlink(link.href) }))
+			const items = links.map((link) => ({
+				label: link.label,
+				onselect: () => onopenlink(link.href)
+			}))
 			linkMenu.openAt(x, y, items)
 		}
 	})

@@ -83,7 +83,16 @@ function unwrapUrlDefense(url: URL): string | null {
 	return match[1]
 }
 
-const GENERIC_REDIRECT_PARAMS = ['url', 'u', 'q', 'redirect', 'target', 'dest', 'destination', 'link']
+const GENERIC_REDIRECT_PARAMS = [
+	'url',
+	'u',
+	'q',
+	'redirect',
+	'target',
+	'dest',
+	'destination',
+	'link'
+]
 
 /**
  * Returns the real destination when the URL is a recognizable click-tracking
@@ -104,8 +113,10 @@ export function unwrapTrackingLink(link: string): string | null {
 		return firstHttpParam(url, ['q', 'url'])
 	}
 	if (host === 'l.facebook.com' || host === 'lm.facebook.com') return firstHttpParam(url, ['u'])
-	if (host === 'urldefense.com' || host === 'urldefense.proofpoint.com') return unwrapUrlDefense(url)
-	if (/track|click|redirect/i.test(url.pathname)) return firstHttpParam(url, GENERIC_REDIRECT_PARAMS)
+	if (host === 'urldefense.com' || host === 'urldefense.proofpoint.com')
+		return unwrapUrlDefense(url)
+	if (/track|click|redirect/i.test(url.pathname))
+		return firstHttpParam(url, GENERIC_REDIRECT_PARAMS)
 	return null
 }
 

@@ -14,7 +14,10 @@ function paragraphs(blocks: Block[]): string[] {
 
 describe('htmlToDocument', () => {
 	test('paragraphs, line breaks and collapsed whitespace', () => {
-		const document = htmlToDocument('<p>Hello   <b>World</b></p><div>Second<br>line</div>', noImages)
+		const document = htmlToDocument(
+			'<p>Hello   <b>World</b></p><div>Second<br>line</div>',
+			noImages
+		)
 		expect(paragraphs(document.blocks)).toEqual(['Hello World', 'Second\nline'])
 		expect(document.fromHtml).toBe(true)
 	})
@@ -65,10 +68,19 @@ describe('htmlToDocument', () => {
 		const html = '<img src="http://cdn.example.com/a.png" alt="Logo" width="120" height="40">'
 		const blocked = htmlToDocument(html, noImages)
 		expect(blocked.remoteImages).toBe(1)
-		expect(blocked.blocks[0]).toMatchObject({ kind: 'image', src: null, remote: true, alt: 'Logo', width: 120 })
+		expect(blocked.blocks[0]).toMatchObject({
+			kind: 'image',
+			src: null,
+			remote: true,
+			alt: 'Logo',
+			width: 120
+		})
 
 		const allowed = htmlToDocument(html, { ...noImages, remoteImages: true })
-		expect(allowed.blocks[0]).toMatchObject({ kind: 'image', src: 'https://cdn.example.com/a.png' })
+		expect(allowed.blocks[0]).toMatchObject({
+			kind: 'image',
+			src: 'https://cdn.example.com/a.png'
+		})
 	})
 
 	test('tracking pixels and spacers are removed, inline parts resolved', () => {
@@ -78,17 +90,24 @@ describe('htmlToDocument', () => {
 			'<img src="cid:<logo@x>">'
 		const document = htmlToDocument(html, {
 			remoteImages: false,
-			resolveInlineImage: (contentId) => (contentId === 'logo@x' ? 'data:image/png;base64,AAAA' : null)
+			resolveInlineImage: (contentId) =>
+				contentId === 'logo@x' ? 'data:image/png;base64,AAAA' : null
 		})
 		expect(document.trackersRemoved).toBe(1)
 		expect(document.blocks).toHaveLength(1)
-		expect(document.blocks[0]).toMatchObject({ kind: 'image', src: 'data:image/png;base64,AAAA', remote: false })
+		expect(document.blocks[0]).toMatchObject({
+			kind: 'image',
+			src: 'data:image/png;base64,AAAA',
+			remote: false
+		})
 	})
 })
 
 describe('textToDocument', () => {
 	test('paragraphs on blank lines, quotes and links', () => {
-		const document = textToDocument('Hi there\nsee https://example.com/x.\n\n> quoted\n> more\n\nBye')
+		const document = textToDocument(
+			'Hi there\nsee https://example.com/x.\n\n> quoted\n> more\n\nBye'
+		)
 		expect(document.blocks.map((block) => block.kind)).toEqual(['paragraph', 'quote', 'paragraph'])
 		const [first] = document.blocks
 		if (first.kind !== 'paragraph') throw new Error('expected a paragraph')

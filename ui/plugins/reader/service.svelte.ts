@@ -164,7 +164,8 @@ export class ReaderService {
 	}
 
 	setActivePane(paneIndex: number): void {
-		if (paneIndex >= 0 && paneIndex < this.state.panes.length) this.state.activePaneIndex = paneIndex
+		if (paneIndex >= 0 && paneIndex < this.state.panes.length)
+			this.state.activePaneIndex = paneIndex
 	}
 
 	setActiveTab(paneIndex: number, tabIndex: number): void {
@@ -183,7 +184,8 @@ export class ReaderService {
 		const pane = this.state.panes[paneIndex]
 		if (!pane) return
 		pane.tabs = pane.tabs.filter((_, index) => index !== tabIndex)
-		if (pane.activeTabIndex >= pane.tabs.length) pane.activeTabIndex = Math.max(0, pane.tabs.length - 1)
+		if (pane.activeTabIndex >= pane.tabs.length)
+			pane.activeTabIndex = Math.max(0, pane.tabs.length - 1)
 		if (pane.tabs.length === 0 && this.state.panes.length > 1) this.closePane(paneIndex)
 	}
 
@@ -223,7 +225,10 @@ export class ReaderService {
 	async openAdjacent(offset: number): Promise<void> {
 		const next = this.ctx.mailbox.adjacentThread(this.openThreadId, offset)
 		if (!next) return
-		await this.navigateTo({ kind: 'thread', accountId: next.accountId, threadId: next.threadId }, true)
+		await this.navigateTo(
+			{ kind: 'thread', accountId: next.accountId, threadId: next.threadId },
+			true
+		)
 	}
 
 	isExpanded(tab: ReadingTab, messageId: number): boolean {
@@ -286,7 +291,9 @@ export class ReaderService {
 	private findThreadTab(threadId: number): { paneIndex: number; tabIndex: number } | null {
 		for (let paneIndex = 0; paneIndex < this.state.panes.length; paneIndex += 1) {
 			const tabs = this.state.panes[paneIndex].tabs
-			const tabIndex = tabs.findIndex((tab) => tab.view.kind === 'thread' && tab.view.threadId === threadId)
+			const tabIndex = tabs.findIndex(
+				(tab) => tab.view.kind === 'thread' && tab.view.threadId === threadId
+			)
 			if (tabIndex !== -1) return { paneIndex, tabIndex }
 		}
 		return null

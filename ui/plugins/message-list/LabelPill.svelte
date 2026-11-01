@@ -11,5 +11,7 @@
 </script>
 
 <View style={{ paddingX: 6, paddingY: 1, radius: 999, background: colors.background }}>
-	<Text style={{ fontSize: 10.5, lineHeight: 14, fontWeight: 500, color: colors.color }}>{labelTitle(label)}</Text>
+	<Text style={{ fontSize: 10.5, lineHeight: 14, fontWeight: 500, color: colors.color }}
+		>{labelTitle(label)}</Text
+	>
 </View>

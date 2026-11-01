@@ -14,7 +14,11 @@ export interface PaletteCommand {
  * in the label. Commands whose label starts with the first word rank first.
  */
 export function filterCommands(commands: PaletteCommand[], query: string): PaletteCommand[] {
-	const words = query.trim().toLowerCase().split(/\s+/).filter((word) => word.length > 0)
+	const words = query
+		.trim()
+		.toLowerCase()
+		.split(/\s+/)
+		.filter((word) => word.length > 0)
 	if (words.length === 0) return commands
 
 	const matches = commands.filter((command) => {

@@ -8,6 +8,10 @@ export const messageSecurity = {
 	name: 'message-security',
 	inject: ['slots'],
 	apply(ctx: Context) {
-		ctx.slots.register('message.banners', { id: 'message-security', order: 0, component: SecurityBanner })
+		ctx.slots.register('message.banners', {
+			id: 'message-security',
+			order: 0,
+			component: SecurityBanner
+		})
 	}
 }

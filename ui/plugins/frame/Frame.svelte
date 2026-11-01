@@ -18,7 +18,9 @@
 	const kernel = useKernel()
 	const theme = $derived(currentTheme())
 
-	const navigationWidth = $derived(kernel.settings.get('frame.navigationWidth', NAVIGATION_WIDTH.initial))
+	const navigationWidth = $derived(
+		kernel.settings.get('frame.navigationWidth', NAVIGATION_WIDTH.initial)
+	)
 	let draggedWidth = $state<number | null>(null)
 	const shownWidth = $derived.by(() => {
 		if (draggedWidth !== null) return draggedWidth

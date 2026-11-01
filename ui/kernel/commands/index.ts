@@ -1,2 +1,2 @@
-export { CommandsService } from "./service";
-export type { Command } from "./service";
+export { CommandsService } from './service'
+export type { Command } from './service'

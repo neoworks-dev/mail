@@ -63,7 +63,9 @@
 			<Text style={{ ...typeStyle('caption'), fontSize: 13.5, truncate: true }}>
 				<Text style={senderStyle()}>{senderLabel(thread)}</Text>
 				{#if thread.threadTotal > 1}
-					<Text style={{ fontWeight: 400, fontSize: 12, color: theme.colors.faint }}>{`  ${thread.threadTotal}`}</Text>
+					<Text style={{ fontWeight: 400, fontSize: 12, color: theme.colors.faint }}
+						>{`  ${thread.threadTotal}`}</Text
+					>
 				{/if}
 			</Text>
 		</View>
@@ -78,9 +80,14 @@
 		{/if}
 		<Text style={{ fontSize: 12, color: theme.colors.faint }}>{formatListDate(thread.date)}</Text>
 	</View>
-	<Text style={{ ...typeStyle('caption'), fontSize: 13.5, truncate: true }}><Text style={subjectStyle()}>{subjectLabel(thread)}</Text></Text>
-	<Text style={{ fontSize: 12, lineHeight: 17, color: theme.colors.faint, truncate: true }}>{thread.snippet}</Text>
+	<Text style={{ ...typeStyle('caption'), fontSize: 13.5, truncate: true }}
+		><Text style={subjectStyle()}>{subjectLabel(thread)}</Text></Text
+	>
+	<Text style={{ fontSize: 12, lineHeight: 17, color: theme.colors.faint, truncate: true }}
+		>{thread.snippet}</Text
+	>
 	{#if accountEmail}
-		<Text style={{ fontSize: 10.5, color: theme.colors.faint, truncate: true }}>{accountEmail}</Text>
+		<Text style={{ fontSize: 10.5, color: theme.colors.faint, truncate: true }}>{accountEmail}</Text
+		>
 	{/if}
 </View>

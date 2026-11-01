@@ -14,7 +14,11 @@ export const accountSetup = {
 	apply(ctx: Context) {
 		const actions = accountActions(ctx)
 		const dialogs = createAccountDialogState()
-		ctx.slots.register('onboarding', { id: 'account-setup', component: Onboarding, props: { actions } })
+		ctx.slots.register('onboarding', {
+			id: 'account-setup',
+			component: Onboarding,
+			props: { actions }
+		})
 		ctx.slots.register('overlays', {
 			id: 'account-dialogs',
 			order: 20,

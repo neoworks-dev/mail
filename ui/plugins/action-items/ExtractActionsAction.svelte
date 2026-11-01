@@ -10,7 +10,9 @@
 	let { tab, assistant }: { tab: ReadingTab; assistant: AssistantService } = $props()
 
 	const newest = $derived(tab.messages[tab.messages.length - 1])
-	const working = $derived(newest !== undefined && assistant.state.extracting[newest.messageId] === 'actions')
+	const working = $derived(
+		newest !== undefined && assistant.state.extracting[newest.messageId] === 'actions'
+	)
 </script>
 
 {#if assistant.available && newest}

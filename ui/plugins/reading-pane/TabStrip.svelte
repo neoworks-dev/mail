@@ -58,8 +58,13 @@
 			}}
 			hover={{ background: theme.colors.hover }}
 		>
-			<Button style={{ flex: 1, minWidth: 0 }} onpress={() => reader.setActiveTab(paneIndex, tabIndex)}>
-				<Text style={{ ...typeStyle('caption'), color: tabColor(tabIndex), truncate: true }}>{paneTab.title}</Text>
+			<Button
+				style={{ flex: 1, minWidth: 0 }}
+				onpress={() => reader.setActiveTab(paneIndex, tabIndex)}
+			>
+				<Text style={{ ...typeStyle('caption'), color: tabColor(tabIndex), truncate: true }}
+					>{paneTab.title}</Text
+				>
 			</Button>
 			<Button
 				style={{ padding: 3, radius: 6, color: theme.colors.faint }}
@@ -71,5 +76,10 @@
 		</View>
 	{/each}
 	<View style={{ flex: 1 }} />
-	<IconButton icon={splitIcon} label={splitLabel} size="sm" onpress={() => void reader.toggleSplit()} />
+	<IconButton
+		icon={splitIcon}
+		label={splitLabel}
+		size="sm"
+		onpress={() => void reader.toggleSplit()}
+	/>
 </View>

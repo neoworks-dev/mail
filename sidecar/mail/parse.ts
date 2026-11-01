@@ -145,7 +145,9 @@ export async function parseRawMessage(
 		seen: flags.has('\\Seen'),
 		flagged: flags.has('\\Flagged'),
 		answered: flags.has('\\Answered'),
-		hasAttachments: parsed.attachments.some((attachment) => attachment.contentDisposition !== 'inline'),
+		hasAttachments: parsed.attachments.some(
+			(attachment) => attachment.contentDisposition !== 'inline'
+		),
 		size,
 		textBody,
 		htmlBody,

@@ -212,47 +212,107 @@
 				bind:this={field}
 				bind:value={query}
 				placeholder="Search mail… ('>' for commands)"
-				style={{ ...typeStyle('body'), flex: 1, minWidth: 0, background: 'transparent', color: theme.colors.text, paddingY: 12 }}
+				style={{
+					...typeStyle('body'),
+					flex: 1,
+					minWidth: 0,
+					background: 'transparent',
+					color: theme.colors.text,
+					paddingY: 12
+				}}
 				onkey={handleKey}
 			/>
 			{#if !commandMode}
-				<Chip variant="filter" label="Semantic" selected={semantic} onpress={() => (semantic = !semantic)} />
+				<Chip
+					variant="filter"
+					label="Semantic"
+					selected={semantic}
+					onpress={() => (semantic = !semantic)}
+				/>
 			{/if}
 		</View>
 		<Divider />
 		<Scroll bind:this={scroller} style={{ maxHeight: LIST_HEIGHT }}>
 			<View style={{ padding: 6 }}>
 				{#if emptyText() !== null}
-					<Text style={{ ...typeStyle('bodySmall'), color: theme.colors.faint, paddingX: 12, paddingY: 10 }}>{emptyText()}</Text>
+					<Text
+						style={{
+							...typeStyle('bodySmall'),
+							color: theme.colors.faint,
+							paddingX: 12,
+							paddingY: 10
+						}}>{emptyText()}</Text
+					>
 				{/if}
 				{#if listingCommands}
 					{#each shownCommands as command, index (command.id)}
 						<View
-							style={{ direction: 'row', align: 'center', height: COMMAND_ROW_HEIGHT, paddingX: 12, gap: 12, radius: theme.radii.control, background: rowBackground(index), cursor: 'pointer' }}
+							style={{
+								direction: 'row',
+								align: 'center',
+								height: COMMAND_ROW_HEIGHT,
+								paddingX: 12,
+								gap: 12,
+								radius: theme.radii.control,
+								background: rowBackground(index),
+								cursor: 'pointer'
+							}}
 							onhover={(hovered) => hovered && (selectedIndex = index)}
 							onpress={() => runCommand(command)}
 						>
-							<Text style={{ ...typeStyle('bodySmall'), flex: 1, minWidth: 0, truncate: true }}>{command.label}</Text>
+							<Text style={{ ...typeStyle('bodySmall'), flex: 1, minWidth: 0, truncate: true }}
+								>{command.label}</Text
+							>
 							{#if command.shortcut}
-								<Text style={{ ...typeStyle('caption'), color: theme.colors.faint, borderWidth: 1, borderColor: theme.colors.line, radius: 4, paddingX: 6, paddingY: 1 }}>{command.shortcut}</Text>
+								<Text
+									style={{
+										...typeStyle('caption'),
+										color: theme.colors.faint,
+										borderWidth: 1,
+										borderColor: theme.colors.line,
+										radius: 4,
+										paddingX: 6,
+										paddingY: 1
+									}}>{command.shortcut}</Text
+								>
 							{/if}
 						</View>
 					{/each}
 				{:else}
 					{#each results as result, index (result.messageId)}
 						<View
-							style={{ height: RESULT_ROW_HEIGHT, paddingX: 12, justify: 'center', gap: 2, radius: theme.radii.control, background: rowBackground(index), cursor: 'pointer' }}
+							style={{
+								height: RESULT_ROW_HEIGHT,
+								paddingX: 12,
+								justify: 'center',
+								gap: 2,
+								radius: theme.radii.control,
+								background: rowBackground(index),
+								cursor: 'pointer'
+							}}
 							onhover={(hovered) => hovered && (selectedIndex = index)}
 							onpress={() => open(result)}
 						>
 							<View style={{ direction: 'row', align: 'baseline', gap: 8 }}>
-								<Text style={{ ...typeStyle('bodySmall'), fontWeight: 600, flex: 1, minWidth: 0, truncate: true }}>{senderOf(result)}</Text>
-								<Text style={{ ...typeStyle('caption'), color: theme.colors.faint }}>{result.folderPath} · {formatDate(result.date)}</Text>
+								<Text
+									style={{
+										...typeStyle('bodySmall'),
+										fontWeight: 600,
+										flex: 1,
+										minWidth: 0,
+										truncate: true
+									}}>{senderOf(result)}</Text
+								>
+								<Text style={{ ...typeStyle('caption'), color: theme.colors.faint }}
+									>{result.folderPath} · {formatDate(result.date)}</Text
+								>
 							</View>
 							<Text style={{ ...typeStyle('bodySmall'), truncate: true }}>{subjectOf(result)}</Text>
 							<Text style={{ ...typeStyle('caption'), color: theme.colors.muted, truncate: true }}>
 								{#each snippetParts(result.matchSnippet) as part, partIndex (partIndex)}
-									{#if part.hit}<Text style={{ fontWeight: 600, color: theme.colors.text }}>{part.text}</Text>{:else}<Text>{part.text}</Text>{/if}
+									{#if part.hit}<Text style={{ fontWeight: 600, color: theme.colors.text }}
+											>{part.text}</Text
+										>{:else}<Text>{part.text}</Text>{/if}
 								{/each}
 							</Text>
 						</View>

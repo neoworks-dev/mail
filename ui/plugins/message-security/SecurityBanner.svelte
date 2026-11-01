@@ -22,7 +22,8 @@
 	<Banner tone="danger" icon={warningIcon}>
 		{#if security.nameSpoof}
 			<Text style={{ ...typeStyle('caption'), fontWeight: 600 }}>
-				Sender name claims {security.nameSpoof.claimedDomain}, but the message came from {security.nameSpoof.actualDomain}
+				Sender name claims {security.nameSpoof.claimedDomain}, but the message came from {security
+					.nameSpoof.actualDomain}
 			</Text>
 		{/if}
 		{#if failures.length > 0}

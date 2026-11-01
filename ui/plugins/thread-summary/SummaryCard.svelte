@@ -39,19 +39,25 @@
 	>
 		<View style={{ direction: 'row', align: 'center', gap: 6, color: theme.colors.accent }}>
 			<Icon svg={sparkleIcon} size={14} />
-			<Text style={{ ...typeStyle('label'), uppercase: true, color: theme.colors.faint, flex: 1 }}>Summary · AI</Text>
+			<Text style={{ ...typeStyle('label'), uppercase: true, color: theme.colors.faint, flex: 1 }}
+				>Summary · AI</Text
+			>
 			<IconButton icon={closeIcon} label="Dismiss summary" size="sm" onpress={dismiss} />
 		</View>
 		{#if summary.pending}
 			<View style={{ direction: 'row', align: 'center', gap: 8 }}>
 				<LoadingSpinner size={14} />
-				<Text style={{ ...typeStyle('caption'), color: theme.colors.muted }}>The agent is reading the thread…</Text>
+				<Text style={{ ...typeStyle('caption'), color: theme.colors.muted }}
+					>The agent is reading the thread…</Text
+				>
 			</View>
 		{:else}
 			<Text style={typeStyle('bodySmall')}>{summary.text}</Text>
 		{/if}
 		{#if summary.pending && assistant.state.error}
-			<Text style={{ ...typeStyle('caption'), color: theme.colors.danger }}>{assistant.state.error}</Text>
+			<Text style={{ ...typeStyle('caption'), color: theme.colors.danger }}
+				>{assistant.state.error}</Text
+			>
 		{/if}
 	</View>
 {/if}

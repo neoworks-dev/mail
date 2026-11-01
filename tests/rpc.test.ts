@@ -20,7 +20,11 @@ describe('RpcCaller', () => {
 		const sent: RequestFrame[] = []
 		const caller = new RpcCaller((frame) => sent.push(frame))
 		const call = caller.call('nope', [])
-		caller.receive({ kind: 'response', id: sent[0].id, error: { message: 'no route', code: 'UnknownRoute' } })
+		caller.receive({
+			kind: 'response',
+			id: sent[0].id,
+			error: { message: 'no route', code: 'UnknownRoute' }
+		})
 		const error = (await call.catch((caught: unknown) => caught)) as RemoteError
 		expect(error).toBeInstanceOf(RemoteError)
 		expect(error.code).toBe('UnknownRoute')

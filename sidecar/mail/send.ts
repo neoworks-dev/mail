@@ -29,7 +29,7 @@ export interface ComposedMail {
 export function renderMarkdownEmail(markdown: string): string {
 	const body = marked.parse(markdown, { gfm: true, breaks: true, async: false })
 	return (
-		'<div style="font-family: -apple-system, \'Segoe UI\', Roboto, Helvetica, Arial, sans-serif; ' +
+		"<div style=\"font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; " +
 		'font-size: 14px; line-height: 1.6; color: #1a1a1a; max-width: 42em;">' +
 		body +
 		'</div>'

@@ -41,7 +41,8 @@ const SPECIAL_USE_KINDS: Record<string, SpecialKind> = {
 
 export function specialKind(folder: MailFolder): SpecialKind | null {
 	if (folder.path === 'INBOX') return 'inbox'
-	if (folder.specialUse && SPECIAL_USE_KINDS[folder.specialUse]) return SPECIAL_USE_KINDS[folder.specialUse]
+	if (folder.specialUse && SPECIAL_USE_KINDS[folder.specialUse])
+		return SPECIAL_USE_KINDS[folder.specialUse]
 	const byName = NAME_KINDS[folder.name.toLowerCase()]
 	if (byName) return byName
 	return null

@@ -17,7 +17,12 @@ export const composerWindow = {
 			id: 'composer-window',
 			order: 10,
 			component: ComposerWindow,
-			props: { composer: ctx.composer, accounts: ctx.accounts, assistant: ctx.assistant, actions: composerActions(ctx) }
+			props: {
+				composer: ctx.composer,
+				accounts: ctx.accounts,
+				assistant: ctx.assistant,
+				actions: composerActions(ctx)
+			}
 		})
 		ctx.keymap.subscribe(KeyPriority.overlay, (event) => handleKey(ctx, event))
 	}

@@ -27,7 +27,10 @@ describe('credential cipher', () => {
 	})
 
 	test('reads rows the Electron build wrote with safeStorage', () => {
-		const legacy = Buffer.concat([Buffer.from([0x01]), chromiumEncrypt('v11', 'keyring-password', 'old pass')])
+		const legacy = Buffer.concat([
+			Buffer.from([0x01]),
+			chromiumEncrypt('v11', 'keyring-password', 'old pass')
+		])
 		const cipher = createCredentialCipher(randomBytes(32), () => 'keyring-password')
 		expect(cipher.decrypt(legacy)).toBe('old pass')
 	})
@@ -37,6 +40,8 @@ describe('credential cipher', () => {
 	})
 
 	test('a v11 row without a keyring explains itself', () => {
-		expect(() => decryptSafeStorage(chromiumEncrypt('v11', 'x', 'abc'), () => null)).toThrow(/keyring/)
+		expect(() => decryptSafeStorage(chromiumEncrypt('v11', 'x', 'abc'), () => null)).toThrow(
+			/keyring/
+		)
 	})
 })

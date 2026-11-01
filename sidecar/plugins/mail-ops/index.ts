@@ -50,9 +50,15 @@ export const mailOps = {
 		})
 		ctx.provide('mailOps', service)
 
-		ctx.rpc.handle('messages.markSeen', (messageId, seen) => service.setFlag(messageId, 'seen', seen))
-		ctx.rpc.handle('messages.setFlagged', (messageId, flagged) => service.setFlag(messageId, 'flagged', flagged))
-		ctx.rpc.handle('messages.move', (messageId, targetFolderId) => service.moveMessage(messageId, targetFolderId))
+		ctx.rpc.handle('messages.markSeen', (messageId, seen) =>
+			service.setFlag(messageId, 'seen', seen)
+		)
+		ctx.rpc.handle('messages.setFlagged', (messageId, flagged) =>
+			service.setFlag(messageId, 'flagged', flagged)
+		)
+		ctx.rpc.handle('messages.move', (messageId, targetFolderId) =>
+			service.moveMessage(messageId, targetFolderId)
+		)
 		ctx.rpc.handle('messages.archive', (messageId) => service.archiveMessage(messageId))
 		ctx.rpc.handle('messages.delete', (messageId) => service.deleteMessage(messageId))
 	}
@@ -119,7 +125,11 @@ function createService(ctx: Context, connections: Map<number, MailOps>): MailOps
 
 		async archiveMessage(messageId) {
 			const location = requireLocation(messageId)
-			const archive = ctx.store.findSpecialFolder(location.accountId, '\\Archive', ARCHIVE_FALLBACK_NAMES)
+			const archive = ctx.store.findSpecialFolder(
+				location.accountId,
+				'\\Archive',
+				ARCHIVE_FALLBACK_NAMES
+			)
 			if (!archive) throw new Error('no archive folder on this account')
 			await moveMessage(messageId, archive.folderId)
 		},

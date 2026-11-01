@@ -12,7 +12,8 @@
 	import type { AccountActions } from './actions'
 	import type { AccountDialogState } from './state.svelte'
 
-	let { dialogs, accountActions }: { dialogs: AccountDialogState; accountActions: AccountActions } = $props()
+	let { dialogs, accountActions }: { dialogs: AccountDialogState; accountActions: AccountActions } =
+		$props()
 
 	let removing = $state(false)
 
@@ -34,8 +35,13 @@
 </script>
 
 {#if dialogs.adding}
-	<ModalScrim onclose={() => (dialogs.adding = false)} panelStyle={{ width: 480, maxWidth: '100%', maxHeight: '92%' }}>
-		<View style={{ direction: 'row', align: 'center', paddingLeft: 24, paddingRight: 8, paddingY: 8 }}>
+	<ModalScrim
+		onclose={() => (dialogs.adding = false)}
+		panelStyle={{ width: 480, maxWidth: '100%', maxHeight: '92%' }}
+	>
+		<View
+			style={{ direction: 'row', align: 'center', paddingLeft: 24, paddingRight: 8, paddingY: 8 }}
+		>
 			<Text style={{ ...typeStyle('title'), flex: 1 }}>Add a mail account</Text>
 			<IconButton icon={closeIcon} label="Close" onpress={() => (dialogs.adding = false)} />
 		</View>
@@ -50,6 +56,8 @@
 	<Text>Its mail is removed from this computer. The mailbox on the server stays as it is.</Text>
 	{#snippet actions()}
 		<Button variant="ghost" onpress={() => (dialogs.removing = false)}><Text>Cancel</Text></Button>
-		<Button variant="danger" disabled={removing} onpress={() => void remove()}><Text>Remove account</Text></Button>
+		<Button variant="danger" disabled={removing} onpress={() => void remove()}
+			><Text>Remove account</Text></Button
+		>
 	{/snippet}
 </Dialog>

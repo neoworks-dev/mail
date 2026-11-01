@@ -56,7 +56,9 @@
 
 <View style={{ padding: 12, gap: 8, borderTopWidth: 1, borderColor: theme.colors.line }}>
 	{#if assistant.state.error}
-		<Text style={{ ...typeStyle('caption'), color: theme.colors.danger }}>{assistant.state.error}</Text>
+		<Text style={{ ...typeStyle('caption'), color: theme.colors.danger }}
+			>{assistant.state.error}</Text
+		>
 	{/if}
 	{#if available && prompts.length > 0}
 		<View style={{ direction: 'row', wrap: true, gap: 6 }}>
@@ -87,7 +89,14 @@
 			disabled={!available}
 			placeholder={placeholder()}
 			onkey={key}
-			style={{ ...typeStyle('bodySmall'), flex: 1, minWidth: 0, paddingY: 6, color: theme.colors.text, maxHeight: 160 }}
+			style={{
+				...typeStyle('bodySmall'),
+				flex: 1,
+				minWidth: 0,
+				paddingY: 6,
+				color: theme.colors.text,
+				maxHeight: 160
+			}}
 		/>
 		<IconButton
 			icon={paperPlaneRight}

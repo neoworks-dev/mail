@@ -22,7 +22,8 @@ const CARRIERS: CarrierRule[] = [
 		name: 'DHL',
 		senderPattern: /dhl\.|deutschepost\./i,
 		numberPatterns: [/\bJJ?D[0-9]{16,20}\b/, /\b[0-9]{20}\b/, /\b[0-9]{12}\b/],
-		urlTemplate: (n) => `https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode=${n}`
+		urlTemplate: (n) =>
+			`https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode=${n}`
 	},
 	{
 		name: 'UPS',

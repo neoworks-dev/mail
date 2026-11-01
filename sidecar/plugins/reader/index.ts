@@ -14,17 +14,24 @@ export const reader = {
 	name: 'reader',
 	inject: ['store', 'rpc'],
 	apply(ctx: Context) {
-		ctx.rpc.handle('messages.document', (messageId, options) => documentFor(ctx.store, messageId, options))
+		ctx.rpc.handle('messages.document', (messageId, options) =>
+			documentFor(ctx.store, messageId, options)
+		)
 	}
 }
 
-function documentFor(store: MailStore, messageId: number, options: DocumentOptions): MailDocument | null {
+function documentFor(
+	store: MailStore,
+	messageId: number,
+	options: DocumentOptions
+): MailDocument | null {
 	const body = store.getMessageBody(messageId)
 	if (!body) return null
 	if (body.htmlBody !== null && body.htmlBody.trim() !== '') {
 		const inlineParts = new Map<string, number>()
 		for (const attachment of body.attachments) {
-			if (attachment.contentId !== null) inlineParts.set(attachment.contentId, attachment.attachmentId)
+			if (attachment.contentId !== null)
+				inlineParts.set(attachment.contentId, attachment.attachmentId)
 		}
 		return htmlToDocument(body.htmlBody, {
 			remoteImages: options.remoteImages,

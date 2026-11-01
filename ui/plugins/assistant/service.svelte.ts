@@ -165,18 +165,25 @@ export class AssistantService {
 		const candidates = await this.ctx.sidecar.call('digest.candidates')
 		if (candidates.length === 0) {
 			if (scheduled) return
-			this.state.digest = { intro: 'Nothing new since yesterday.', groups: [], pending: false, generatedAt: Date.now() }
+			this.state.digest = {
+				intro: 'Nothing new since yesterday.',
+				groups: [],
+				pending: false,
+				generatedAt: Date.now()
+			}
 			await this.openDigest()
 			return
 		}
 		this.state.digest = { intro: null, groups: [], pending: true, generatedAt: Date.now() }
 		await this.openDigest()
-		const lines = [...new Map(candidates.map((entry) => [entry.threadId, entry])).values()].map((entry) => {
-			const sender = entry.fromName || entry.fromAddress
-			let label = ''
-			if (entry.label) label = ` [${entry.label}]`
-			return `- [thread ${entry.threadId}] ${sender}: ${entry.subject}${label} — ${entry.snippet}`
-		})
+		const lines = [...new Map(candidates.map((entry) => [entry.threadId, entry])).values()].map(
+			(entry) => {
+				const sender = entry.fromName || entry.fromAddress
+				let label = ''
+				if (entry.label) label = ` [${entry.label}]`
+				return `- [thread ${entry.threadId}] ${sender}: ${entry.subject}${label} — ${entry.snippet}`
+			}
+		)
 		const sent = await this.send(
 			'Write my digest of new unread mail and show it with mail.show_digest: group the threads by ' +
 				'importance (personal and urgent first, then notable updates, then bulk such as newsletters ' +
@@ -214,7 +221,12 @@ export class AssistantService {
 			return
 		}
 		if (request.kind === 'digest') {
-			this.state.digest = { intro: request.intro, groups: request.groups, pending: false, generatedAt: Date.now() }
+			this.state.digest = {
+				intro: request.intro,
+				groups: request.groups,
+				pending: false,
+				generatedAt: Date.now()
+			}
 			await this.openDigest()
 			return
 		}
@@ -227,7 +239,11 @@ export class AssistantService {
 		await this.ctx.reader.reloadBody(request.messageId)
 	}
 
-	private async extract(message: ThreadMessage, kind: 'actions' | 'shipment', instruction: string): Promise<void> {
+	private async extract(
+		message: ThreadMessage,
+		kind: 'actions' | 'shipment',
+		instruction: string
+	): Promise<void> {
 		if (this.state.extracting[message.messageId]) return
 		this.state.extracting[message.messageId] = kind
 		const sent = await this.send(instruction)

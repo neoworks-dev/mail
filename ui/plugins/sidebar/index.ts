@@ -11,7 +11,12 @@ export const sidebar = {
 			id: 'sidebar',
 			order: 0,
 			component: Sidebar,
-			props: { accounts: ctx.accounts, mailbox: ctx.mailbox, commands: ctx.commands, settings: ctx.settings }
+			props: {
+				accounts: ctx.accounts,
+				mailbox: ctx.mailbox,
+				commands: ctx.commands,
+				settings: ctx.settings
+			}
 		})
 	}
 }

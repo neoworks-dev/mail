@@ -13,7 +13,10 @@ export interface ImapAuth {
 
 const inflightRefreshes = new Map<number, Promise<string>>()
 
-export async function imapAuthFor(store: MailStore, credentials: AccountCredentials): Promise<ImapAuth> {
+export async function imapAuthFor(
+	store: MailStore,
+	credentials: AccountCredentials
+): Promise<ImapAuth> {
 	if (credentials.authType !== 'oauth') {
 		return { user: credentials.imapUser, pass: credentials.imapPassword }
 	}
@@ -24,7 +27,10 @@ export async function imapAuthFor(store: MailStore, credentials: AccountCredenti
  * Return a non-expired access token, refreshing and persisting when needed.
  * Concurrent callers for the same account share one refresh request.
  */
-export async function freshAccessToken(store: MailStore, credentials: AccountCredentials): Promise<string> {
+export async function freshAccessToken(
+	store: MailStore,
+	credentials: AccountCredentials
+): Promise<string> {
 	if (credentials.oauthRefreshToken === null || credentials.oauthClientId === null) {
 		throw new Error('account has no OAuth tokens')
 	}

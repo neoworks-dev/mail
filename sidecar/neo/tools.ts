@@ -20,7 +20,7 @@ export interface ToolContext {
 }
 
 export const TOOL_INSTRUCTIONS =
-	'Mail is the user\'s email client; its store holds every synced message. Find mail with ' +
+	"Mail is the user's email client; its store holds every synced message. Find mail with " +
 	'search_email or list_recent, read it with read_thread or read_email, and use show_thread to ' +
 	'open a conversation for the user. When the user asks for a summary, a reply draft, action ' +
 	'items, shipment tracking or a digest, read the mail first, then hand the result to Mail with ' +
@@ -78,13 +78,17 @@ function readingTools({ store }: ToolContext): ToolSpec[] {
 		},
 		{
 			name: 'find_similar',
-			description: 'Emails from other conversations that are about the same thing as a message, by its id.',
-			inputSchema: objectSchema({ messageId: { type: 'integer' }, limit: limitSchema(25) }, ['messageId']),
+			description:
+				'Emails from other conversations that are about the same thing as a message, by its id.',
+			inputSchema: objectSchema({ messageId: { type: 'integer' }, limit: limitSchema(25) }, [
+				'messageId'
+			]),
 			handler: async (args) => findSimilar(store, Number(args.messageId), numberOr(args.limit, 10))
 		},
 		{
 			name: 'read_thread',
-			description: 'A whole conversation by thread id: every message in order, with headers and plain-text bodies.',
+			description:
+				'A whole conversation by thread id: every message in order, with headers and plain-text bodies.',
 			inputSchema: objectSchema({ threadId: { type: 'integer' } }, ['threadId']),
 			handler: async (args) => readThread(store, Number(args.threadId))
 		},
@@ -101,7 +105,8 @@ function windowTools({ store, request }: ToolContext): ToolSpec[] {
 	return [
 		{
 			name: 'show_thread',
-			description: 'Opens a conversation in the Mail window, when the user asks to see, open or show one.',
+			description:
+				'Opens a conversation in the Mail window, when the user asks to see, open or show one.',
 			inputSchema: objectSchema({ threadId: { type: 'integer' } }, ['threadId']),
 			handler: async (args) => {
 				const threadId = Number(args.threadId)
@@ -114,10 +119,12 @@ function windowTools({ store, request }: ToolContext): ToolSpec[] {
 		{
 			name: 'write_reply',
 			description:
-				'Puts a reply into Mail\'s composer for the user to check and send; nothing is sent. Pass the ' +
+				"Puts a reply into Mail's composer for the user to check and send; nothing is sent. Pass the " +
 				'message id being answered and the reply body as plain markdown, without a subject or the ' +
 				'quoted original.',
-			inputSchema: objectSchema({ messageId: { type: 'integer' }, markdown: { type: 'string' } }, ['markdown']),
+			inputSchema: objectSchema({ messageId: { type: 'integer' }, markdown: { type: 'string' } }, [
+				'markdown'
+			]),
 			handler: async (args) => {
 				let messageId: number | null = null
 				if (typeof args.messageId === 'number') messageId = args.messageId
@@ -127,10 +134,18 @@ function windowTools({ store, request }: ToolContext): ToolSpec[] {
 		},
 		{
 			name: 'show_summary',
-			description: 'Shows a summary of a conversation above it in Mail. 2 to 4 sentences: who wants what, decisions, open questions.',
-			inputSchema: objectSchema({ threadId: { type: 'integer' }, summary: { type: 'string' } }, ['threadId', 'summary']),
+			description:
+				'Shows a summary of a conversation above it in Mail. 2 to 4 sentences: who wants what, decisions, open questions.',
+			inputSchema: objectSchema({ threadId: { type: 'integer' }, summary: { type: 'string' } }, [
+				'threadId',
+				'summary'
+			]),
 			handler: async (args) => {
-				request({ kind: 'summary', threadId: Number(args.threadId), summary: String(args.summary) })
+				request({
+					kind: 'summary',
+					threadId: Number(args.threadId),
+					summary: String(args.summary)
+				})
 				return 'The summary is shown in Mail.'
 			}
 		},
@@ -149,7 +164,10 @@ function windowTools({ store, request }: ToolContext): ToolSpec[] {
 								title: { type: 'string' },
 								items: {
 									type: 'array',
-									items: objectSchema({ threadId: { type: 'integer' }, note: { type: 'string' } }, ['threadId', 'note'])
+									items: objectSchema({ threadId: { type: 'integer' }, note: { type: 'string' } }, [
+										'threadId',
+										'note'
+									])
 								}
 							},
 							['title', 'items']
@@ -172,13 +190,20 @@ function extractionTools({ store, request }: ToolContext): ToolSpec[] {
 	return [
 		{
 			name: 'save_action_items',
-			description: 'Stores the action items the user has to do from a message, shown on the message in Mail.',
+			description:
+				'Stores the action items the user has to do from a message, shown on the message in Mail.',
 			inputSchema: objectSchema(
 				{
 					messageId: { type: 'integer' },
 					items: {
 						type: 'array',
-						items: objectSchema({ title: { type: 'string' }, due: { type: 'string', description: 'ISO date or a short phrase' } }, ['title'])
+						items: objectSchema(
+							{
+								title: { type: 'string' },
+								due: { type: 'string', description: 'ISO date or a short phrase' }
+							},
+							['title']
+						)
 					}
 				},
 				['messageId', 'items']
@@ -193,7 +218,8 @@ function extractionTools({ store, request }: ToolContext): ToolSpec[] {
 		},
 		{
 			name: 'save_shipment',
-			description: 'Stores the shipment a message is about, shown as a tracking card on the message in Mail.',
+			description:
+				'Stores the shipment a message is about, shown as a tracking card on the message in Mail.',
 			inputSchema: objectSchema(
 				{
 					messageId: { type: 'integer' },
@@ -221,7 +247,9 @@ function listFolders(store: MailStore): string {
 		for (const folder of store.listFolders(account.accountId)) {
 			let special = ''
 			if (folder.specialUse) special = ` (${folder.specialUse})`
-			lines.push(`- ${account.email} · ${folder.path}${special}: ${folder.totalMessages} messages, ${folder.unreadMessages} unread`)
+			lines.push(
+				`- ${account.email} · ${folder.path}${special}: ${folder.totalMessages} messages, ${folder.unreadMessages} unread`
+			)
 		}
 	}
 	if (lines.length === 0) return 'No folders synced yet.'
@@ -230,11 +258,15 @@ function listFolders(store: MailStore): string {
 
 function findSimilar(store: MailStore, messageId: number, limit: number): string {
 	const source = store.embeddingOf(messageId, EMBEDDING_MODEL)
-	if (!source) throw new Error(`message ${messageId} has no embedding yet; it may still be processing`)
+	if (!source)
+		throw new Error(`message ${messageId} has no embedding yet; it may still be processing`)
 	const sourceVector = vectorFromBuffer(source.vector)
 	const scored = store
 		.allEmbeddings(EMBEDDING_MODEL, null)
-		.map((candidate) => ({ messageId: candidate.messageId, similarity: cosineSimilarity(sourceVector, vectorFromBuffer(candidate.vector)) }))
+		.map((candidate) => ({
+			messageId: candidate.messageId,
+			similarity: cosineSimilarity(sourceVector, vectorFromBuffer(candidate.vector))
+		}))
 		.sort((first, second) => second.similarity - first.similarity)
 	const similarity = new Map(scored.map((entry) => [entry.messageId, entry.similarity]))
 	const results = store
@@ -242,7 +274,12 @@ function findSimilar(store: MailStore, messageId: number, limit: number): string
 		.filter((result) => result.threadId !== source.threadId)
 		.slice(0, limit)
 	if (results.length === 0) return 'No similar messages found.'
-	return results.map((result) => `${messageLine(result)} — similarity ${(similarity.get(result.messageId) ?? 0).toFixed(2)}`).join('\n')
+	return results
+		.map(
+			(result) =>
+				`${messageLine(result)} — similarity ${(similarity.get(result.messageId) ?? 0).toFixed(2)}`
+		)
+		.join('\n')
 }
 
 function readThread(store: MailStore, threadId: number): string {
@@ -310,7 +347,10 @@ function digestGroups(value: unknown): DigestGroup[] {
 	return value.map((group) => ({
 		title: String(group?.title ?? ''),
 		items: Array.isArray(group?.items)
-			? group.items.map((item: { threadId?: unknown; note?: unknown }) => ({ threadId: Number(item.threadId), note: String(item.note ?? '') }))
+			? group.items.map((item: { threadId?: unknown; note?: unknown }) => ({
+					threadId: Number(item.threadId),
+					note: String(item.note ?? '')
+				}))
 			: []
 	}))
 }
@@ -333,7 +373,10 @@ function truncate(text: string, limit: number): string {
 	return `${text.slice(0, limit)}\n[… truncated]`
 }
 
-function objectSchema(properties: Record<string, unknown>, required: string[]): Record<string, unknown> {
+function objectSchema(
+	properties: Record<string, unknown>,
+	required: string[]
+): Record<string, unknown> {
 	return { type: 'object', properties, required }
 }
 

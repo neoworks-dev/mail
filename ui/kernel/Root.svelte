@@ -26,7 +26,11 @@
 	<KernelShell {kernel} />
 {:catch error}
 	<View style={{ flex: 1, background: theme.colors.canvas, padding: 32, gap: 8 }}>
-		<Text style={{ ...typeStyle('title'), color: theme.colors.danger }}>Neomail could not start</Text>
-		<Text style={{ ...typeStyle('bodySmall'), color: theme.colors.muted }}>{describeError(error)}</Text>
+		<Text style={{ ...typeStyle('title'), color: theme.colors.danger }}
+			>Neomail could not start</Text
+		>
+		<Text style={{ ...typeStyle('bodySmall'), color: theme.colors.muted }}
+			>{describeError(error)}</Text
+		>
 	</View>
 {/await}

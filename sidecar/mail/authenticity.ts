@@ -78,7 +78,10 @@ const SECOND_LEVEL_TLDS = new Set([
 ])
 
 export function registrableDomain(host: string): string {
-	const labels = host.toLowerCase().split('.').filter((label) => label !== '')
+	const labels = host
+		.toLowerCase()
+		.split('.')
+		.filter((label) => label !== '')
 	if (labels.length < 2) return labels.join('.')
 	const lastTwo = labels.slice(-2).join('.')
 	if (SECOND_LEVEL_TLDS.has(lastTwo) && labels.length >= 3) {
