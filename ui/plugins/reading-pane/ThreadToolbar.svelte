@@ -160,7 +160,7 @@
 	}
 </script>
 
-<View style={{ direction: 'row', align: 'center', gap: 2, wrap: true }}>
+<View style={{ direction: 'row', align: 'center', gap: 2, wrap: true, rowGap: 6 }}>
 	{#if actionError}
 		<Text
 			style={{
@@ -215,7 +215,7 @@
 			style={{ color: theme.colors.danger }}
 			onpress={() => void closingAction((message) => services.mailbox.remove(message))}
 		/>
-		<View style={{ width: 1, height: 18, background: theme.colors.line, marginX: 6 }} />
+		<View style={{ flex: 1, minWidth: 6 }} />
 		<Menu items={labelItems} placement="bottom-end">
 			{#snippet trigger(triggerProps)}
 				<Chip label={labelText} trailingIcon={caretDownIcon} onpress={triggerProps.onpress} />

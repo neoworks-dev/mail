@@ -6,7 +6,7 @@
 	import { View } from '@neoworks/svelte-gpui/ui'
 	import { currentTheme, LoadingSpinner } from '@neoworks/svelte-gpui-ui'
 	import Slot from '../../kernel/slots/Slot.svelte'
-	import { surfaceStyle } from '../frame/layout'
+	import { paneStyle } from '../frame/layout'
 	import type { ReadingTab } from '../reader/service.svelte'
 	import EmptyPane from './EmptyPane.svelte'
 	import type { ReadingServices } from './services'
@@ -28,9 +28,14 @@
 	const showTabStrip = $derived(pane !== undefined && (pane.tabs.length > 1 || split))
 	const highlighted = $derived(split && reader.state.activePaneIndex === paneIndex)
 
-	const borderColor = $derived.by(() => {
-		if (highlighted) return theme.colors.lineStrong
-		return theme.colors.line
+	/** When split, the active pane is marked by a line across its top. */
+	const topLineWidth = $derived.by(() => {
+		if (split) return 2
+		return 0
+	})
+	const topLineColor = $derived.by(() => {
+		if (highlighted) return theme.colors.accent
+		return 'transparent'
 	})
 
 	function customKey(current: ReadingTab): string {
@@ -39,7 +44,15 @@
 	}
 </script>
 
-<View style={{ ...surfaceStyle(theme), borderColor, flex: 1, minWidth: 0 }}>
+<View
+	style={{
+		...paneStyle(theme),
+		flex: 1,
+		minWidth: 0,
+		borderTopWidth: topLineWidth,
+		borderColor: topLineColor
+	}}
+>
 	{#if showTabStrip}
 		<TabStrip {reader} {paneIndex} />
 	{/if}

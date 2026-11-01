@@ -1,17 +1,20 @@
 <!--
-  The folders column: all inboxes (with more than one account), the selected account's well-known
+  The folders column: the one main action, writing a new message, then all inboxes (with more
+  than one account), the selected account's well-known
   folders with the inbox's categories under it, the rest behind a "Folders" disclosure, the
   account switcher and how sync and the search index are doing.
 -->
 <script lang="ts">
-	import { ContextMenu, Scroll, Text, View } from '@neoworks/svelte-gpui/ui'
+	import { ContextMenu, Icon, Scroll, Text, View } from '@neoworks/svelte-gpui/ui'
 	import type { MenuItem, PointerEvent } from '@neoworks/svelte-gpui/ui'
-	import { currentTheme, Divider } from '@neoworks/svelte-gpui-ui'
+	import { Button, currentTheme, Divider } from '@neoworks/svelte-gpui-ui'
 	import archiveIcon from '@phosphor-icons/core/regular/archive.svg'
 	import caretRightIcon from '@phosphor-icons/core/regular/caret-right.svg'
 	import caretDownIcon from '@phosphor-icons/core/regular/caret-down.svg'
+	import caretUpDownIcon from '@phosphor-icons/core/regular/caret-up-down.svg'
 	import folderIcon from '@phosphor-icons/core/regular/folder.svg'
 	import notePencilIcon from '@phosphor-icons/core/regular/note-pencil.svg'
+	import pencilSimpleIcon from '@phosphor-icons/core/regular/pencil-simple.svg'
 	import paperPlaneIcon from '@phosphor-icons/core/regular/paper-plane-tilt.svg'
 	import plusIcon from '@phosphor-icons/core/regular/plus.svg'
 	import stackIcon from '@phosphor-icons/core/regular/stack-simple.svg'
@@ -20,6 +23,7 @@
 	import warningIcon from '@phosphor-icons/core/regular/warning.svg'
 	import { ALL_MAIL_LABELS, type MailFolder } from '../../../shared/mail'
 	import { labelTitle } from '../../components/message-list/labels'
+	import Avatar from '../../components/Avatar.svelte'
 	import type { CommandsService } from '../../kernel/commands'
 	import type { SettingsService } from '../../kernel/settings/service'
 	import type { AccountsService } from '../accounts/service.svelte'
@@ -113,7 +117,23 @@
 	}
 </script>
 
-<View style={{ width: 220, borderRightWidth: 1, borderColor: theme.colors.line }}>
+<View
+	style={{
+		width: 220,
+		borderRightWidth: 1,
+		borderColor: theme.colors.line,
+		background: theme.colors.canvas
+	}}
+>
+	<View style={{ paddingX: 8, paddingTop: 10, paddingBottom: 6 }}>
+		<Button
+			variant="primary"
+			size="sm"
+			icon={pencilSimpleIcon}
+			full
+			onpress={() => void commands.run('compose.new')}><Text>New message</Text></Button
+		>
+	</View>
 	<Scroll style={{ flex: 1 }}>
 		<View style={{ padding: 8, gap: 2 }}>
 			{#if multipleAccounts}
@@ -184,20 +204,21 @@
 			style={{
 				direction: 'row',
 				align: 'center',
-				gap: 6,
-				paddingX: 12,
-				height: 30,
+				gap: 8,
+				paddingX: 8,
+				height: 40,
 				radius: theme.radii.control,
 				cursor: 'pointer'
 			}}
 			hover={{ background: theme.colors.hover }}
 			onpress={openAccountMenu}
 		>
+			<Avatar name="" address={accountLabel()} size={24} />
 			<Text
-				style={{ flex: 1, minWidth: 0, truncate: true, fontSize: 12, color: theme.colors.muted }}
+				style={{ flex: 1, minWidth: 0, truncate: true, fontSize: 12.5, color: theme.colors.text }}
 				>{accountLabel()}</Text
 			>
-			<Text style={{ fontSize: 11, color: theme.colors.faint }}>▾</Text>
+			<Icon svg={caretUpDownIcon} size={14} color={theme.colors.faint} />
 		</View>
 		<SyncFooter {accounts} />
 	</View>

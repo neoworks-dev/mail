@@ -1,17 +1,23 @@
 <!--
-  The conversations of the mailbox's current view, newest first. Only the rows near the window
-  are built. In a plain inbox, bulk categories fold into bundle rows. A press opens a
+  The conversations of the mailbox's current view, newest first, under date sections. Only the
+  rows near the window are built. In a plain inbox, bulk categories fold into bundle rows. A press opens a
   conversation; Ctrl adds it to the selection and Shift selects a range; the right button opens
   its menu, the middle one opens it in a new tab. Pages load as the end comes near.
 -->
 <script lang="ts">
 	import { ContextMenu, List, Text, View } from '@neoworks/svelte-gpui/ui'
 	import type { MenuItem, PointerEvent, ScrollPosition } from '@neoworks/svelte-gpui/ui'
-	import { currentTheme, LoadingSpinner } from '@neoworks/svelte-gpui-ui'
+	import { currentTheme, LoadingSpinner, typeStyle } from '@neoworks/svelte-gpui-ui'
 	import type { ThreadSummary } from '../../../shared/mail'
 	import { labelTitle } from '../../components/message-list/labels'
 	import type { CommandsService } from '../../kernel/commands'
-	import { buildThreadListItems, visibleThreads, type ThreadListItem } from '../../lib/bundling'
+	import {
+		BUNDLED_LABELS,
+		buildThreadListItems,
+		visibleThreads,
+		type ThreadListItem
+	} from '../../lib/bundling'
+	import { withDateSections, type Sectioned } from '../../lib/dateSections'
 	import type { AccountsService } from '../accounts/service.svelte'
 	import type { MailboxService } from '../mailbox/service.svelte'
 	import type { ReaderService } from '../reader/service.svelte'
@@ -59,6 +65,7 @@
 		buildThreadListItems(mailbox.state.threads, bundlingEnabled, expandedBundles)
 	)
 	const orderedThreads = $derived(visibleThreads(items))
+	const sectionedItems = $derived(withDateSections(items, sectionDate))
 
 	const title = $derived.by(() => {
 		const view = mailbox.state.view
@@ -75,7 +82,27 @@
 		return folderDisplayName(folder)
 	}
 
-	function itemKey(item: ThreadListItem): string {
+	/** Threads unfolded under a bundle stay in the bundle's section, so they give no date. */
+	function sectionDate(item: ThreadListItem): string | null {
+		if (item.type === 'bundle') return item.threads[0].date
+		if (isBundled(item.thread)) return null
+		return item.thread.date
+	}
+
+	function isBundled(thread: ThreadSummary): boolean {
+		if (!bundlingEnabled || thread.label === null) return false
+		return BUNDLED_LABELS.includes(thread.label)
+	}
+
+	/** A list of one category, or a bundle's own threads, need not repeat the category. */
+	function showLabel(thread: ThreadSummary): boolean {
+		const view = mailbox.state.view
+		if (view && view.label !== null) return false
+		return !isBundled(thread)
+	}
+
+	function itemKey(item: Sectioned<ThreadListItem>): string {
+		if (item.type === 'section') return `section:${item.title}`
 		if (item.type === 'bundle') return `bundle:${item.label}`
 		return `thread:${item.thread.threadId}`
 	}
@@ -177,9 +204,27 @@
 			{/if}
 		</View>
 	{:else}
-		<List {items} key={itemKey} estimatedRowHeight={76} style={{ flex: 1 }} onscroll={scrolled}>
+		<List
+			items={sectionedItems}
+			key={itemKey}
+			estimatedRowHeight={72}
+			style={{ flex: 1 }}
+			onscroll={scrolled}
+		>
 			{#snippet row(item)}
-				{#if item.type === 'bundle'}
+				{#if item.type === 'section'}
+					<Text
+						style={{
+							...typeStyle('caption'),
+							fontSize: 12,
+							fontWeight: 600,
+							color: theme.colors.faint,
+							paddingLeft: 20,
+							paddingTop: 14,
+							paddingBottom: 4
+						}}>{item.title}</Text
+					>
+				{:else if item.type === 'bundle'}
 					<BundleRow
 						label={item.label}
 						threads={item.threads}
@@ -192,6 +237,7 @@
 						thread={item.thread}
 						open={reader.openThreadId === item.thread.threadId}
 						selected={mailbox.state.selectedThreadIds.includes(item.thread.threadId)}
+						showLabel={showLabel(item.thread)}
 						accountEmail={accountEmail(item.thread)}
 						onpress={(event) => pressThread(event, item.thread)}
 						onaltpress={(event) => altPressThread(event, item.thread)}

@@ -1,10 +1,10 @@
 <!--
-  Compose, the theme switch and the assistant toggle, at the right of the bar.
+  The theme switch and the assistant toggle, at the right of the bar. Compose is the sidebar's
+  main button.
 -->
 <script lang="ts">
 	import { IconButton, themeMode } from '@neoworks/svelte-gpui-ui'
 	import moon from '@phosphor-icons/core/regular/moon.svg'
-	import pencilSimple from '@phosphor-icons/core/regular/pencil-simple.svg'
 	import sparkle from '@phosphor-icons/core/regular/sparkle.svg'
 	import sun from '@phosphor-icons/core/regular/sun.svg'
 	import type { CommandsService } from '../../kernel/commands'
@@ -25,12 +25,6 @@
 	})
 </script>
 
-<IconButton
-	icon={pencilSimple}
-	label="New message"
-	size="sm"
-	onpress={() => void commands.run('compose.new')}
-/>
 <IconButton
 	icon={themeIcon}
 	label={themeLabel}

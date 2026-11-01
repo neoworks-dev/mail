@@ -1,5 +1,5 @@
 <!--
-  The pane itself: a resizer on its left edge, then a surface with the agent's status, the chat
+  The pane itself: a resizer on its left edge, then a pane with the agent's status, the chat
   and the input. Its width is kept in settings once a drag ends.
 -->
 <script lang="ts">
@@ -9,7 +9,7 @@
 	import type { SettingsService } from '../../kernel/settings/service'
 	import type { SidecarService } from '../../kernel/sidecar/service'
 	import type { AssistantService } from '../assistant/service.svelte'
-	import { surfaceStyle } from '../frame/layout'
+	import { paneStyle } from '../frame/layout'
 	import AskBox from './AskBox.svelte'
 	import Chat from './Chat.svelte'
 	import PaneHeader from './PaneHeader.svelte'
@@ -53,7 +53,7 @@
 
 {#if open}
 	<PaneResizer onresize={resize} onend={saveWidth} />
-	<View style={{ ...surfaceStyle(theme), width: shownWidth, minHeight: 0 }}>
+	<View style={{ ...paneStyle(theme), width: shownWidth, minHeight: 0 }}>
 		<PaneHeader {assistant} />
 		<Chat {assistant} onopenlink={openLink} />
 		<AskBox {assistant} />

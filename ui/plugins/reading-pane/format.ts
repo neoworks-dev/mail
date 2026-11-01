@@ -21,15 +21,22 @@ export function recipientLine(addresses: MessageAddress[]): string {
 		.join(', ')
 }
 
-export function formatFullDate(iso: string): string {
-	return new Date(iso).toLocaleString(undefined, {
-		weekday: 'short',
-		day: 'numeric',
-		month: 'short',
-		year: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit'
-	})
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+/**
+ * "Thu, 30 Oct, 22:09", with the year after the month when it is not this year. Written out by
+ * hand: the window's JavaScript engine ignores the options of `toLocaleString`.
+ */
+export function formatFullDate(iso: string, now: Date = new Date()): string {
+	const date = new Date(iso)
+	let day = `${WEEKDAYS[date.getDay()]}, ${date.getDate()} ${MONTHS[date.getMonth()]}`
+	if (date.getFullYear() !== now.getFullYear()) day = `${day} ${date.getFullYear()}`
+	return `${day}, ${twoDigits(date.getHours())}:${twoDigits(date.getMinutes())}`
+}
+
+function twoDigits(value: number): string {
+	return String(value).padStart(2, '0')
 }
 
 export function formatSize(bytes: number): string {

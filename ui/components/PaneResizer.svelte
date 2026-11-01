@@ -1,5 +1,6 @@
 <!--
-  The gap between two panes, dragged sideways to resize them. It reports how far the pointer
+  The hairline between two panes, dragged sideways to resize them. It grabs a few pixels either
+  side of the line, so the line itself can stay one pixel wide. It reports how far the pointer
   moved since the last report; the pane owner clamps and keeps the width.
 -->
 <script lang="ts">
@@ -13,9 +14,9 @@
 	let dragging = $state(false)
 	let lastX = 0
 
-	const gripColor = $derived.by(() => {
+	const lineColor = $derived.by(() => {
 		if (dragging) return theme.colors.lineStrong
-		return 'transparent'
+		return theme.colors.line
 	})
 
 	function start(event: PointerEvent): void {
@@ -39,10 +40,10 @@
 
 <View
 	style={{
-		width: 8,
+		width: 5,
+		marginX: -2,
 		alignSelf: 'stretch',
 		align: 'center',
-		justify: 'center',
 		cursor: 'col-resize'
 	}}
 	ondown={start}
@@ -50,12 +51,7 @@
 	onup={end}
 >
 	<View
-		style={{
-			width: 2,
-			height: 32,
-			radius: 1,
-			background: gripColor,
-			transition: 120
-		}}
+		style={{ width: 1, flex: 1, background: lineColor, transition: 120 }}
+		hover={{ background: theme.colors.lineStrong }}
 	/>
 </View>

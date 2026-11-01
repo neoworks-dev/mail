@@ -78,8 +78,8 @@
 		<Text
 			style={{
 				...typeStyle('caption'),
-				fontSize: 14,
-				fontWeight: 500,
+				fontSize: 15,
+				fontWeight: 600,
 				color: theme.colors.text,
 				flex: 1,
 				minWidth: 0,
