@@ -1,0 +1,11 @@
+[package]
+name = "litehtml-render"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+litehtml = { version = "0.2.6", features = ["pixbuf", "html"] }
+image = { version = "0.25", default-features = false, features = ["png"] }
